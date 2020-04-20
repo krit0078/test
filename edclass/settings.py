@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'room',
 ]
 
 MIDDLEWARE = [
@@ -72,13 +73,26 @@ WSGI_APPLICATION = 'edclass.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'edclass',                      # Or path to database file if using sqlite3.
+        'USER': 'smble',                      # Not used with sqlite3.
+        'PASSWORD': '55555',                  # Not used with sqlite3.
+        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '', 
+        'OPTIONS':{
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"},
+        'STORAGE_ENGINE': 'MyISAM / INNODB / ETC'
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
 
 
 # Password validation
