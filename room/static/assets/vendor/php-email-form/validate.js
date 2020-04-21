@@ -95,11 +95,11 @@ jQuery(document).ready(function($) {
     var this_form = $(this);
     var action = $(this).attr('action');
 
-    if( ! action ) {
-      this_form.find('.loading').slideUp();
-      this_form.find('.error-message').slideDown().html('The form action property is not set!');
-      return false;
-    }
+    // if( ! action ) {
+    //   this_form.find('.loading').slideUp();
+    //   this_form.find('.error-message').slideDown().html('The form action property is not set!');
+    //   return false;
+    // }
     
     this_form.find('.sent-message').slideUp();
     this_form.find('.error-message').slideUp();
@@ -107,8 +107,9 @@ jQuery(document).ready(function($) {
     
     $.ajax({
       type: "POST",
-      url: action,
+      url: '/ajax/register',
       data: str,
+      dataType:'json',
       success: function(msg) {
         if (msg == 'OK') {
           this_form.find('.loading').slideUp();

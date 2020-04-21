@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="contact">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <img src="/static/assets/img/login-01.png" class="img-fluid">
+            </div>
+            <div class="col-md-6 rounded p-3 shadow" data-aos="fade-up" data-aos-delay="200"
+                style="background-color: orange;">
+                <div>
+                    <h4 class="text-center">สมัครสมาชิก</h4>
+                    <hr>
+                    <form method="POST" class="php-email-form">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="col-md-6 form-group">
+                                <input type="text" name="name" class="form-control" placeholder="ชื่อ"
+                                    data-rule="minlen:4" data-msg="ต้องมีอย่างน้อย 4 ตัวอักษร" />
+                                <div class="validate"></div>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" name="email" placeholder="สกุล"
+                                    data-rule="minlen:4" data-msg="ต้องมีอย่างน้อย 4 ตัวอักษร" />
+                                <div class="validate"></div>
+                            </div>
+
+                            <div class="col-md-12 form-group">
+                                <input type="email" class="form-control" name="email" id="email"
+                                    placeholder="อีเมลล์" data-rule="email" data-msg="กรุณาใส่อีเมลล์ให้ถูกต้อง"
+                                    autocomplete="off" />
+                                <div class="validate"></div>
+                            </div>
+                        </div>
+                        <div class="loading">Loading</div>
+                        <div class="error-message"></div>
+                        <div class="sent-message">Your message has been sent. Thank you!</div>
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary">สมัครสมาชิก</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -446,7 +446,7 @@ section {
   padding-bottom: 20px;
   position: relative;
   font-family: "kanit", sans-serif;
-  color: #213b52;
+  color: #ff1a10;
 }
 
 .section-title h2::before {
@@ -466,7 +466,7 @@ section {
   display: block;
   width: 40px;
   height: 3px;
-  background: #fdc134;
+  background: #dc3545;
   bottom: 0;
   left: calc(50% - 20px);
 }
@@ -542,7 +542,7 @@ section {
 .about .content .icon-box i {
   font-size: 48px;
   float: left;
-  color: #fdc134;
+  color: #ff1a10;
 }
 
 .about .content .icon-box p {
@@ -650,7 +650,7 @@ section {
 .features .content h3 {
   font-weight: 700;
   font-size: 26px;
-  color: #213b52;
+  color: #fe5c55;
 }
 
 .features .content ul {
@@ -816,7 +816,7 @@ section {
   font-weight: 700;
   margin-bottom: 2px;
   font-size: 18px;
-  color: #213b52;
+  color: #fe5c55;
 }
 
 .team .member span {
@@ -830,7 +830,7 @@ section {
 }
 
 .team .member .social a {
-  color: #5289ba;
+  color: #ff1a10;
   transition: 0.3s;
 }
 
@@ -1019,7 +1019,7 @@ section {
 
 .contact .info-box i {
   font-size: 32px;
-  color: #fdc134;
+  color: #ff1a10;
   border-radius: 50%;
   padding: 8px;
   border: 2px dotted #fff7e5;
@@ -1274,6 +1274,14 @@ section {
   padding-top: 20px;
   padding-bottom: 20px;
   color: #fff;
+}
+
+.validate{
+  color:red;
+}
+
+.form-control{
+  padding: 20px 15px;
 }
 
 @media (max-width: 768px) {
