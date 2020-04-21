@@ -7,30 +7,72 @@
             <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
                 <img src="/static/assets/img/login-01.png" class="img-fluid">
             </div>
-            <div class="col-md-6 rounded p-3 shadow" data-aos="fade-up" data-aos-delay="200" style="background-color: orange;">
-                <div>
+            <div class="col-md-6 rounded p-3 shadow" data-aos="fade-up" data-aos-delay="200"
+                style="border:3px solid orange">
+                <div class="bg-white p-3 rounded">
                     <h4 class="text-center">เข้าสู่ระบบ</h4>
                     <hr>
-                    <form method="POST" action="/login/">
+                    <form method="POST" action="/login/" id="form-login">
+                        {% csrf_token %}
                         <div class="form-row">
-                            <div class="col-md-6 form-group">
-                                <input type="text" name="name" class="form-control" placeholder="ชื่อ"
-                                    data-rule="minlen:4" data-msg="Please enter at least 4 chars" />
-                                <div class="validate"></div>
+                            <div class="col-md-12 form-group">
+                                <input type="email" name="email" id="id_email" class="form-control"
+                                    placeholder="อีเมลล์" />
                             </div>
-                            <div class="col-md-6 form-group">
-                                <input type="text" class="form-control" name="email" placeholder="สกุล"
-                                    data-rule="email" data-msg="Please enter a valid email" />
-                                <div class="validate"></div>
+                            <div class="col-md-12 form-group">
+                                <input type="password" class="form-control" name="password" id="id_password"
+                                    placeholder="รหัสผ่าน" />
                             </div>
                         </div>
-                        <div class="text-right">
-                            <button type="submit" class="btn btn-primary">สมัครสมาชิก</button>
+                        <div class="loading mb-2">loading</div>
+                        <div class="error-message mb-2"></div>
+                        <div id="status" class="sent-message mb-2">เข้าสู่ระบบเรียบร้อย</div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-warning">เข้าสู่ระบบ</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+    </div>
 </section>
+{% endblock %}
+{% block js %}
+<script>
+    $('#form-login').submit(function () {
+        let this_form = $(this);
+        let action = this_form.attr('action');
+        let method = this_form.attr('method');
+        const email = $('#id_email');
+        const password = $('#id_password');
+        const status = $('#status');
+        let str=this_form.serialize();
+
+
+        this_form.find('.loading').slideDown();
+
+        $.ajax({
+            type: method,
+            url: action,
+            data: str,
+            success: function (data) {
+                if (data.status == 1) {
+                    this_form.find('.loading').slideUp();
+                    this_form.find('.sent-message').slideDown();
+                    this_form.find('.error-message').slideUp()
+                    this_form.find("input:not(input[type=submit]), textarea").val('');
+                    setTimeout(window.location.replace("/dashboard/"), 4000);
+
+                } else {
+                    this_form.find('.loading').slideUp();
+                    this_form.find('.error-message').slideDown().html("อีเมลล์หรือรหัสผ่านไม่ถูกต้อง");
+                }
+            }
+        });
+
+        return false;
+    });
+
+</script>
 {% endblock %}
