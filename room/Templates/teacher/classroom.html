@@ -45,7 +45,7 @@
                     <h5 class="text-center">คำอธิบายรายวิชา</h5>
                     <hr>
                     <p>
-                        {{course.description}}
+                        {{course.description | safe}}
                     </p>
                 </div>
             </div>
@@ -55,7 +55,10 @@
                         {% csrf_token %}
                         <div class="form-row">
                             <div class="col-md-12 form-group">
-                                <textarea class="form-control" name="steam_post" placeholder="ประกาศ..."></textarea>
+                                <div class="form-control" contenteditable="" data-placeholder="ประกาศ..."
+                                    style="min-height: 50px;height:auto;" id="steam_div"></div>
+                                <textarea class="form-control d-none" name="steam_post"
+                                    placeholder="ประกาศ..."></textarea>
                             </div>
                             <div class="col-12">
                                 <div class="loading mb-2" id="post_loading">loading</div>
@@ -64,6 +67,17 @@
 
                             </div>
                             <div class="col-md-12 mt-1 form-group text-right">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-light" data-toggle="dropdown"
+                                        data-display="static" aria-haspopup="true" aria-expanded="false">
+                                        <i class='bx bx-link-alt'></i> แทรกลิงก์
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left p-2">
+                                        <input type="text" placeholder="แทรกลิงก์" class="form-control"
+                                            style="min-width: 300px;" id="insert_link">
+                                    </div>
+                                </div>
+
                                 <span class="btn btn-light" style="position: relative;overflow: hidden;">
                                     <i class='bx bxs-file-plus'></i> เพิ่มไฟล์ <input type="file" id="get_file" style="position: absolute;
                                     top: 0;
@@ -80,7 +94,8 @@
                                 </span>
 
                                 <input type="file" class="sr-only"><button type="submit"
-                                    class="btn btn-primary ml-auto">โพสต์</button></div>
+                                    class="btn btn-primary ml-auto">โพสต์</button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -98,13 +113,14 @@
                         <div class="col-12" style="min-height: 90px;">
                             {% if i.description %}
                             <hr>
-                            {{i.description}}
+                            {{i.description | safe}}
                             {% endif %}
 
                             {% if i.post_file %}
                             <hr>
                             {% for f in i.post_file %}
-                            <a class="btn btn-primary mb-2 mr-2" href="{{f.file_link}}" target="_blank">{{f.file_name}}</a>
+                            <a class="btn btn-primary mb-2 mr-2" href="{{f.file_link}}"
+                                target="_blank">{{f.file_name}}</a>
                             {% endfor %}
                             {% endif %}
                         </div>
@@ -401,6 +417,17 @@
     $(document).ready(function ($) {
         let get_file = $('#get_file');
 
+        $('#insert_link').keypress(function (e) {
+            if (e.which == 13) {
+                $('.dropdown-menu').dropdown('hide');
+                let txt="<a class='btn btn-link' href='"+$(this).val()+"' target='_blank'>"+$(this).val()+"</button>";
+                $('#steam_div').append(txt);
+                $(this).val("");                
+                return false;
+            }
+        });
+
+
         get_file.change(function (e) {
             let files = e.target.files[0]
             let csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
@@ -457,12 +484,14 @@
 
         $('#post_form').submit(function () {
             let this_form = $(this);
-            let data = this_form.serialize();
+            let data = this_form.serializeArray();
             let action = this_form.attr('action');
             let method = this_form.attr('method');
             let loading = this_form.find('.loading');
             let post = $('#post');
             loading.slideDown();
+            let steam_div = $('#steam_div');
+            data.push({ name: 'steam_div', value: steam_div.html() });
 
 
             $.ajax({
@@ -537,7 +566,7 @@
 
         $('#description_form').submit(function () {
             let this_form = $(this);
-            let data = this_form.serialize();
+            let data = this_form.serializeArray();
             let action = this_form.attr('action');
             let method = this_form.attr('method');
             let loading = this_form.find('.loading');
@@ -568,6 +597,9 @@
             return false;
         });
     });
+
+
 </script>
+
 
 {% endblock %}

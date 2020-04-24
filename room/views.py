@@ -197,6 +197,7 @@ def classroom(request,classroom_id):
             'title':'หน้าหลักนักเรียน',
             'member':member
         }
+
     else:
         #check owner
         if check_owner(classroom_id,member.id):
@@ -207,6 +208,7 @@ def classroom(request,classroom_id):
             file_id=request.POST.getlist('file_id[]')
             name=request.POST.get('course_name')
             steam_post=request.POST.get('steam_post')
+            steam_div=request.POST.get('steam_div')
             reply=request.POST.get('reply')
             file_data=request.FILES.getlist('file')
 
@@ -230,9 +232,9 @@ def classroom(request,classroom_id):
                 }
 
                 return JsonResponse(data)
-            elif steam_post or file_id:
+            elif steam_div or file_id:
 
-                post=models.EdPost(description=steam_post,course_id=classroom_id,member_id=member.id)
+                post=models.EdPost(description=steam_div,course_id=classroom_id,member_id=member.id)
                 post.save()
 
                 p=models.EdPost.objects.latest('id')
@@ -320,6 +322,40 @@ def classroom(request,classroom_id):
 
         return render(request,'teacher/classroom.html',context)
 
+def classroom_task(request,classroom_id):
+    #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    if request.session['type'] == 'STUDENT':
+        context={
+            'title':'หน้าหลักนักเรียน',
+            'member':member
+        }
+    else:
+        #check owner
+        if check_owner(classroom_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+        
+        #query course
+        course=models.EdCourse.objects.get(id=classroom_id)
+
+
+
+        title=course.course_name
+        active_nav = [""]*3
+        active_nav[0] = "nav-active"
+
+        context={
+            'title':title,
+            'member':member,
+            'course':course,
+        }
+
+        return render(request,'teacher/classroom_task.html',context)
 
 def check_owner(classroom_id,member_id):
     owner=len(models.EdCourse.objects.filter(id=classroom_id).filter(teacher_id=member_id))

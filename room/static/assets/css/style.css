@@ -1453,6 +1453,11 @@ section {
   width: fit-content;
 }
 
+#steam_div:empty:before {
+  content:attr(data-placeholder);
+  color:gray
+}
+
 @media (max-width: 768px) {
   #footer .copyright, #footer .credits {
     padding: 5px;

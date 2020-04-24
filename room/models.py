@@ -98,7 +98,11 @@ class EdReply(models.Model):
         managed = True
         db_table = 'ed_reply'
 
-
+class EdTask(models.Model):
+    description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
 
 class EdLog(models.Model):
     ip=models.CharField(max_length=50)
