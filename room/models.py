@@ -32,7 +32,7 @@ class EdMember(models.Model):
     firstname = models.CharField(max_length=100,blank=True,null=True)
     lastname = models.CharField(max_length=100,blank=True,null=True)
     email = models.CharField(max_length=225,db_index=True)
-    picture = models.CharField(max_length=512, blank=True, null=True)
+    picture = models.CharField(max_length=512,default='/uploads/0/img/user.png', blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
     ed_user_type=models.ForeignKey(EdUserType, models.DO_NOTHING,blank=True,null=True)
     ed_sub_level=models.ForeignKey(EdSubLevel,models.DO_NOTHING,blank=True,null=True)
@@ -45,18 +45,17 @@ class EdCourse(models.Model):
     course_name = models.CharField(max_length=45)
     teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True, related_name="teacher")
     description = models.TextField(blank=True, null=True)
-    catagory = models.ForeignKey(EdSubLevel, models.DO_NOTHING, blank=True, null=True)
-    cover_pic = models.TextField(blank=True, null=True)
-    status = models.CharField(max_length=45, blank=True, null=True)
+    catagory = models.ForeignKey(EdSubLevel, models.DO_NOTHING, blank=True, null=True, related_name="catagory")
+    cover_pic = models.TextField(blank=True, null=True, default='/uploads/0/cover/cover1.png')
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     uid = models.CharField(max_length=45, blank=True, null=True)  # Field name made lowercase.
-    student = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True,related_name="student")
+    timestamp = models.DateTimeField(default=timezone.now)
 
     class Meta:
         managed = True
         db_table = 'ed_course'
 
 class EdEnrolment(models.Model):
-    date = models.IntegerField(blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
     course = models.ForeignKey(EdCourse, models.DO_NOTHING)
     member = models.ForeignKey(EdMember, models.DO_NOTHING,related_name='member')

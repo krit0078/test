@@ -100,11 +100,121 @@ h1, h2, h3, h4, h5, h6 {
   max-height: 40px;
 }
 
+#dashboard{
+  background-image: linear-gradient(-60deg, #ff5858 0%, #f09819 100%);
+  transition: all 0.5s;
+}
+
+#dashboard .logo{
+  color: #fdc134;
+}
+
+#dashboard .logo:hover{
+  transition: all 0.5s;
+  color: #fdd067;
+}
+
+#dashboard .logo h1{
+  text-transform: uppercase;
+  font-family: "kanit", sans-serif;
+}
+
+#dashboard .nav-link{
+  color:#101010;
+}
+
+#dashboard .nav-link:hover{
+  transition: all 0.5s;
+  color:#fff;
+}
+
+.add-classroom{
+  border-radius: 7px;
+  min-height: 230px;
+  transition: all 0.5s;
+  background-color: white;
+  cursor: pointer;
+ 
+}
+.add-classroom:hover{
+  background-image: linear-gradient(-60deg, #ff5858 0%, #f09819 100%);
+}
+
+.add-classroom:hover>h3{
+  transition: 0.5s;
+}
+.add-classroom:hover>h3{
+  color:white;
+}
+
+.card{
+  min-height: 200px;
+  border-radius: 7px;
+}
+
+.card .card-img{
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+  height: 150px;
+  overflow: hidden;
+}
+
+.card .card-img img{
+  width: 100%;
+}
+
+.card .card-detail{
+  min-height: 40px;
+  padding: 10px;
+  text-decoration: none;
+  color: #101010;
+}
+
+.classroom{
+  border-radius: 7px;
+  overflow: hidden;
+}
+.classroom .classroom-img{
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+  overflow: hidden;
+  height: 350px;
+}
+
+.classroom .classroom-img img{
+  width: 100%;
+}
+
+.classroom .classroom-name{
+  padding: 15px;
+  font-size: 25px;
+  border-bottom-left-radius: 7px;
+  border-bottom-right-radius: 7px;
+}
+
+.classroom_nav{
+  background-color: coral;
+}
+.classroom_nav .nav-item{
+  padding: 10px 0px;
+}
+
+.nav-active{
+  background-color: sandybrown;
+}
+
+.classroom_nav .nav-item:hover{
+  background-color: sandybrown;
+}
+
+.classroom_nav .nav-item .nav-link{
+  color:#fff;
+}
 /*--------------------------------------------------------------
 # Navigation Menu
 --------------------------------------------------------------*/
 /* Desktop Navigation */
-.nav-menu, .nav-menu * {
+nav-menu, .nav-menu * {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1314,6 +1424,15 @@ section {
 
 .form-control{
   padding: 20px 15px;
+}
+
+.img-profile{
+  width: 35px;
+  height: 35px;
+}
+
+.cursor{
+  cursor: pointer;
 }
 
 @media (max-width: 768px) {

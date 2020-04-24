@@ -6,6 +6,7 @@ from room import models
 import json
 from django.core import serializers
 import hashlib
+from django.core.files.storage import FileSystemStorage
 
 # Create your views here.
 def index(request):
@@ -112,28 +113,117 @@ def register(request):
     return render(request,'register.html',context)
 
 def dashboard(request):
-    if check_email_session(request):
+    #check session
+    if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    if request.session['type'] == 'STUDENT':
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
 
-        
+    if request.session['type'] == 'STUDENT':
         context={
-            'title':'หน้าหลักนักเรียน'
+            'title':'หน้าหลักนักเรียน',
+            'member':member
         }
         return render(request,'student/dashboard.html',context)
     else:
+        edlevel=models.EdLevel.objects.all()
+        user_type=models.EdUserType.objects.all()
+
+        if request.method == 'POST':
+            class_name=request.POST.get('class-name')
+            class_description=request.POST.get('class-description')
+            catagory=request.POST.get('ed_sublevel')
+
+            def generate():
+                import random
+                chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
+                i = 5
+                while True:
+                    value = "".join(random.choice(chars)
+                                    for _ in range(i))
+                    row = len(
+                        models.EdCourse.objects.filter(uid__iexact=value))
+
+                    if row == 0:
+                        return value
+
+                    i = i+1
+
+            uid = generate()
+
+            add_class=models.EdCourse(course_name=class_name,description=class_description,catagory_id=catagory,uid=uid,teacher_id=member.id)
+            add_class.save()
+
+            c=models.EdCourse.objects.latest('id')
+            enrolment=len(models.EdEnrolment.objects.filter(course_id=c.id))
+
+
+            data={
+                'status':1,
+                'latest_course':{'id':c.id,'course_name':c.course_name,'cover_pic':c.cover_pic,'description':c.description,'enrolment':enrolment}
+            }
+            return JsonResponse(data)
+        
+        #query course
+        course=models.EdCourse.objects.filter(status="ACTIVE").filter(teacher_id=member.id).order_by('-id')
+
+        i=0
+        for x in course:
+            enrolment=len(models.EdEnrolment.objects.filter(course_id=x.id))
+            course[i].enrolment=enrolment
+            i=i+1
+
         context={
-            'title':'หน้าหลักครู'
+            'title':'หน้าหลักครู',
+            'member':member,
+            'edlevel':edlevel,
+            'user_type':user_type,
+            'course':course
         }
         return render(request,'teacher/dashboard.html',context)
 
 
-def check_email_session(request):
-    if 'email' in request.session:
-        return 0
+def classroom(request,classroom_id):
+    #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+       
+    if request.session['type'] == 'STUDENT':
+        context={
+            'title':'หน้าหลักนักเรียน',
+            'member':member
+        }
     else:
+        #check owner
+        if check_owner(classroom_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        course=models.EdCourse.objects.get(id=classroom_id)
+
+        title=course.course_name
+        active_nav = [""]*3
+        active_nav[0] = "nav-active"
+
+        context={
+            'title':title,
+            'member':member,
+            'course':course,
+            'active_nav':active_nav
+        }
+
+        return render(request,'teacher/classroom.html',context)
+
+
+def check_owner(classroom_id,member_id):
+    owner=len(models.EdCourse.objects.filter(id=classroom_id).filter(teacher_id=member_id))
+    if owner == 0:
         return 1
+    else:
+        return 0
 
 def check_email(request):
     email=request.GET.get('email')
@@ -153,3 +243,49 @@ def get_ed_sublevel(request):
     ed_sublevel=models.EdSubLevel.objects.filter(ed_level_id=edlevel).values('id','prefix','title')
     data={'result':list(ed_sublevel)}
     return JsonResponse(data)
+
+def update_cover(request):
+    classroom_id=request.POST.get('classroom_id')
+    files=request.FILES.getlist('cover')
+    member_id=request.POST.get('member_id')
+
+    #check session
+    if 'email'not in request.session:
+        data={
+            'status':0
+        }
+        return JsonResponse(data)
+
+    #check owner
+    if check_owner(classroom_id,member_id):
+        data={
+            'status':0
+        }
+        return JsonResponse(data)
+
+    if files:
+
+        list = []
+        name = []
+        file_type = []
+        for f in files:
+            fs = FileSystemStorage()
+
+            path = "course_id_{0}/cover/{1}"
+            path = path.format(
+                classroom_id, f.name)
+            filename = fs.save(path, f)
+            list.append(fs.url(filename))
+            name.append(f.name)
+            file_type.append(f.content_type)
+        
+        course=models.EdCourse.objects.get(id=classroom_id)
+        course.cover_pic=list[0]
+        course.save()
+
+        data={
+            'status':1,
+            'classroom_id':classroom_id,
+            'url':list
+        }
+        return JsonResponse(data)
