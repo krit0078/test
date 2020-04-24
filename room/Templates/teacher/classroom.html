@@ -1,7 +1,7 @@
 {% extends 'teacher/base.html' %}
 
 {% block content %}
-<section>
+<section class="mb-5">
     <div class="container">
         {% include 'teacher/classroom_nav.html' %}
         <div class="row mb-4">
@@ -50,10 +50,88 @@
                 </div>
             </div>
             <div class="col-md-8">
-                <div class="col mb-2 rounded shadow-sm border p-3">
-                    asd
+                <div class="col-12 mb-2 rounded shadow-sm border p-3">
+                    <form id="post_form" method="POST" action="/classroom/{{course.id}}/">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="col-md-12 form-group">
+                                <textarea class="form-control" name="steam_post" placeholder="ประกาศ..."></textarea>
+                            </div>
+                            <div class="col-12">
+                                <div class="loading mb-2" id="post_loading">loading</div>
+                            </div>
+                            <div class="col-12" id="show_file">
+                                
+                            </div>
+                            <div class="col-md-12 mt-1 form-group text-right">
+                                <span class="btn btn-light" style="position: relative;overflow: hidden;">
+                                    <i class='bx bxs-file-plus'></i> เพิ่มไฟล์ <input type="file" id="get_file" style="position: absolute;
+                                    top: 0;
+                                    right: 0;
+                                    min-width: 100%;
+                                    min-height: 100%;
+                                    font-size: 100px;
+                                    text-align: right;
+                                    filter: alpha(opacity=0);
+                                    opacity: 0;
+                                    outline: none;   
+                                    cursor: inherit;
+                                    display: block;">
+                                </span>
+
+                                <input type="file" class="sr-only"><button type="submit"
+                                    class="btn btn-primary ml-auto">โพสต์</button></div>
+                        </div>
+                    </form>
                 </div>
 
+                <div id="post" class="mt-3"></div>
+                {% for i in post %}
+                <div class="col-12 mb-3 rounded shadow-sm border p-3">
+                    <div class="row">
+                        <div class="col-12">
+                            <img src="{{i.member.picture}}" class="rounded-circle" style="width: 50px; height:50px;">
+                            {{i.member.firstname | truncatechars:55}} {{i.member.lastname | truncatechars:55}} <small
+                                class="text-muted">{{i.timestamp|date:'d b Y, H:i'}}</small>
+                        </div>
+                        <div class="w-100"></div>
+                        <div class="col-12" style="min-height: 90px;">
+                            <hr>
+                            {{i.description}}
+                        </div>
+                        <div class="col-12">
+                            <hr>
+                            {% for j in i.reply %}
+                            <div class="comment">
+                                <div class="row no-gutters">
+                                    <div class="col-2 text-right"><img class="comment-img" src="{{j.member.picture}}">
+                                    </div>
+                                    <div class="col-10">
+                                        <div class="comment-text">{{j.description}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            <div class="comment mt-3">
+                                <form action="/classroom/{{course.id}}/" method="POST" class="reply_form">
+                                    {% csrf_token %}
+                                    <div class="row no-gutters form-group">
+                                        <div class="col-2 text-right">
+                                            <img class="comment-img" src="{{member.picture}}">
+                                        </div>
+                                        <div class="col-10">
+                                            <input type="hidden" name="post_id" value="{{i.id}}">
+                                            <input type="text" name="reply" class="form-control" autocomplete="off"
+                                                style="border-radius: 10px;" placeholder="แสดงความคิดเห็น">
+                                            <button type="submit" class="d-none">ส่ง</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -183,7 +261,7 @@
                                     form_data.append('cover', blob, 'cover.jpg');
                                     form_data.append('classroom_id', '{{course.id}}');
                                     form_data.append('csrfmiddlewaretoken', csrfToken);
-                                    form_data.append('member_id','{{member.id}}');
+                                    form_data.append('member_id', '{{member.id}}');
 
                                     $.ajax('/ajax/update_cover', {
                                         method: 'POST',
@@ -214,11 +292,11 @@
                                                 $alert.show().addClass('alert-success').text('You have no permission to update');
                                             }
                                             else {
-                                                let $cover=$('#cover')
+                                                let $cover = $('#cover')
                                                 $modal.modal('toggle')
                                                 $modal.hide();
                                                 $alert.show().addClass('alert-success').text('Upload success');
-                                                $cover.attr('src',data.url);
+                                                $cover.attr('src', data.url);
                                             }
 
                                         },
@@ -255,17 +333,20 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="/classroom/{{course.id}}/" enctype="multipart/form-data">
+                <form method="POST" action="/classroom/{{course.id}}/" id="description_form"
+                    enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="form-group row">
                         <label for="staticEmail" class="col-sm-3 col-form-label">คำอธิบายรายวิชา</label>
                         <div class="col-sm-9">
                             <Textarea class="form-control" style="height:200px" required
-                                name="{{description.description.name}}">{{course.description}}</Textarea>
+                                name="course_description">{{course.description}}</Textarea>
                         </div>
                     </div>
+                    <div class="loading mb-2">loading</div>
+                    <div class="error-message mb-2"></div>
                     <div class="text-right">
-                        <button type="submit" class="btn btn-warning"><i class="fas fa-edit"></i> แก้ไข</button>
+                        <button type="submit" class="btn btn-warning"><i class='bx bxs-edit'></i> แก้ไข</button>
                     </div>
                 </form>
             </div>
@@ -286,21 +367,196 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="/classroom/{{course.id}}/" enctype="multipart/form-data">
+                <form method="POST" action="/classroom/{{course.id}}/" id="name_form" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="form-group row">
                         <label for="staticEmail" class="col-sm-3 col-form-label">ชื่อวิชา</label>
                         <div class="col-sm-9">
-                            <input class="form-control" required name="{{classroom_name.classroom_name.name}}"
-                                value="{{course.course_name}}" />
+                            <input class="form-control" required name="course_name" value="{{course.course_name}}" />
                         </div>
                     </div>
+                    <div class="loading mb-2">loading</div>
+                    <div class="error-message mb-2"></div>
                     <div class="text-right">
-                        <button type="submit" class="btn btn-warning"><i class="fas fa-edit"></i> แก้ไข</button>
+                        <button type="submit" class="btn btn-warning"><i class='bx bxs-edit'></i></i> แก้ไข</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function ($) {
+        let get_file = $('#get_file');
+
+        get_file.change(function (e) {
+            let files = e.target.files[0]
+            let csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+            let loading = $('#post_loading');
+            let show_file=$('#show_file');
+            let file_data = new FormData();
+            file_data.append('file', files);
+            file_data.append('csrfmiddlewaretoken', csrfToken);
+            loading.slideDown();
+
+            $.ajax('/classroom/{{course.id}}/', {
+                method: 'POST',
+                data: file_data,
+                processData: false,
+                contentType: false,
+
+                success: function (data) {
+                    let d=data.data;
+                    let txt="<button type='button' class='btn btn-primary mr-2 mb-2'>"+d.file_name+"</button><input type='hidden' name='file_id[]' value='"+d.id+"'>";
+                    if (data.status == 1) {
+                        loading.slideUp();
+                        show_file.append(txt);                        
+                    }              
+                },
+            });
+        });
+
+        $('.reply_form').submit(function () {
+            let this_form = $(this);
+            let data = this_form.serialize();
+            let action = this_form.attr('action');
+            let method = this_form.attr('method');
+
+
+            $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                    if (data.status == 1) {
+                        window.location.replace("/classroom/{{course.id}}");
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    errorFunction();
+                }
+            });
+
+            return false;
+        });
+
+
+        $('#post_form').submit(function () {
+            let this_form = $(this);
+            let data = this_form.serialize();
+            let action = this_form.attr('action');
+            let method = this_form.attr('method');
+            let loading = this_form.find('.loading');
+            let post = $('#post');
+            loading.slideDown();
+
+
+            $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    loading.slideUp();
+                    this_form.trigger('reset');
+                    let d = data.data;
+                    let f = d.firstname;
+                    let l = d.lastname;
+                    if (f.length >= 55) {
+                        f = f.substr(0, 50);
+                    }
+
+                    if (l.length >= 50) {
+                        l = l.substr(0, 50);
+                    }
+                    let txt = "<div class='col-12 mb-3 rounded shadow-sm border p-3'><div class='row'><div class='col-12'>";
+                    txt += "<img src='" + d.picture + "' class='rounded-circle' style='width: 50px; height:50px;'> ";
+                    txt += f + " " + l + " <small class='text-muted'>เมื่อซักครู่</small>";
+                    txt += "</div><div class='w-100'></div><div class='col-12' style='min-height: 90px;'><hr>";
+                    txt += d.description + "</div>";
+                    txt += "</div></div>";
+                    $(txt).hide().fadeIn(2000).insertAfter(post);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    loading.slideUp();
+                    errorFunction();
+                }
+            });
+
+            return false;
+        })
+
+        $('#name_form').submit(function () {
+            let this_form = $(this);
+            let data = this_form.serialize();
+            let action = this_form.attr('action');
+            let method = this_form.attr('method');
+            let loading = this_form.find('.loading');
+            let error = this_form.find('.error-message');
+            loading.slideDown();
+
+
+            $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    loading.slideUp();
+                    if (data.status == 1) {
+                        window.location.replace("/classroom/{{course.id}}");
+                    } else {
+                        error.html('ท่านไม่มีสิทธิ์ในการแก้ไขข้อมูล');
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    loading.slideUp();
+                    error.html('ไม่สามารถส่งข้อมูลได้');
+                    errorFunction();
+                }
+            });
+
+            return false;
+        });
+
+        $('#description_form').submit(function () {
+            let this_form = $(this);
+            let data = this_form.serialize();
+            let action = this_form.attr('action');
+            let method = this_form.attr('method');
+            let loading = this_form.find('.loading');
+            let error = this_form.find('.error-message');
+            loading.slideDown();
+
+
+            $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    loading.slideUp();
+                    if (data.status == 1) {
+                        window.location.replace("/classroom/{{course.id}}");
+                    } else {
+                        error.html('ท่านไม่มีสิทธิ์ในการแก้ไขข้อมูล');
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    loading.slideUp();
+                    error.html('ไม่สามารถส่งข้อมูลได้');
+                    errorFunction();
+                }
+            });
+
+            return false;
+        });
+    });
+</script>
+
 {% endblock %}

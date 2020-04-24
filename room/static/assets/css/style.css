@@ -1435,6 +1435,24 @@ section {
   cursor: pointer;
 }
 
+.comment{
+    margin-bottom: 7px;
+}
+
+.comment .comment-img{
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.comment .comment-text{
+  padding: 10px;
+  border-radius: 15px;
+  background-color: #f0f2f5;
+  width: fit-content;
+}
+
 @media (max-width: 768px) {
   #footer .copyright, #footer .credits {
     padding: 5px;

@@ -64,6 +64,41 @@ class EdEnrolment(models.Model):
         managed = True
         db_table = 'ed_enrolment'
 
+class EdPost(models.Model):
+    description = models.TextField(blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    member = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
+    course = models.ForeignKey(EdCourse, models.DO_NOTHING,blank=True, null=True,related_name="course")
+
+    class Meta:
+        managed = True
+        db_table = 'ed_post'
+
+class EdPostFile(models.Model):
+    file_name=models.CharField(max_length=250)
+    file_link=models.TextField(blank=True, null=True)
+    file_type=models.TextField(blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    post=models.ForeignKey(EdPost, models.DO_NOTHING, blank=True, null=True,related_name='post')
+
+    class Meta:
+        managed = True
+        db_table = 'ed_post_file'
+
+class EdReply(models.Model):
+    description = models.TextField(blank=True, null=True)
+    member = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    post=models.ForeignKey(EdPost, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_reply'
+
+
+
 class EdLog(models.Model):
     ip=models.CharField(max_length=50)
     device=models.CharField(max_length=200,null=True)

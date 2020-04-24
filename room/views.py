@@ -202,7 +202,107 @@ def classroom(request,classroom_id):
         if check_owner(classroom_id,member.id):
             return HttpResponseRedirect("/dashboard")
 
+        if request.method == 'POST':
+            description=request.POST.get('course_description')
+            file_id=request.POST.getlist('file_id[]')
+            name=request.POST.get('course_name')
+            steam_post=request.POST.get('steam_post')
+            reply=request.POST.get('reply')
+            file_data=request.FILES.getlist('file')
+
+            if description:
+                course=models.EdCourse.objects.get(id=classroom_id)
+                course.description=description
+                course.save()
+
+                data={
+                    'status':1
+                }
+
+                return JsonResponse(data)
+            elif name:
+                course=models.EdCourse.objects.get(id=classroom_id)
+                course.course_name=name
+                course.save()
+
+                data={
+                    'status':1
+                }
+
+                return JsonResponse(data)
+            elif steam_post or file_id:
+
+                post=models.EdPost(description=steam_post,course_id=classroom_id,member_id=member.id)
+                post.save()
+
+                p=models.EdPost.objects.latest('id')
+                m=models.EdMember.objects.get(id=p.member_id)
+
+                for i in file_id:
+                    f=models.EdPostFile.objects.get(id=i)
+                    f.post_id=p.id
+                    f.save()
+
+                data={
+                    'status':1,
+                    'data':{'id':p.id,'description':p.description,'timestamp':p.timestamp,'firstname':m.firstname,'lastname':m.lastname,'picture':m.picture}
+                }
+
+                return JsonResponse(data)
+            elif reply:
+                post_id=request.POST.get('post_id')
+                reply=models.EdReply(description=reply,post_id=post_id,member_id=member.id)
+                reply.save()
+
+                r=models.EdReply.objects.latest('id')
+
+                data={
+                    'status':1
+                }
+
+                return JsonResponse(data)
+            if file_data:
+
+                list = []
+                name = []
+                file_type = []
+                for f in file_data:
+                    import datetime
+                    fs = FileSystemStorage()
+
+                    date = datetime.date.today()
+                    path = "course_id_{0}/files/{1}/{2}"
+                    path = path.format(
+                        classroom_id,date,f.name)
+                    filename = fs.save(path, f)
+                    list.append(fs.url(filename))
+                    name.append(f.name)
+                    file_type.append(f.content_type)
+
+                post_file=models.EdPostFile(file_name=name[0],file_type=file_type[0],file_link=list[0],post_id="")
+                post_file.save()
+
+                p=models.EdPostFile.objects.latest('id')
+
+                data={
+                    'status':1,
+                    'data':{'id':p.id,'file_name':p.file_name,'file_link':p.file_link}
+                }
+
+                return JsonResponse(data)
+
+        #query course
         course=models.EdCourse.objects.get(id=classroom_id)
+
+        #query post
+        post=models.EdPost.objects.filter(course_id=classroom_id).filter(status="ACTIVE").select_related('member').order_by('-id')
+
+        i=0
+        for x in post:
+            reply=models.EdReply.objects.filter(post_id=x.id).filter(status="ACTIVE").select_related('member')
+            post[i].reply=reply
+            i=i+1
+
 
         title=course.course_name
         active_nav = [""]*3
@@ -212,7 +312,8 @@ def classroom(request,classroom_id):
             'title':title,
             'member':member,
             'course':course,
-            'active_nav':active_nav
+            'active_nav':active_nav,
+            'post':post
         }
 
         return render(request,'teacher/classroom.html',context)
