@@ -61,7 +61,7 @@
                                 <div class="loading mb-2" id="post_loading">loading</div>
                             </div>
                             <div class="col-12" id="show_file">
-                                
+
                             </div>
                             <div class="col-md-12 mt-1 form-group text-right">
                                 <span class="btn btn-light" style="position: relative;overflow: hidden;">
@@ -96,8 +96,17 @@
                         </div>
                         <div class="w-100"></div>
                         <div class="col-12" style="min-height: 90px;">
+                            {% if i.description %}
                             <hr>
                             {{i.description}}
+                            {% endif %}
+
+                            {% if i.post_file %}
+                            <hr>
+                            {% for f in i.post_file %}
+                            <a class="btn btn-primary mb-2 mr-2" href="{{f.file_link}}" target="_blank">{{f.file_name}}</a>
+                            {% endfor %}
+                            {% endif %}
                         </div>
                         <div class="col-12">
                             <hr>
@@ -396,7 +405,7 @@
             let files = e.target.files[0]
             let csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
             let loading = $('#post_loading');
-            let show_file=$('#show_file');
+            let show_file = $('#show_file');
             let file_data = new FormData();
             file_data.append('file', files);
             file_data.append('csrfmiddlewaretoken', csrfToken);
@@ -409,12 +418,12 @@
                 contentType: false,
 
                 success: function (data) {
-                    let d=data.data;
-                    let txt="<button type='button' class='btn btn-primary mr-2 mb-2'>"+d.file_name+"</button><input type='hidden' name='file_id[]' value='"+d.id+"'>";
+                    let d = data.data;
+                    let txt = "<button type='button' class='btn btn-primary mr-2 mb-2'>" + d.file_name + "</button><input type='hidden' name='file_id[]' value='" + d.id + "'>";
                     if (data.status == 1) {
                         loading.slideUp();
-                        show_file.append(txt);                        
-                    }              
+                        show_file.append(txt);
+                    }
                 },
             });
         });
@@ -474,6 +483,8 @@
                     if (l.length >= 50) {
                         l = l.substr(0, 50);
                     }
+
+                    window.location.replace("/classroom/{{course.id}}")
                     let txt = "<div class='col-12 mb-3 rounded shadow-sm border p-3'><div class='row'><div class='col-12'>";
                     txt += "<img src='" + d.picture + "' class='rounded-circle' style='width: 50px; height:50px;'> ";
                     txt += f + " " + l + " <small class='text-muted'>เมื่อซักครู่</small>";

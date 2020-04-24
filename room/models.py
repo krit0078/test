@@ -79,6 +79,7 @@ class EdPostFile(models.Model):
     file_name=models.CharField(max_length=250)
     file_link=models.TextField(blank=True, null=True)
     file_type=models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
     post=models.ForeignKey(EdPost, models.DO_NOTHING, blank=True, null=True,related_name='post')
 

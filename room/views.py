@@ -300,7 +300,9 @@ def classroom(request,classroom_id):
         i=0
         for x in post:
             reply=models.EdReply.objects.filter(post_id=x.id).filter(status="ACTIVE").select_related('member')
+            post_file=models.EdPostFile.objects.filter(post_id=x.id).filter(status="ACTIVE")
             post[i].reply=reply
+            post[i].post_file=post_file
             i=i+1
 
 
