@@ -1,27 +1,30 @@
 {% extends 'teacher/base.html' %}
 
 {% block content %}
-<section class="mb-5">
+<section class="mb-5 section-bg">
     <div class="container">
         {% include 'teacher/classroom_nav.html' %}
         <div class="row mb-4">
-        
+
         </div>
         <div class="row">
             <div class="col-md-4">
-                <div class="col mb-2 rounded shadow-sm border p-3">
-                    <h5 class="text-center">ภาระงานที่รอส่ง</h5>
+                <div class="col mb-2 rounded shadow-sm border p-3 bg-white">
+                    <h5 class="text-center">ภาระกิจทั้งหมด</h5>
                     <hr>
-                    <h5 class="text-danger">{{course.uid}}</h5>
+                    <h5 class="text-success text-center">{{total_task}}</h5>
                 </div>
             </div>
             <div class="col-md-8">
-                <div class="col-12 mb-2 rounded shadow-sm border p-3">
-                    <form id="post_form" method="POST" action="/classroom/{{course.id}}/">
+                <div class="col-12 mb-2 rounded shadow-sm border p-3 bg-white">
+                    <form id="post_form" method="POST" action="/classroom/{{course.id}}/task/">
                         {% csrf_token %}
                         <div class="form-row">
-                            <div class="col-md-12 form-group">                                
-                                <textarea class="form-control" name="steam_post" placeholder="ประกาศ..."></textarea>
+                            <div class="col-md-12 form-group">
+                                <div class="form-control" contenteditable="" data-placeholder="ประกาศ..."
+                                    style="min-height: 50px;height:auto;" id="steam_div"></div>
+                                <textarea class="form-control d-none" name="steam_post"
+                                    placeholder="ประกาศ..."></textarea>
                             </div>
                             <div class="col-12">
                                 <div class="loading mb-2" id="post_loading">loading</div>
@@ -30,6 +33,17 @@
 
                             </div>
                             <div class="col-md-12 mt-1 form-group text-right">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-light" data-toggle="dropdown"
+                                        data-display="static" aria-haspopup="true" aria-expanded="false">
+                                        <i class='bx bx-link-alt'></i> แทรกลิงก์
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left p-2">
+                                        <input type="text" placeholder="แทรกลิงก์" class="form-control"
+                                            style="min-width: 300px;" id="insert_link">
+                                    </div>
+                                </div>
+
                                 <span class="btn btn-light" style="position: relative;overflow: hidden;">
                                     <i class='bx bxs-file-plus'></i> เพิ่มไฟล์ <input type="file" id="get_file" style="position: absolute;
                                     top: 0;
@@ -46,62 +60,43 @@
                                 </span>
 
                                 <input type="file" class="sr-only"><button type="submit"
-                                    class="btn btn-primary ml-auto">โพสต์</button></div>
+                                    class="btn btn-primary ml-auto">โพสต์</button>
+                            </div>
                         </div>
                     </form>
                 </div>
 
                 <div id="post" class="mt-3"></div>
-                {% for i in post %}
-                <div class="col-12 mb-3 rounded shadow-sm border p-3">
+                {% for i in task %}
+                <div class="col-12 mb-3 rounded shadow-sm border p-3 bg-white">
                     <div class="row">
                         <div class="col-12">
-                            <img src="{{i.member.picture}}" class="rounded-circle" style="width: 50px; height:50px;">
-                            {{i.member.firstname | truncatechars:55}} {{i.member.lastname | truncatechars:55}} <small
+                            <img src="{{i.teacher.picture}}" class="rounded-circle" style="width: 50px; height:50px;">
+                            {{i.teacher.firstname | truncatechars:55}} {{i.teacher.lastname | truncatechars:55}} <small
                                 class="text-muted">{{i.timestamp|date:'d b Y, H:i'}}</small>
+                            <a class="btn btn-info" style="position: absolute;right: 10px;"
+                                href="/classroom/{{course.id}}/task/{{i.id}}/main"><i class='bx bxs-arrow-to-right'></i>
+                                เข้าสู่ภารกิจ</a>
                         </div>
                         <div class="w-100"></div>
                         <div class="col-12" style="min-height: 90px;">
                             {% if i.description %}
                             <hr>
-                            {{i.description}}
+                            {{i.description | safe}}
                             {% endif %}
 
-                            {% if i.post_file %}
+                            {% if i.task_file %}
                             <hr>
-                            {% for f in i.post_file %}
-                            <a class="btn btn-primary mb-2 mr-2" href="{{f.file_link}}" target="_blank">{{f.file_name}}</a>
+                            {% for f in i.task_file %}
+                            <a class="btn btn-primary mb-2 mr-2" href="{{f.file_link}}" target="_blank"><i
+                                    class='bx bxs-file'></i> {{f.file_name}}</a>
                             {% endfor %}
                             {% endif %}
-                        </div>
-                        <div class="col-12">
                             <hr>
-                            {% for j in i.reply %}
-                            <div class="comment">
-                                <div class="row no-gutters">
-                                    <div class="col-2 text-right"><img class="comment-img" src="{{j.member.picture}}">
-                                    </div>
-                                    <div class="col-10">
-                                        <div class="comment-text">{{j.description}}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                            <div class="comment mt-3">
-                                <form action="/classroom/{{course.id}}/" method="POST" class="reply_form">
-                                    {% csrf_token %}
-                                    <div class="row no-gutters form-group">
-                                        <div class="col-2 text-right">
-                                            <img class="comment-img" src="{{member.picture}}">
-                                        </div>
-                                        <div class="col-10">
-                                            <input type="hidden" name="post_id" value="{{i.id}}">
-                                            <input type="text" name="reply" class="form-control" autocomplete="off"
-                                                style="border-radius: 10px;" placeholder="แสดงความคิดเห็น">
-                                            <button type="submit" class="d-none">ส่ง</button>
-                                        </div>
-                                    </div>
-                                </form>
+                            <h6>ความคืบหน้า</h6>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {{i.percent}}%"
+                                    aria-valuenow="{{i.percent}}" aria-valuemin="0" aria-valuemax="100">{{i.total_turnedin}}/{{total_member}}</div>
                             </div>
                         </div>
                     </div>
@@ -114,5 +109,86 @@
 {% endblock %}
 
 {% block js %}
+<script>
+    $(document).ready(function () {
 
+        $('#get_file').change(function (e) {
+            let files = e.target.files[0]
+            let csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+            let loading = $('#post_loading');
+            let show_file = $('#show_file');
+            let file_data = new FormData();
+            file_data.append('file', files);
+            file_data.append('csrfmiddlewaretoken', csrfToken);
+            loading.slideDown();
+
+            $.ajax('/classroom/{{course.id}}/task/', {
+                method: 'POST',
+                data: file_data,
+                processData: false,
+                contentType: false,
+
+                success: function (data) {
+                    let d = data.data;
+                    let txt = "<button type='button' class='btn btn-primary mr-2 mb-2'><i class='bx bxs-file' ></i> " + d.file_name + "</button><input type='hidden' name='file_id[]' value='" + d.id + "'>";
+                    if (data.status == 1) {
+                        loading.slideUp();
+                        show_file.append(txt);
+                    }
+                },
+            });
+
+        });
+
+        $('#post_form').submit(function () {
+            let this_form = $(this);
+            let data = this_form.serializeArray();
+            let action = this_form.attr('action');
+            let method = this_form.attr('method');
+            let loading = this_form.find('.loading');
+            let post = $('#post');
+            loading.slideDown();
+            let steam_div = $('#steam_div');
+            data.push({ name: 'steam_div', value: steam_div.html() });
+
+
+            $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    loading.slideUp();
+                    this_form.trigger('reset');
+                    let d = data.data;
+                    let f = d.firstname;
+                    let l = d.lastname;
+                    if (f.length >= 55) {
+                        f = f.substr(0, 50);
+                    }
+                    if (l.length >= 50) {
+                        l = l.substr(0, 50);
+                    }
+                    if (data.status == 1) {
+                        window.location.replace("/classroom/{{course.id}}/task");
+                    }
+                    // let txt = "<div class='col-12 mb-3 rounded shadow-sm border p-3'><div class='row'><div class='col-12'>";
+                    // txt += "<img src='" + d.picture + "' class='rounded-circle' style='width: 50px; height:50px;'> ";
+                    // txt += f + " " + l + " <small class='text-muted'>เมื่อซักครู่</small>";
+                    // txt += "</div><div class='w-100'></div><div class='col-12' style='min-height: 90px;'><hr>";
+                    // txt += d.description + "</div>";
+                    // txt += "</div></div>";
+                    // $(txt).hide().fadeIn(2000).insertAfter(post);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    loading.slideUp();
+                    errorFunction();
+                }
+            });
+
+            return false;
+        })
+
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'teacher/base.html' %}
+
+{% block content %}
+<section class="mb-5 section-bg">
+    <div class="container">
+        {% include 'teacher/classroom_nav.html' %}
+        <div class="row mb-4">
+
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="bg-white border border-grey p-3 mb-2 rounded">
+                    <h3 class="text-center"><i class="fas fa-crown"></i> ตารางคะแนน</h3>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr class="text-center">
+                                    <th scope="col" style="width: 70px;">ลำดับ</th>
+                                    <th scope="col">ชื่อ</th>
+                                    <th scope="col">คะแนน</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in enrolment %}
+                                <tr class="text-center" style="font-size: 18px;">
+                                    <td>
+                                        {% if forloop.counter == 1 %}
+                                        <i class="bx bxs-crown text-warning"></i>
+                                        {% elif forloop.counter == 2 %}
+                                        <i class="bx bxs-crown text-secondary"></i>
+                                        {% elif forloop.counter == 3 %}
+                                        <i class="bx bxs-crown text-danger"></i>
+                                        {% endif %}
+                                        {{forloop.counter}}
+                                    </td>
+                                    <td class="text-left">                                     
+                                        <img src="{{i.member.picture}}"
+                                            style="width:40px;margin-right: 0.8rem;height: 40px;"
+                                            class="rounded-circle">{{i.member.firstname | truncatechars:50}}  {{i.member.lastname | truncatechars:50}}                                     
+                                    </td>
+                                    <td>{{i.sum_score}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block js %}
+
+{% endblock %}

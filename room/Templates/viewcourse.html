@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="section-title">
+                    <h2 class="text-center">ดูคอร์สทั้งหมด</h2>
+                </div>
+            </div>
+            {% for i in ed_level %}
+            <div class="col-12">
+                <div class="section-title">
+                    <h3 class="text-center">{{i.title}}</h3>
+                </div>
+            </div>
+            {% for j in i.ed_sublevel %}
+            <div class="col-12">
+                <div class="section-title">
+                    <h4 class="text-left" style="padding-bottom: 10px; margin-bottom: 5px; color: #000;">{{j.title}}
+                    </h4>
+                    <hr>
+                </div>
+            </div>
+
+            {% for k in j.course %}
+            <div class="col-md-4 align-items-center">
+                <a class="cursor" data-toggle="modal" data-target="#modal{{k.id}}">
+                    <div class="shadow mb-2 border card">
+                        <div class="card-img">
+                            <img src="{{k.cover_pic}}">
+                        </div>
+                        <div class="card-detail">
+                            <h4>{{k.course_name | truncatechars:50}}</h4>
+                            <span><i class='bx bxs-user-rectangle'></i> เจ้าของวิชา :
+                                {{k.teacher.firstname | truncatechars:50}}
+                                {{k.teacher.lastname | truncatechars:50}}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="modal{{k.id}}" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">{{k.course_name| truncatechars:50}}</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <h6>คำอธิบายรายวิชา</h6>
+                            <p>{{k.description}}</p>
+                            <p>ติดต่อวิชา : {{k.teacher.email}}</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="w-100 mb-5"></div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

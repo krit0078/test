@@ -112,6 +112,32 @@ def register(request):
     }
     return render(request,'register.html',context)
 
+def viewcourse(request):
+    if 'email' in request.session:
+        return HttpResponseRedirect("/dashboard")
+
+    ed_level=models.EdLevel.objects.all().order_by('-id')
+
+    i=0
+    for x in ed_level:
+        ed_sublevel=models.EdSubLevel.objects.filter(ed_level_id=x.id)
+        ed_level[i].ed_sublevel=ed_sublevel
+        j=0
+        for y in ed_sublevel:
+            course=models.EdCourse.objects.filter(catagory_id=y.id).filter(status='ACTIVE').select_related('teacher').order_by('-id')
+            ed_sublevel[j].course=course
+            j=j+1
+        i=i+1
+
+    course=models.EdCourse.objects.all().select_related('catagory')
+
+    context={
+        'title':'ดูคอร์สทั้งหมด | EduLearn',
+        'course':course,
+        'ed_level':ed_level
+    }
+    return render(request,'viewcourse.html',context)
+
 def dashboard(request):
     #check session
     if 'email'not in request.session:
@@ -182,7 +208,6 @@ def dashboard(request):
             'course':course
         }
         return render(request,'teacher/dashboard.html',context)
-
 
 def classroom(request,classroom_id):
     #check session
@@ -340,22 +365,187 @@ def classroom_task(request,classroom_id):
         if check_owner(classroom_id,member.id):
             return HttpResponseRedirect("/dashboard")
         
+        if request.method == 'POST':
+            file_data=request.FILES.getlist('file')
+            file_id=request.POST.getlist('file_id[]')
+            steam_div=request.POST.get('steam_div')
+
+            if steam_div or file_id:
+
+                post=models.EdTask(description=steam_div,course_id=classroom_id,teacher_id=member.id)
+                post.save()
+
+                p=models.EdTask.objects.latest('id')
+                m=models.EdMember.objects.get(id=p.teacher_id)
+
+                for i in file_id:
+                    f=models.EdTaskFile.objects.get(id=i)
+                    f.task_id=p.id
+                    f.save()
+
+                data={
+                    'status':1,
+                    'data':{'id':p.id,'description':p.description,'timestamp':p.timestamp,'firstname':m.firstname,'lastname':m.lastname,'picture':m.picture}
+                }
+                return JsonResponse(data)
+            
+            if file_data:
+
+                list = []
+                name = []
+                file_type = []
+                for f in file_data:
+                    import datetime
+                    fs = FileSystemStorage()
+
+                    date = datetime.date.today()
+                    path = "course_id_{0}/task/files/{1}/{2}"
+                    path = path.format(
+                        classroom_id,date,f.name)
+                    filename = fs.save(path, f)
+                    list.append(fs.url(filename))
+                    name.append(f.name)
+                    file_type.append(f.content_type)
+
+                post_file=models.EdTaskFile(file_name=name[0],file_type=file_type[0],file_link=list[0],task_id="")
+                post_file.save()
+
+                p=models.EdTaskFile.objects.latest('id')
+
+                data={
+                    'status':1,
+                    'data':{'id':p.id,'file_name':p.file_name,'file_link':p.file_link}
+                }
+
+                return JsonResponse(data)
+        
         #query course
         course=models.EdCourse.objects.get(id=classroom_id)
 
+        #query task
+        task=models.EdTask.objects.filter(course_id=course.id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
+        total_task=len(task)
 
+        total_member=len(models.EdEnrolment.objects.filter(course_id=classroom_id))
+
+        #query task file
+        i=0
+        for x in task:
+            task_file=models.EdTaskFile.objects.filter(task_id=x.id).filter(status="ACTIVE")
+            turnedin=models.EdTurnedIn.objects.filter(task_id=x.id).filter(status="TURNEDIN")
+            total_turnedin=len(turnedin)
+            task[i].total_turnedin=total_turnedin
+            task[i].task_file=task_file
+
+            try:
+                percent=total_turnedin/total_task*100
+                percent=round(percent,2)
+            except ZeroDivisionError:
+                percent=0
+            
+            task[i].percent=percent
+
+            i=i+1
 
         title=course.course_name
         active_nav = [""]*3
-        active_nav[0] = "nav-active"
+        active_nav[1] = "nav-active"
 
         context={
             'title':title,
             'member':member,
             'course':course,
+            'active_nav':active_nav,
+            'task':task,
+            'total_task':total_task,
+            'total_member':total_member
         }
 
         return render(request,'teacher/classroom_task.html',context)
+
+def classroom_score(request,classroom_id):
+    #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    if request.session['type'] == 'STUDENT':
+        context={
+            'title':'หน้าหลักนักเรียน',
+            'member':member
+        }
+    else:
+        #check owner
+        if check_owner(classroom_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #query course
+        course=models.EdCourse.objects.get(id=classroom_id)
+
+        enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id)
+
+        i=0
+        for x in enrolment:
+            from django.db.models import Sum
+            from collections import OrderedDict
+            sum_score=models.EdTurnedIn.objects.filter(member_id=x.member_id).filter(status="TURNEDIN").aggregate(Sum('score'))
+            enrolment[i].sum_score=sum_score['score__sum']
+            i=i+1
+
+        #sort array
+        enrolment=sorted(enrolment, key= lambda t: t.sum_score, reverse=True)
+
+        title=course.course_name
+        active_nav = [""]*3
+        active_nav[2] = "nav-active"
+
+        context={
+            'title':title,
+            'member':member,
+            'active_nav':active_nav,
+            'course':course,
+            'enrolment':enrolment
+        }
+
+        return render(request,'teacher/classroom_score.html',context)
+    
+def classroom_live(request,classroom_id):
+    #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    if request.session['type'] == 'STUDENT':
+        context={
+            'title':'หน้าหลักนักเรียน',
+            'member':member
+        }
+    else:
+        #check owner
+        if check_owner(classroom_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #query course
+        course=models.EdCourse.objects.get(id=classroom_id)
+
+       
+
+        title=course.course_name
+        active_nav = [""]*4
+        active_nav[3] = "nav-active"
+
+        context={
+            'title':title,
+            'member':member,
+            'active_nav':active_nav,
+            'course':course,
+        }
+
+        return render(request,'teacher/classroom_live.html',context)
 
 def check_owner(classroom_id,member_id):
     owner=len(models.EdCourse.objects.filter(id=classroom_id).filter(teacher_id=member_id))
