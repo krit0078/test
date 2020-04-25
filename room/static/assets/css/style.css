@@ -1457,6 +1457,32 @@ section {
   color:gray
 }
 
+#steam_div a{
+  color: #007bff;
+}
+
+#steam_div a:hover{
+  color: #0056b3;
+}
+
+.steam a{
+  color: #007bff;
+}
+
+.steam a:hover{
+  color: #007bff;
+}
+
+.opengraph{
+  height: 100px;
+  overflow: hidden;
+}
+
+.opengraph div img{
+  border-top-left-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
+}
+
 @media (max-width: 768px) {
   #footer .copyright, #footer .credits {
     padding: 5px;

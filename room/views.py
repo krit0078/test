@@ -31,7 +31,7 @@ def login(request):
         if member==1:
 
             member=models.EdMember.objects.get(email=email)
-            user_type=models.EdUserType.objects.get(id=member.ed_user_type_id)
+            user_type=models.EdUserType.objects.get(id=member.user_type_id)
 
             request.session['email']=email
             request.session['type']=user_type.prefix
@@ -90,7 +90,7 @@ def register(request):
         if len(user_type) == 0 or len(edlevel) == 0 or len(ed_sublevel)== 0:
             status=0
         else:
-            member=models.EdMember(email=email,firstname=firstname,lastname=lastname,ed_sub_level_id=ed_sublevel,ed_user_type_id=user_type,password=password)
+            member=models.EdMember(email=email,firstname=firstname,lastname=lastname,catagory_id=ed_sublevel,user_type_id=user_type,password=password)
             member.save()
             status=1
         
@@ -208,6 +208,77 @@ def dashboard(request):
             'course':course
         }
         return render(request,'teacher/dashboard.html',context)
+
+def profile(request):
+    #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    if request.method == 'POST':
+        file_data=request.FILES.getlist('profile')
+        firstname=request.POST.get('firstname')
+        lastname=request.POST.get('lastname')
+        ed_sublevel=request.POST.get('ed_sublevel')
+
+        if firstname:
+            member.firstname=firstname
+            member.lastname=lastname
+            member.catagory_id=ed_sublevel
+            member.save()
+
+            data={
+                'status':1
+            }
+            return JsonResponse(data)
+
+        if file_data:
+            list = []
+            name = []
+            file_type = []
+            for f in file_data:
+                import datetime
+                fs = FileSystemStorage()
+
+                date = datetime.date.today()
+                path = "member_id_{0}/picture/{1}/{2}"
+                path = path.format(
+                    member.id,date,f.name)
+                filename = fs.save(path, f)
+                list.append(fs.url(filename))
+                name.append(f.name)
+                file_type.append(f.content_type)
+
+            member.picture=list[0]
+            member.save()
+
+            data={
+                'status':1,
+                'data':{'picture':member.picture}
+            }
+
+            return JsonResponse(data)
+
+    catagory=models.EdSubLevel.objects.get(id=member.catagory_id)
+    super_catagory=models.EdLevel.objects.get(id=catagory.ed_level_id)
+    user_type=models.EdUserType.objects.get(id=member.user_type_id)
+    member.catagory=catagory
+    member.user_type=user_type
+    member.super_catagory=super_catagory
+
+    ed_level=models.EdLevel.objects.exclude(id=super_catagory.id)
+    ed_sublevel=models.EdSubLevel.objects.exclude(id=catagory.id)
+       
+    context={
+        'title':'โปรไฟล์',
+        'member':member,
+        'ed_level':ed_level,
+        'ed_sublevel':ed_sublevel
+    }
+
+    return render(request,'teacher/profile.html',context)
 
 def classroom(request,classroom_id):
     #check session
@@ -368,9 +439,10 @@ def classroom_task(request,classroom_id):
         if request.method == 'POST':
             file_data=request.FILES.getlist('file')
             file_id=request.POST.getlist('file_id[]')
+            link_id=request.POST.getlist('link_id[]')
             steam_div=request.POST.get('steam_div')
 
-            if steam_div or file_id:
+            if steam_div or file_id or link_id:
 
                 post=models.EdTask(description=steam_div,course_id=classroom_id,teacher_id=member.id)
                 post.save()
@@ -378,10 +450,17 @@ def classroom_task(request,classroom_id):
                 p=models.EdTask.objects.latest('id')
                 m=models.EdMember.objects.get(id=p.teacher_id)
 
-                for i in file_id:
-                    f=models.EdTaskFile.objects.get(id=i)
-                    f.task_id=p.id
-                    f.save()
+                if file_id:
+                    for i in file_id:
+                        f=models.EdTaskFile.objects.get(id=i)
+                        f.task_id=p.id
+                        f.save()
+                
+                if link_id:
+                    for i in link_id:
+                        o=models.EdTaskOpengraph.objects.get(id=i)
+                        o.task_id=p.id
+                        o.save()
 
                 data={
                     'status':1,
@@ -433,9 +512,11 @@ def classroom_task(request,classroom_id):
         for x in task:
             task_file=models.EdTaskFile.objects.filter(task_id=x.id).filter(status="ACTIVE")
             turnedin=models.EdTurnedIn.objects.filter(task_id=x.id).filter(status="TURNEDIN")
+            task_og=models.EdTaskOpengraph.objects.filter(task_id=x.id)
             total_turnedin=len(turnedin)
             task[i].total_turnedin=total_turnedin
             task[i].task_file=task_file
+            task[i].og=task_og
 
             try:
                 percent=total_turnedin/total_task*100
@@ -529,11 +610,27 @@ def classroom_live(request,classroom_id):
         if check_owner(classroom_id,member.id):
             return HttpResponseRedirect("/dashboard")
 
+        if request.method == 'POST':
+            live_id=request.POST.get('id')
+            platform=request.POST.get('platform')
+            password=request.POST.get('password')
+
+            if live_id:
+                live=models.EdLive(teacher_id=member.id,course_id=classroom_id,url=live_id,password=password,platform=platform)
+                live.save()
+
+                data={
+                    'status':1
+                }
+
+                return JsonResponse(data)
+
         #query course
         course=models.EdCourse.objects.get(id=classroom_id)
 
+        #query live
+        live=models.EdLive.objects.filter(course_id=classroom_id).filter(status="ACTIVE")
        
-
         title=course.course_name
         active_nav = [""]*4
         active_nav[3] = "nav-active"
@@ -543,6 +640,7 @@ def classroom_live(request,classroom_id):
             'member':member,
             'active_nav':active_nav,
             'course':course,
+            'live':live
         }
 
         return render(request,'teacher/classroom_live.html',context)
@@ -553,6 +651,67 @@ def check_owner(classroom_id,member_id):
         return 1
     else:
         return 0
+
+def delete_live(request,classroom_id,live_id):
+    #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    #check owner
+    if check_owner(classroom_id,member.id):
+        return HttpResponseRedirect("/dashboard")
+    
+    live=models.EdLive.objects.get(id=live_id)
+    live.status="DELETE"
+    live.save()
+
+    url="/classroom/{0}/live"
+    url=url.format(classroom_id)
+    return HttpResponseRedirect(url)
+
+def delete_task(request,classroom_id,task_id):
+    #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    #check owner
+    if check_owner(classroom_id,member.id):
+        return HttpResponseRedirect("/dashboard")
+    
+    task=models.EdTask.objects.get(id=task_id)
+    task.status="DELETE"
+    task.save()
+
+    url="/classroom/{0}/task"
+    url=url.format(classroom_id)
+    return HttpResponseRedirect(url)
+
+def delete_steam(request,classroom_id,steam_id):
+    #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    #check owner
+    if check_owner(classroom_id,member.id):
+        return HttpResponseRedirect("/dashboard")
+    
+    steam=models.EdPost.objects.get(id=steam_id)
+    steam.status="DELETE"
+    steam.save()
+
+    url="/classroom/{0}"
+    url=url.format(classroom_id)
+    return HttpResponseRedirect(url)
+
 
 def check_email(request):
     email=request.GET.get('email')
@@ -618,3 +777,52 @@ def update_cover(request):
             'url':list
         }
         return JsonResponse(data)
+
+import urllib.request
+from bs4 import BeautifulSoup
+
+def fetch_og(request):
+    
+
+    url=request.GET.get('url')
+
+    page = urllib.request.urlopen(url).read()
+    html = BeautifulSoup(page)
+    title = html.find("meta",  property="og:title")
+    description = html.find("meta",  property="og:description")
+    url = html.find("meta",  property="og:url")
+    image = html.find("meta",  property="og:image")
+
+    og = models.EdTaskOpengraph(title='', description='', url='', image='',task_id="")
+    og.save()
+
+    og = models.EdTaskOpengraph.objects.latest('id')
+
+    if title is None:
+        og.title = ""
+    else:
+        og.title = title['content']
+        og.save()
+    if description is None:
+        og.description = ""
+    else:
+        og.description = description['content']
+        og.save()
+    if image is None:
+        og.image = ""
+    else:
+        og.image = image['content']
+        og.save()
+    if url is None:
+        og.url = ""
+    else:
+        og.url = url['content']
+        og.save()
+
+    data={
+        'status':1,
+        'og':{'id':og.id,'title':og.title,'image':og.image,'url':og.url,'description':og.description}
+    }
+
+    return JsonResponse(data)
+    

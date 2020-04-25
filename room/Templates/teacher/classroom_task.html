@@ -16,7 +16,7 @@
                 </div>
             </div>
             <div class="col-md-8">
-                <div class="col-12 mb-2 rounded shadow-sm border p-3 bg-white">
+                <div class="col-12 mb-2 rounded shadow-sm border p-3 bg-white steam">
                     <form id="post_form" method="POST" action="/classroom/{{course.id}}/task/">
                         {% csrf_token %}
                         <div class="form-row">
@@ -34,6 +34,17 @@
                             </div>
                             <div class="col-md-12 mt-1 form-group text-right">
                                 <div class="btn-group">
+                                    <button type="button" class="btn btn-light" data-toggle="dropdown"
+                                        data-display="static" aria-haspopup="true" aria-expanded="false">
+                                        <i class='bx bxs-videos'></i> แทรกวิดีโอ
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left p-2">
+                                        <input type="text" placeholder="แทรกวิดีโอ" class="form-control"
+                                            style="min-width: 300px;" id="insert_video">
+                                    </div>
+                                </div>
+
+                                <div class="btn-group d-none">
                                     <button type="button" class="btn btn-light" data-toggle="dropdown"
                                         data-display="static" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-link-alt'></i> แทรกลิงก์
@@ -74,29 +85,57 @@
                             <img src="{{i.teacher.picture}}" class="rounded-circle" style="width: 50px; height:50px;">
                             {{i.teacher.firstname | truncatechars:55}} {{i.teacher.lastname | truncatechars:55}} <small
                                 class="text-muted">{{i.timestamp|date:'d b Y, H:i'}}</small>
-                            <a class="btn btn-info" style="position: absolute;right: 10px;"
+                            <a class="btn btn-info" style="position: absolute;right: 80px;top: 10px;"
                                 href="/classroom/{{course.id}}/task/{{i.id}}/main"><i class='bx bxs-arrow-to-right'></i>
                                 เข้าสู่ภารกิจ</a>
+                            <div class="dropdown" style="position: absolute;top: 10px;right: 25px;">
+                                <a class="btn btn-light" type="button" data-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false"><i class='bx bx-dots-vertical-rounded'></i>
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a class="dropdown-item" href="/classroom/{{course.id}}/task/{{i.id}}">ลบ</a>
+                                </div>
+                            </div>
                         </div>
                         <div class="w-100"></div>
-                        <div class="col-12" style="min-height: 90px;">
-                            {% if i.description %}
+                        {% if i.description %}
+                        <div class="col-12 steam" style="min-height: 90px;">
                             <hr>
                             {{i.description | safe}}
-                            {% endif %}
-
-                            {% if i.task_file %}
+                        </div>
+                        {% endif %}
+                        {% if i.task_file %}
+                        <div class="col-12">
                             <hr>
                             {% for f in i.task_file %}
                             <a class="btn btn-primary mb-2 mr-2" href="{{f.file_link}}" target="_blank"><i
                                     class='bx bxs-file'></i> {{f.file_name}}</a>
                             {% endfor %}
-                            {% endif %}
+                        </div>
+                        {% endif %}
+                        {% if i.og %}
+                        <div class="col">
+                            <hr>
+                            {% for o in i.og %}
+                            <a href="{{o.url}}" style="text-decoration: none;color: #000;" target="_blank">
+                                <div class="row no-gutters rounded opengraph mb-2">
+                                    <div class="col-3"><img src="{{o.image}}" style="width: 100%;"></div>
+                                    <div class="col-9 p-3 bg-light">
+                                        <h5>{{o.title}}</h5>
+                                        <p>{{o.description | truncatechars:55}}</p>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="col-12">
                             <hr>
                             <h6>ความคืบหน้า</h6>
                             <div class="progress">
-                                <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {{i.percent}}%"
-                                    aria-valuenow="{{i.percent}}" aria-valuemin="0" aria-valuemax="100">{{i.total_turnedin}}/{{total_member}}</div>
+                                <div class="progress-bar progress-bar-striped bg-success" role="progressbar"
+                                    style="width: {{i.percent}}%" aria-valuenow="{{i.percent}}" aria-valuemin="0"
+                                    aria-valuemax="100">{{i.total_turnedin}}/{{total_member}}</div>
                             </div>
                         </div>
                     </div>
@@ -111,6 +150,17 @@
 {% block js %}
 <script>
     $(document).ready(function () {
+
+        $('#steam_div').keydown(function (e) {
+            let this_steam = $(this);
+            let link = this_steam.find('a');
+            link.attr('target', '_blank');
+
+        }).keyup(function () {
+            let this_steam = $(this);
+            let link = this_steam.find('a');
+            link.attr('target', '_blank');
+        });
 
         $('#get_file').change(function (e) {
             let files = e.target.files[0]

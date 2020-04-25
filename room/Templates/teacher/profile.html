@@ -1,0 +1,334 @@
+{% extends 'teacher/base.html' %}
+
+{% block content %}
+<section class="section-bg">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 text-center" data-aos="fade-up">
+                <div class=" bg-white rounded border col-12 p-3 shadow">
+                    <img src="{{member.picture}}" id="img_profile" class="img-fluid rounded">
+                </div>
+            </div>
+            <div class="col-md-8  d-flex text-center" data-aos="fade-up" data-aos-delay="100">
+                <div class="bg-white rounded border shadow col-12 p-5">
+                    <h2 class="mb-3">โปรไฟล์</h2>
+                    <form method="POST" action="/profile/" enctype="multipart/form-data" class="form">
+                        {% csrf_token %}
+                        <div class="form-group row">
+                            <label for="staticEmail" class="col-sm-3 col-form-label">Email :</label>
+                            <div class="col-sm-7">
+                                <div class="text-left">{{member.email}}</div>
+                                <input type="hidden" name="email" value="{{member.email}}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="staticEmail" class="col-sm-3 col-form-label">ประเภทผู้ใช้ :</label>
+                            <div class="col-sm-7">
+                                <div class="text-left">{{member.user_type.title}}</div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="staticEmail" class="col-sm-3 col-form-label">ชื่อ :</label>
+                            <div class="col-sm-7">
+                                <input type="text" readonly class="form-control-plaintext" required name="firstname"
+                                    value="{{member.firstname}}">
+                            </div>
+                            <div class="col-sm-2"><button type="button" class="btn btn-info edit"><i
+                                        class='bx bxs-edit'></i>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="staticEmail" class="col-sm-3 col-form-label">นามสกุล :</label>
+                            <div class="col-sm-7">
+                                <input type="text" readonly class="form-control-plaintext" required name="lastname"
+                                    value="{{member.lastname}}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="staticEmail" class="col-sm-3 col-form-label">ระดับการศึกษา :</label>
+                            <div class="col-sm-7">
+                                <select class="custom-select my-1 mr-sm-2" name="ed_level" id="id_ed_level">
+                                    <option value="{{member.super_catagory.id}}" selected>
+                                        {{member.super_catagory.title}}</option>
+                                    {% for i in ed_level %}
+                                    <option value="{{i.id}}" selected>{{i.title}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="staticEmail" class="col-sm-3 col-form-label">ระดับชั้น :</label>
+                            <div class="col-sm-7">
+                                <select class="custom-select my-1 mr-sm-2" name="ed_sublevel" id="id_ed_sublevel">
+                                    <option value="{{member.catagory.id}}" selected>{{member.catagory.title}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-3">รูปประจำตัว :</div>
+                            <div class="col-sm-7">
+                                <a class="btn btn-light cursor" data-toggle="modal" data-target="#ProfileModal"><i
+                                        class='bx bxs-camera'></i> อัพโหลดภาพประจำตัว</a>
+                            </div>
+
+                        </div>
+                        <div class="col-12">
+                            <div class="loading mb-2 text-center" id="post_loading">loading</div>
+                        </div>
+                        <script>
+
+                            function change_class() {
+                                const fullname = document.getElementById('id_fullname');
+                                fullname.classList.remove('form-control-plaintext');
+                                fullname.classList.add('form-control');
+                                fullname.removeAttribute('readonly');
+                            }
+
+                        </script>
+                        <button type="submit" class="btn btn-primary">บันทึก</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="ProfileModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"><i class="fas fa-camera"></i>
+                    อัพโหลดภาพปก</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="add-cover" class="mb-2">
+                    {% csrf_token %}
+                    <div class="form-group row">
+                        <label for="staticEmail" class="col-sm-3 col-form-label">ภาพปก</label>
+                        <div class="col-sm-9">
+                            <div class="custom-file mb-2">
+                                <input type="file" class="custom-file-input" name="cover_pic" id="id_cover_pic"
+                                    accept="image/*">
+                                <label class="custom-file-label" for="validatedCustomFile">เลือกภาพปก</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div id="cropper-img" class="mb-2">
+                    <img id="image" class="img-fluid" src="/uploads/0/cover/cover1.png">
+                    <div class="text-right">
+                        <button type="button" class="btn btn-primary mt-2" id="crop">ตกลง</button>
+                    </div>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                        aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                </div>
+                <div class="alert" role="alert"></div>
+                <script>
+                    document.querySelector('.custom-file-input').addEventListener('change', function (e) {
+                        var fileName = document.getElementById("id_cover_pic").files[0].name;
+                        var nextSibling = e.target.nextElementSibling
+                        nextSibling.innerText = fileName
+                    });
+
+                    //cropper image
+                    window.addEventListener('DOMContentLoaded', function () {
+
+                        var image = document.getElementById('image');
+                        var input = document.getElementById('id_cover_pic');
+                        var $progress = $('.progress');
+                        var $progressBar = $('.progress-bar');
+                        var $alert = $('.alert');
+                        var $modal = $('#ProfileModal');
+                        var cropper;
+                        var $add_cover = $('#add-cover');
+                        var $cropper_img = $('#cropper-img');
+                        $cropper_img.hide();
+                        $progress.hide();
+
+
+                        input.addEventListener('change', function (e) {
+                            var files = e.target.files;
+                            var done = function (url) {
+                                input.value = '';
+                                image.src = url;
+                                $alert.hide();
+                                $add_cover.hide();
+                                $cropper_img.show();
+                                create_crop();
+                            };
+                            var reader;
+                            var file;
+                            var url;
+
+                            if (files && files.length > 0) {
+                                file = files[0];
+
+                                if (URL) {
+                                    done(URL.createObjectURL(file));
+                                } else if (FileReader) {
+                                    reader = new FileReader();
+                                    reader.onload = function (e) {
+                                        done(reader.result);
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
+                            }
+                        });
+
+                        function create_crop() {
+                            let ratio = 1 / 1;
+                            cropper = new Cropper(image, {
+                                aspectRatio: ratio,
+                                viewMode: 1,
+                            });
+                        }
+
+                        $modal.on('hidden.bs.modal', function () {
+                            cropper.destroy();
+                            cropper = null;
+                            $add_cover.show();
+                            $cropper_img.hide();
+                            image.src = "/uploads/0/img/user.png";
+                        });
+
+                        document.getElementById('crop').addEventListener('click', function () {
+                            var canvas;
+
+                            $progress.show();
+
+                            if (cropper) {
+                                canvas = cropper.getCroppedCanvas();
+
+
+                                $progress.show();
+                                // $alert.removeClass('alert-success alert-warning');
+                                canvas.toBlob(function (blob) {
+                                    var csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+                                    var form_data = new FormData();
+                                    form_data.append('profile', blob, 'profile.jpg');
+                                    form_data.append('csrfmiddlewaretoken', csrfToken);
+                                    form_data.append('member_id', '{{member.id}}');
+
+                                    $.ajax('/profile/', {
+                                        method: 'POST',
+                                        data: form_data,
+                                        processData: false,
+                                        contentType: false,
+
+                                        xhr: function () {
+                                            var xhr = new XMLHttpRequest();
+
+                                            xhr.upload.onprogress = function (e) {
+                                                var percent = '0';
+                                                var percentage = '0%';
+
+                                                if (e.lengthComputable) {
+                                                    percent = Math.round((e.loaded / e.total) * 100);
+                                                    percentage = percent + '%';
+                                                    $progressBar.width(percentage).attr('aria-valuenow', percent).text(percentage);
+                                                }
+                                            };
+
+                                            return xhr;
+                                        },
+
+                                        success: function (data) {
+                                            if (data.status == 0) {
+                                                $alert.show().addClass('alert-success').text('You have no permission to update');
+                                            }
+                                            else {
+                                                let $img_profile = $('#img_profile')
+                                                let d=data.data;
+                                                $modal.modal('toggle')
+                                                $modal.hide();
+                                                $alert.show().addClass('alert-success').text('Upload success');
+                                                $img_profile.attr('src', d.picture);
+                                            }
+
+                                        },
+
+                                        error: function (data) {
+                                            console.log(data);
+                                            $alert.show().addClass('alert-warning').text('Upload error');
+                                        },
+
+                                        complete: function () {
+                                            $progress.hide();
+                                        },
+                                    });
+                                });
+                            }
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    $(document).ready(function () {
+
+        $('.edit').click(function () {
+            $('.form-control-plaintext').addClass('form-control').attr('readonly', false).removeClass('form-control-plaintext');
+        });
+
+        $('.form').submit(function () {
+            let this_form = $(this);
+            let data = this_form.serialize();
+            let action = this_form.attr('action');
+            let method = this_form.attr('method');
+            let loading = this_form.find('.loading');
+            loading.slideDown();
+
+
+            $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                    if (data.status == 1) {
+                        loading.slideUp();
+                        window.location.replace("/profile");
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    errorFunction();
+                }
+            });
+
+            return false;
+        });
+
+        $('#id_ed_level').change(function () {
+            const ed_sublevel = $('#id_ed_sublevel')
+            $.ajax({
+                type: "GET",
+                url: '/ajax/get_ed_sublevel',
+                data: { 'edlevel': $(this).val() },
+                dataType: 'json',
+                success: function (data) {
+                    text = ""
+                    for (i in data.result) {
+                        text += "<option value='" + data.result[i].id + "'>" + data.result[i].title + "</option>";
+                    }
+                    ed_sublevel.html(text);
+                },
+                error: function (jqXHR, textStatus, errorThrown) { errorFunction(); }
+            });
+        });
+    });
+</script>
+{% endblock %}

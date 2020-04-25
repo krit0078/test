@@ -4,20 +4,183 @@
 <section class="mb-5 section-bg">
     <div class="container">
         {% include 'teacher/classroom_nav.html' %}
-        <div class="row mb-4">
-
-        </div>
         <div class="row">
-            <div class="col">
-                <div class="bg-white border border-grey p-3 mb-2 rounded">
-                    ฟหกฟหก
+            <div class="col-md-4">
+                <div class="bg-white border shadow border-grey p-3 mb-2 rounded">
+                    <h5 class="text-center">เลือกแพลตฟอร์ม</h5><br>
+                    <div class="row">
+                        <div class="col-6">
+                            <img src="/static/assets/img/zoom.png" class="img-fluid rounded cursor" data-toggle="modal"
+                                data-target="#zoom">
+                        </div>
+                        <div class="col-6">
+                            <img src="/static/assets/img/meet.png" class="img-fluid border rounded cursor"
+                                data-toggle="modal" data-target="#meet">
+                        </div>
+                    </div>
                 </div>
             </div>
+            {% for i in live %}
+            <div class="col-md-4 align-items-center">
+                <div class="shadow mb-2 border card cursor" data-toggle="modal" data-target="#live{{i.id}}">
+                    <div class="rounded">
+                        {% if i.platform == 'zoom' %}
+                        <img src="/static/assets/img/zoom.png" class="img-fluid rounded">
+                        {% elif i.platform == 'meet' %}
+                        <img src="/static/assets/img/meet.png" class="img-fluid rounded">
+                        {% endif %}
+                    </div>
+                </div>
+                <div>
+
+                </div>
+                <div class="dropdown" style="position: absolute;top: 10px;right: 25px;">
+                    <a class="btn btn-light" type="button" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false"><i class='bx bx-dots-vertical-rounded' ></i>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="/classroom/{{course.id}}/live/{{i.id}}">ลบ</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </section>
 {% endblock %}
 
-{% block js %}
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="zoom" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">สอนสดผ่าน Zoom!!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/classroom/{{course.id}}/live/" id="form_zoom" class="f-form">
+                    {% csrf_token %}
+                    <div class="form-group row">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">ID:</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" required name="id" placeholder="zoom ID">
+                            <input type="hidden" name="platform" value="zoom">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Password</label>
+                        <div class="col-10">
+                            <input type="text" class="form-control" name="password" placeholder="รหัสผ่าน">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="loading mb-2 text-center" id="post_loading">loading</div>
+                    </div>
+                    <div class="text-right">
+                        <button type="submit" class="btn btn-primary">บันทึก</button>
+                    </div>
+                </form>
 
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="meet" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">สอนสดผ่าน Google Meet!!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/classroom/{{course.id}}/live/" id="form_meet" class="f-form">
+                    {% csrf_token %}
+                    <div class="form-group row">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Url:</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="id" required placeholder="Meet url">
+                            <input type="hidden" name="platform" value="meet">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="loading mb-2 text-center" id="post_loading">loading</div>
+                    </div>
+                    <div class="text-right">
+                        <button type="submit" class="btn btn-primary">บันทึก</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for i in live %}
+<!-- Modal -->
+<div class="modal fade" id="live{{i.id}}" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">สอนสดผ่าน {{i.platform}}!!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                {% if i.platform == 'zoom' %}
+                <h4><a href="https://zoom.us/join" class="btn-link" target="_blank">https://zoom.us/join</a></h4><br>
+                <h5>รหัสห้องเรียน : {{i.url}}</h5><br>
+                <h5>รหัสผ่าน : {{i.password}}</h5>
+                {% elif i.platform == 'meet' %}
+                <h4>เข้าร่วม Meet เลย</h4><br>
+                <h4><a href="{{i.url}}" class="btn-link" target="_blank">{{i.url}}</a></h4>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function () {
+        
+        $('.f-form').submit(function () {
+            let this_form = $(this);
+            let data = this_form.serialize();
+            let action = this_form.attr('action');
+            let method = this_form.attr('method');
+            let loading = this_form.find('.loading');
+            loading.slideDown();
+
+
+            $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                    if (data.status == 1) {
+                        loading.slideUp();
+                        window.location.replace("/classroom/{{course.id}}/live");
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    errorFunction();
+                }
+            });
+
+            return false;
+        });
+    });
+</script>
 {% endblock %}

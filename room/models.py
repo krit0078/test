@@ -34,8 +34,8 @@ class EdMember(models.Model):
     email = models.CharField(max_length=225,db_index=True)
     picture = models.CharField(max_length=512,default='/uploads/0/img/user.png', blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
-    ed_user_type=models.ForeignKey(EdUserType, models.DO_NOTHING,blank=True,null=True)
-    ed_sub_level=models.ForeignKey(EdSubLevel,models.DO_NOTHING,blank=True,null=True)
+    user_type=models.ForeignKey(EdUserType, models.DO_NOTHING,blank=True,null=True, related_name='user_type')
+    catagory=models.ForeignKey(EdSubLevel,models.DO_NOTHING,blank=True,null=True)
 
     class Meta:
         managed = True
@@ -132,6 +132,30 @@ class EdTurnedIn(models.Model):
     class Meta:
         managed = True
         db_table = 'ed_turnedin'
+
+class EdTaskOpengraph(models.Model):
+    title = models.CharField(max_length=512, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    url=models.TextField(blank=True, null=True)
+    image=models.TextField(blank=True, null=True)
+    task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_task_opengraph'
+
+class EdLive(models.Model):
+    url=models.TextField(blank=True, null=True)
+    password = models.CharField(max_length=100, blank=True, null=True)
+    platform = models.CharField(max_length=70, blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
+    course = models.ForeignKey(EdCourse, models.DO_NOTHING,blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_live'
 
 class EdLog(models.Model):
     ip=models.CharField(max_length=50)

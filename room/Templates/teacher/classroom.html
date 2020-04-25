@@ -64,10 +64,9 @@
                                 <div class="loading mb-2" id="post_loading">loading</div>
                             </div>
                             <div class="col-12" id="show_file">
-
                             </div>
                             <div class="col-md-12 mt-1 form-group text-right">
-                                <div class="btn-group">
+                                <div class="btn-group d-none">
                                     <button type="button" class="btn btn-light" data-toggle="dropdown"
                                         data-display="static" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-link-alt'></i> แทรกลิงก์
@@ -108,22 +107,32 @@
                             <img src="{{i.member.picture}}" class="rounded-circle" style="width: 50px; height:50px;">
                             {{i.member.firstname | truncatechars:55}} {{i.member.lastname | truncatechars:55}} <small
                                 class="text-muted">{{i.timestamp|date:'d b Y, H:i'}}</small>
+                            <div class="dropdown" style="position: absolute;top: 10px;right: 25px;">
+                                <a class="btn btn-light" type="button" data-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false"><i class='bx bx-dots-vertical-rounded'></i>
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a class="dropdown-item" href="/classroom/{{course.id}}/steam/{{i.id}}">ลบ</a>
+                                </div>
+                            </div>
                         </div>
                         <div class="w-100"></div>
-                        <div class="col-12" style="min-height: 90px;">
-                            {% if i.description %}
+                        {% if i.description %}
+                        <div class="col-12 steam" style="min-height: 90px;">
                             <hr>
                             {{i.description | safe}}
-                            {% endif %}
-
-                            {% if i.post_file %}
+                        </div>
+                        {% endif %}
+                        {% if i.post_file %}
+                        <div class="col-12" style="min-height: 90px;">
                             <hr>
                             {% for f in i.post_file %}
-                            <a class="btn btn-primary mb-2 mr-2" href="{{f.file_link}}"
-                                target="_blank"><i class='bx bxs-file' ></i> {{f.file_name}}</a>
+                            <a class="btn btn-primary mb-2 mr-2" href="{{f.file_link}}" target="_blank"><i
+                                    class='bx bxs-file'></i> {{f.file_name}}</a>
                             {% endfor %}
-                            {% endif %}
+
                         </div>
+                        {% endif %}
                         <div class="col-12">
                             <hr>
                             {% for j in i.reply %}
@@ -164,6 +173,7 @@
 {% endblock %}
 
 {% block modal %}
+
 <!-- Modal -->
 <div class="modal fade" id="CoverModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true" data-backdrop="static" data-keyboard="false">
@@ -415,6 +425,17 @@
 {% block js %}
 <script>
     $(document).ready(function ($) {
+
+        $('#steam_div').keydown(function (e) {
+            let this_steam = $(this);
+            let link = this_steam.find('a');
+            link.attr('target', '_blank');
+
+        }).keyup(function () {
+            let this_steam = $(this);
+            let link = this_steam.find('a');
+            link.attr('target', '_blank');
+        });
 
         $('#get_file').change(function (e) {
             let files = e.target.files[0]

@@ -124,6 +124,37 @@
         return false;
       }
     });
+
+    $('#insert_video').keypress(function (e) {
+
+      if (e.which == 13) {
+        let show_file=$('#show_file');
+        let val=$(this).val();
+        $(this).val("");
+        // let txt = "<a class='btn-link' href='" + $(this).val() + "' target='_blank'>" + $(this).val() + "</button>";
+
+
+        $.ajax('/ajax/fetch_og', {
+          method: 'GET',
+          data: {'url':val},
+          dataType: 'json',
+          success: function (data) {
+            let d=data.og;
+            let txt="<a href='"+d.url+"' style='text-decoration: none;color: #000;' target='_blank'><div class='row no-gutters rounded opengraph mb-2'>";
+            txt+="<div class='col-3'><img src='"+d.image+"' style='width: 100%;'></div>";
+            txt+="<div class='col-9 p-3 bg-light'><h5>"+d.title+"</h5><p>"+d.description+"</p></div></div>";
+            txt+="<input type='hidden' name='link_id[]' value='"+d.id+"'></a>";
+            console.log(data);
+            show_file.append(txt);
+          },
+          error:function(){
+            alert("ไม่สามารถโหลดข้อมูลได้");
+          }
+        });
+        return false;
+      }
+    });
+
   });
 
 })(jQuery);
