@@ -32,14 +32,22 @@
                             <div class="col-12" id="show_file">
 
                             </div>
+                            <div class="col-12">
+                                <div class="progress" style="display: none;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                        role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                        id="get_file_progress_bar">
+                                        0%</div>
+                                </div>
+                            </div>
                             <div class="col-md-12 mt-1 form-group text-right">
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-light" data-toggle="dropdown"
                                         data-display="static" aria-haspopup="true" aria-expanded="false">
-                                        <i class='bx bxs-videos'></i> แทรกวิดีโอ
+                                        <i class='bx bx-link-alt'></i> แทรกลิงก์
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left p-2">
-                                        <input type="text" placeholder="แทรกวิดีโอ" class="form-control"
+                                        <input type="text" placeholder="แทรกลิงก์" class="form-control"
                                             style="min-width: 300px;" id="insert_video">
                                     </div>
                                 </div>
@@ -93,7 +101,7 @@
                                     aria-expanded="false"><i class='bx bx-dots-vertical-rounded'></i>
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item" href="/classroom/{{course.id}}/task/{{i.id}}">ลบ</a>
+                                    <a class="dropdown-item" href="/classroom/{{course.id}}/task/{{i.id}}/delete">ลบ</a>
                                 </div>
                             </div>
                         </div>
@@ -108,8 +116,61 @@
                         <div class="col-12">
                             <hr>
                             {% for f in i.task_file %}
-                            <a class="btn btn-primary mb-2 mr-2" href="{{f.file_link}}" target="_blank"><i
-                                    class='bx bxs-file'></i> {{f.file_name}}</a>
+                            {% if f.type == 'image' %}
+                            <a href='{{f.file_link}}' style='text-decoration: none;color: #000;' target='_blank'>
+                                <div class='row no-gutters rounded opengraph mb-2'>
+                                    <div class='col-3'><img src="{{f.file_link}}" style="width: 100%;"></div>
+                                    <div class='col-9 p-3 bg-light'>
+                                        <h5>{{f.file_name| truncatechars:35 }}</h5>
+                                    </div>
+                                </div>
+                            </a>
+                            {% elif f.type == 'video' %}
+                            <a class="cursor" style='text-decoration: none;color: #000;' target='_blank'
+                                data-toggle="modal" data-target="#f{{f.id}}">
+                                <div class='row no-gutters rounded opengraph mb-2'>
+                                    <div class='col-3'><img src="/uploads/0/thumbnail/video.png" style="width: 100%;">
+                                    </div>
+                                    <div class='col-9 p-3 bg-light'>
+                                        <h5>{{f.file_name| truncatechars:35 }}</h5>
+                                    </div>
+                                </div>
+                            </a>
+                            <!-- Modal -->
+                            <div class="modal fade" id="f{{f.id}}" data-backdrop="static" tabindex="-1" role="dialog"
+                                aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="staticBackdropLabel">
+                                                {{f.file_name| truncatechars:55 }}</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="embed-responsive embed-responsive-16by9">
+                                                <video class="embed-responsive embed-responsive-21by9" controls>
+                                                    <source src="{{f.file_link}}" type="{{f.file_type}}">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% else %}
+                            <a href='{{f.file_link}}' style='text-decoration: none;color: #000;' target='_blank'>
+                                <div class='row no-gutters rounded opengraph mb-2'>
+                                    <div class='col-3'><img src="/uploads/0/thumbnail/app.png" style="width: 100%;">
+                                    </div>
+                                    <div class='col-9 p-3 bg-light'>
+                                        <h5>{{f.file_name| truncatechars:35 }}</h5>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endif %}
                             {% endfor %}
                         </div>
                         {% endif %}
@@ -149,6 +210,7 @@
 
 {% block js %}
 <script>
+
     $(document).ready(function () {
 
         $('#steam_div').keydown(function (e) {
@@ -166,28 +228,66 @@
             let files = e.target.files[0]
             let csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
             let loading = $('#post_loading');
+            var $progress = $('.progress');
+            var $progressBar = $('#get_file_progress_bar');
             let show_file = $('#show_file');
             let file_data = new FormData();
             file_data.append('file', files);
             file_data.append('csrfmiddlewaretoken', csrfToken);
             loading.slideDown();
+            $progress.show();
 
             $.ajax('/classroom/{{course.id}}/task/', {
                 method: 'POST',
                 data: file_data,
                 processData: false,
                 contentType: false,
+                xhr: function () {
+                    var xhr = new XMLHttpRequest();
 
+                    xhr.upload.onprogress = function (e) {
+                        var percent = '0';
+                        var percentage = '0%';
+
+                        if (e.lengthComputable) {
+                            percent = Math.round((e.loaded / e.total) * 100);
+                            percentage = percent + '%';
+                            $progressBar.width(percentage).attr('aria-valuenow', percent).text(percentage);
+                        }
+                    };
+                    return xhr;
+                },
                 success: function (data) {
                     let d = data.data;
-                    let txt = "<button type='button' class='btn btn-primary mr-2 mb-2'><i class='bx bxs-file' ></i> " + d.file_name + "</button><input type='hidden' name='file_id[]' value='" + d.id + "'>";
+                    let txt = "";
+                    if (d.file_name.length >= 35) {
+                        d.file_name = d.file_name.substr(0, 30);
+                        d.file_name += "...";
+                    }
+                    if (d.file_type.search('image') != -1) {
+                        txt += "<a href='" + d.file_link + "' style='text-decoration: none;color: #000;' target='_blank'><div class='row no-gutters rounded opengraph mb-2'><div class='col-3'><img src='" + d.file_link + "' style='width: 100%;'></div>";
+                        txt += "<div class='col-9 p-3 bg-light'><h5>" + d.file_name + "</h5></div></div></a>";
+                    } else if (d.file_type.search('video') != -1) {
+                        txt += "<a class='cursor' style='text-decoration: none;color: #000;' target='_blank'";
+                        txt += "data-toggle='modal' data-target='#f" + d.id + "'>";
+                        txt += "<div class='row no-gutters rounded opengraph mb-2'>";
+                        txt += "<div class='col-3'><img src='/uploads/0/thumbnail/video.png' style='width: 100%;'>";
+                        txt += "</div><div class='col-9 p-3 bg-light'><h5>" + d.file_name + "</h5></div></div></a>";
+                    } else {
+                        txt += "<a href='" + d.file_link + "' style='text-decoration: none;color: #000;' target='_blank'>";
+                        txt += "<div class='row no-gutters rounded opengraph mb-2'><div class='col-3'><img src='/uploads/0/thumbnail/app.png' style='width: 100%;'>";
+                        txt += "</div><div class='col-9 p-3 bg-light'><h5>" + d.file_name + "</h5></div></div></a>";
+                    }
+                    txt += "<input type='hidden' name='file_id[]' value='" + d.id + "'>";
                     if (data.status == 1) {
                         loading.slideUp();
                         show_file.append(txt);
                     }
                 },
+                complete: function () {
+                    $progress.hide();
+                },
             });
-
         });
 
         $('#post_form').submit(function () {
@@ -237,7 +337,36 @@
             });
 
             return false;
-        })
+        });
+
+        $('#insert_video').keypress(function (e) {
+
+            if (e.which == 13) {
+                let show_file = $('#show_file');
+                let val = $(this).val();
+                $(this).val("");
+                // let txt = "<a class='btn-link' href='" + $(this).val() + "' target='_blank'>" + $(this).val() + "</button>";
+                    
+                $.ajax('/ajax/fetch_og', {
+                    method: 'GET',
+                    data: { 'url': val },
+                    dataType: 'json',
+                    success: function (data) {
+                        let d = data.og;
+                        let txt = "<a href='" + d.url + "' style='text-decoration: none;color: #000;' target='_blank'><div class='row no-gutters rounded opengraph mb-2'>";
+                        txt += "<div class='col-3'><img src='" + d.image + "' style='width: 100%;'></div>";
+                        txt += "<div class='col-9 p-3 bg-light'><h5>" + d.title + "</h5><p>" + d.description + "</p></div></div>";
+                        txt += "<input type='hidden' name='link_id[]' value='" + d.id + "'></a>";
+                        console.log(data);
+                        show_file.append(txt);
+                    },
+                    error: function () {
+                        alert("ไม่สามารถโหลดข้อมูลได้");
+                    }
+                });
+                return false;
+            }
+        });
 
     });
 </script>

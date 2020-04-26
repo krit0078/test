@@ -121,6 +121,17 @@ class EdTaskFile(models.Model):
         managed = True
         db_table = 'ed_task_file'
 
+class EdTaskOpengraph(models.Model):
+    title = models.CharField(max_length=512, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    url=models.TextField(blank=True, null=True)
+    image=models.TextField(blank=True, null=True)
+    task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_task_opengraph'
+
 class EdTurnedIn(models.Model):
     description = models.TextField(blank=True, null=True)
     score = models.IntegerField(blank=True, default=0)
@@ -133,16 +144,6 @@ class EdTurnedIn(models.Model):
         managed = True
         db_table = 'ed_turnedin'
 
-class EdTaskOpengraph(models.Model):
-    title = models.CharField(max_length=512, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    url=models.TextField(blank=True, null=True)
-    image=models.TextField(blank=True, null=True)
-    task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
-
-    class Meta:
-        managed = True
-        db_table = 'ed_task_opengraph'
 
 class EdLive(models.Model):
     url=models.TextField(blank=True, null=True)
@@ -156,6 +157,40 @@ class EdLive(models.Model):
     class Meta:
         managed = True
         db_table = 'ed_live'
+
+class EdResource(models.Model):
+    description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_resource'
+
+class EdResourceFile(models.Model):
+    file_name=models.CharField(max_length=250)
+    file_link=models.TextField(blank=True, null=True)
+    file_type=models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    resource=models.ForeignKey(EdResource, models.DO_NOTHING, blank=True, null=True,related_name='resource')
+
+    class Meta:
+        managed = True
+        db_table = 'ed_resource_file'
+
+class EdResourceOpengraph(models.Model):
+    title = models.CharField(max_length=512, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    url=models.TextField(blank=True, null=True)
+    image=models.TextField(blank=True, null=True)
+    resource=models.ForeignKey(EdResource, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_resource_opengraph'
 
 class EdLog(models.Model):
     ip=models.CharField(max_length=50)

@@ -1,0 +1,41 @@
+<div class="p-3 justify-content-center" style="top: 15px;border-radius: 8px;">
+    <h5 class="text-center">เมนู</h5>
+    <div>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#target_nav"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-center" id="target_nav">
+                <ul class="nav d-flex flex-column justify-content-center col-12" id="main_nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/classroom/{{course.id}}/task"><i
+                                class='bx bxs-left-arrow-circle'></i> กลับห้องเรียน</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{is_active.0}}" href="/classroom/{{course.id}}/task/{{task.0.id}}/main"><i
+                                class="bx bx-task"></i> ภารกิจ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{is_active.1}}"
+                            href="/classroom/{{course.id}}/task/{{task.0.id}}/resource"><i class='bx bxs-book'></i>
+                            แหล่งเรียนรู้</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{is_active.2}}" href="#"><i class='bx bx-list-check'></i>
+                            ฐานความช่วยเหลือ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{is_active.3}}" href="#"><i class='bx bxs-videos'></i>
+                            ชุมชนการเรียนรู้</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{is_active.4}}" href="#"><i class='bx bxs-user-check'></i>
+                            ปรึกษาผู้เชี่ยวชาญ</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+    </div>
+</div>
