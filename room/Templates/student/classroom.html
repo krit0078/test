@@ -1,0 +1,715 @@
+{% extends 'teacher/base.html' %}
+
+{% block content %}
+<section class="mb-5 section-bg">
+    <div class="container">
+        {% include 'teacher/classroom_nav.html' %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="classroom border shadow-sm d-none d-md-block">
+                    <div class="classroom-img">
+                        <img src="{{course.cover_pic}}" id="cover">
+                        <div class="btn-group" class="btn btn-warning" style="
+                        position: absolute;
+                        bottom: 80px;
+                        right: 70px;">
+                            <button type="button" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                                <i class='bx bxs-edit'></i> แก้ไข
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item cursor" data-toggle="modal" data-target="#CoverModal"><i
+                                        class='bx bxs-camera'></i> อัพโหลดภาพปก</a>
+                                <a class="dropdown-item cursor" data-toggle="modal" data-target="#NameModal"><i
+                                        class='bx bxs-book'></i> แก้ไขชื่อวิชา</a>
+                                <a class="dropdown-item cursor" data-toggle="modal" data-target="#DescriptionModal"><i
+                                        class='bx bxs-detail'></i> แก้ไขคำอธิบายรายวิชา</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="classroom-name bg-white">
+                        {{course.course_name | truncatechars:100}}
+                    </div>
+                </div>
+                <h3 class="text-center mt-2 mb-2 d-block d-md-none">{{course.course_name | truncatechars:100}}</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="col mb-2 rounded shadow-sm border p-3 bg-white">
+                    <h5 class="text-center">รหัสห้องเรียน</h5>
+                    <hr>
+                    <h5 class="text-center">{{course.uid}}</h5>
+                </div>
+                <div class="col rounded shadow-sm border mb-2 p-3 d-none d-md-block bg-white">
+                    <h5 class="text-center">คำอธิบายรายวิชา</h5>
+                    <hr>
+                    <p>
+                        {{course.description | safe}}
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="col-12 mb-2 rounded shadow-sm border p-3 bg-white">
+                    <form id="post_form" method="POST" action="/classroom/{{course.id}}/">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="col-md-12 form-group">
+                                <div class="form-control" contenteditable="" data-placeholder="ประกาศ..."
+                                    style="min-height: 50px;height:auto;" id="steam_div"></div>
+                                <textarea class="form-control d-none" name="steam_post"
+                                    placeholder="ประกาศ..."></textarea>
+                            </div>
+                            <div class="col-12">
+                                <div class="loading mb-2" id="post_loading">loading</div>
+                            </div>
+                            <div class="col-12" id="show_file">
+
+                            </div>
+                            <div class="col-12">
+                                <div class="progress" style="display: none;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                        role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                        id="get_file_progress_bar">
+                                        0%</div>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mt-1 form-group text-right">
+                                <div class="btn-group d-none">
+                                    <button type="button" class="btn btn-light" data-toggle="dropdown"
+                                        data-display="static" aria-haspopup="true" aria-expanded="false">
+                                        <i class='bx bx-link-alt'></i> แทรกลิงก์
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left p-2">
+                                        <input type="text" placeholder="แทรกลิงก์" class="form-control"
+                                            style="min-width: 300px;" id="insert_link">
+                                    </div>
+                                </div>
+
+                                <span class="btn btn-light" style="position: relative;overflow: hidden;">
+                                    <i class='bx bxs-file-plus'></i> เพิ่มไฟล์ <input type="file" id="get_file" style="position: absolute;
+                                    top: 0;
+                                    right: 0;
+                                    min-width: 100%;
+                                    min-height: 100%;
+                                    font-size: 100px;
+                                    text-align: right;
+                                    filter: alpha(opacity=0);
+                                    opacity: 0;
+                                    outline: none;   
+                                    cursor: inherit;
+                                    display: block;">
+                                </span>
+
+                                <input type="file" class="sr-only"><button type="submit"
+                                    class="btn btn-primary ml-auto">โพสต์</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="post" class="mt-3"></div>
+                {% for i in post %}
+                <div class="col-12 mb-3 rounded shadow-sm border p-3 bg-white">
+                    <div class="row">
+                        <div class="col-12">
+                            <img src="{{i.member.picture}}" class="rounded-circle" style="width: 50px; height:50px;">
+                            {{i.member.firstname | truncatechars:55}} {{i.member.lastname | truncatechars:55}} <small
+                                class="text-muted">{{i.timestamp|date:'d b Y, H:i'}}</small>
+                            <div class="dropdown" style="position: absolute;top: 10px;right: 25px;">
+                                <a class="btn btn-light" type="button" data-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false"><i class='bx bx-dots-vertical-rounded'></i>
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a class="dropdown-item" href="/classroom/{{course.id}}/steam/{{i.id}}">ลบ</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                        {% if i.description %}
+                        <div class="col-12 steam" style="min-height: 90px;">
+                            <hr>
+                            {{i.description | safe}}
+                        </div>
+                        {% endif %}
+                        {% if i.post_file %}
+                        <div class="col-12" style="min-height: 90px;">
+                            <hr>
+
+                            {% for f in i.post_file %}
+                            {% if f.type == 'image' %}
+                            <a href='{{f.file_link}}' style='text-decoration: none;color: #000;' target='_blank'>
+                                <div class='row no-gutters rounded opengraph mb-2'>
+                                    <div class='col-3'><img src="{{f.file_link}}" style="width: 100%;"></div>
+                                    <div class='col-9 p-3 bg-light'>
+                                        <h5>{{f.file_name| truncatechars:35 }}</h5>
+                                    </div>
+                                </div>
+                            </a>
+                            {% elif f.type == 'video' %}
+                            <a class="cursor" style='text-decoration: none;color: #000;' target='_blank'
+                                data-toggle="modal" data-target="#f{{f.id}}">
+                                <div class='row no-gutters rounded opengraph mb-2'>
+                                    <div class='col-3'><img src="/uploads/0/thumbnail/video.png" style="width: 100%;">
+                                    </div>
+                                    <div class='col-9 p-3 bg-light'>
+                                        <h5>{{f.file_name| truncatechars:35 }}</h5>
+                                    </div>
+                                </div>
+                            </a>
+                            <!-- Modal -->
+                            <div class="modal fade" id="f{{f.id}}" data-backdrop="static" tabindex="-1" role="dialog"
+                                aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="staticBackdropLabel">
+                                                {{f.file_name| truncatechars:55 }}</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="embed-responsive embed-responsive-16by9">
+                                                <video class="embed-responsive embed-responsive-21by9" controls>
+                                                    <source src="{{f.file_link}}" type="{{f.file_type}}">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% else %}
+                            <a href='{{f.file_link}}' style='text-decoration: none;color: #000;' target='_blank'>
+                                <div class='row no-gutters rounded opengraph mb-2'>
+                                    <div class='col-3'><img src="/uploads/0/thumbnail/app.png" style="width: 100%;">
+                                    </div>
+                                    <div class='col-9 p-3 bg-light'>
+                                        <h5>{{f.file_name| truncatechars:35 }}</h5>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endif %}
+                            {% endfor %}
+
+                        </div>
+                        {% endif %}
+                        <div class="col-12">
+                            <hr>
+                            {% for j in i.reply %}
+                            <div class="comment">
+                                <div class="row no-gutters">
+                                    <div class="col-2 text-right"><img class="comment-img" src="{{j.member.picture}}">
+                                    </div>
+                                    <div class="col-10">
+                                        <div class="comment-text">{{j.description}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            <div class="comment mt-3">
+                                <form action="/classroom/{{course.id}}/" method="POST" class="reply_form">
+                                    {% csrf_token %}
+                                    <div class="row no-gutters form-group">
+                                        <div class="col-2 text-right">
+                                            <img class="comment-img" src="{{member.picture}}">
+                                        </div>
+                                        <div class="col-10">
+                                            <input type="hidden" name="post_id" value="{{i.id}}">
+                                            <input type="text" name="reply" class="form-control" autocomplete="off"
+                                                style="border-radius: 10px;" placeholder="แสดงความคิดเห็น">
+                                            <button type="submit" class="d-none">ส่ง</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block modal %}
+
+<!-- Modal -->
+<div class="modal fade" id="CoverModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"><i class="fas fa-camera"></i>
+                    อัพโหลดภาพปก</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="add-cover" class="mb-2">
+                    {% csrf_token %}
+                    <div class="form-group row">
+                        <label for="staticEmail" class="col-sm-3 col-form-label">ภาพปก</label>
+                        <div class="col-sm-9">
+                            <div class="custom-file mb-2">
+                                <input type="file" class="custom-file-input" name="cover_pic" id="id_cover_pic"
+                                    accept="image/*">
+                                <label class="custom-file-label" for="validatedCustomFile">เลือกภาพปก</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div id="cropper-img" class="mb-2">
+                    <img id="image" class="img-fluid" src="/uploads/0/cover/cover1.png">
+                    <div class="text-right">
+                        <button type="button" class="btn btn-primary mt-2" id="crop">ตกลง</button>
+                    </div>
+                </div>
+                <div class="progress" style="display: none;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                        aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                </div>
+                <div class="alert" role="alert"></div>
+                <script>
+                    document.querySelector('.custom-file-input').addEventListener('change', function (e) {
+                        var fileName = document.getElementById("id_cover_pic").files[0].name;
+                        var nextSibling = e.target.nextElementSibling
+                        nextSibling.innerText = fileName
+                    });
+
+                    //cropper image
+                    window.addEventListener('DOMContentLoaded', function () {
+
+                        var image = document.getElementById('image');
+                        var input = document.getElementById('id_cover_pic');
+                        var $progress = $('.progress');
+                        var $progressBar = $('.progress-bar');
+                        var $alert = $('.alert');
+                        var $modal = $('#CoverModal');
+                        var cropper;
+                        var $add_cover = $('#add-cover');
+                        var $cropper_img = $('#cropper-img');
+                        $cropper_img.hide();
+
+
+                        input.addEventListener('change', function (e) {
+                            var files = e.target.files;
+                            var done = function (url) {
+                                input.value = '';
+                                image.src = url;
+                                $alert.hide();
+                                $add_cover.hide();
+                                $cropper_img.show();
+                                create_crop();
+                            };
+                            var reader;
+                            var file;
+                            var url;
+
+                            if (files && files.length > 0) {
+                                file = files[0];
+
+                                if (URL) {
+                                    done(URL.createObjectURL(file));
+                                } else if (FileReader) {
+                                    reader = new FileReader();
+                                    reader.onload = function (e) {
+                                        done(reader.result);
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
+                            }
+                        });
+
+                        function create_crop() {
+                            let ratio = 16 / 9;
+                            cropper = new Cropper(image, {
+                                aspectRatio: ratio,
+                                viewMode: 1,
+                            });
+                        }
+
+                        $modal.on('hidden.bs.modal', function () {
+                            cropper.destroy();
+                            cropper = null;
+                            $add_cover.show();
+                            $cropper_img.hide();
+                            image.src = "/uploads/0/cover/cover1.png";
+                        });
+
+                        document.getElementById('crop').addEventListener('click', function () {
+                            var canvas;
+
+                            $progress.show();
+
+                            if (cropper) {
+                                canvas = cropper.getCroppedCanvas();
+
+
+                                $progress.show();
+                                // $alert.removeClass('alert-success alert-warning');
+                                canvas.toBlob(function (blob) {
+                                    var csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+                                    var form_data = new FormData();
+                                    form_data.append('cover', blob, 'cover.jpg');
+                                    form_data.append('classroom_id', '{{course.id}}');
+                                    form_data.append('csrfmiddlewaretoken', csrfToken);
+                                    form_data.append('member_id', '{{member.id}}');
+
+                                    $.ajax('/ajax/update_cover', {
+                                        method: 'POST',
+                                        data: form_data,
+                                        processData: false,
+                                        contentType: false,
+
+                                        xhr: function () {
+                                            var xhr = new XMLHttpRequest();
+
+                                            xhr.upload.onprogress = function (e) {
+                                                var percent = '0';
+                                                var percentage = '0%';
+
+                                                if (e.lengthComputable) {
+                                                    percent = Math.round((e.loaded / e.total) * 100);
+                                                    percentage = percent + '%';
+                                                    $progressBar.width(percentage).attr('aria-valuenow', percent).text(percentage);
+                                                }
+                                            };
+
+                                            return xhr;
+                                        },
+
+                                        success: function (data) {
+                                            console.log(data);
+                                            if (data.status == 0) {
+                                                $alert.show().addClass('alert-success').text('You have no permission to update');
+                                            }
+                                            else {
+                                                let $cover = $('#cover')
+                                                $modal.modal('toggle')
+                                                $modal.hide();
+                                                $alert.show().addClass('alert-success').text('Upload success');
+                                                $cover.attr('src', data.url);
+                                            }
+
+                                        },
+
+                                        error: function (data) {
+                                            console.log(data);
+                                            $alert.show().addClass('alert-warning').text('Upload error');
+                                        },
+
+                                        complete: function () {
+                                            $progress.hide();
+                                        },
+                                    });
+                                });
+                            }
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="DescriptionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"><i class="fas fa-file-alt"></i>
+                    แก้ไขคำอธิบายรายวิชา</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/classroom/{{course.id}}/" id="description_form"
+                    enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group row">
+                        <label for="staticEmail" class="col-sm-3 col-form-label">คำอธิบายรายวิชา</label>
+                        <div class="col-sm-9">
+                            <Textarea class="form-control" style="height:200px" required
+                                name="course_description">{{course.description}}</Textarea>
+                        </div>
+                    </div>
+                    <div class="loading mb-2">loading</div>
+                    <div class="error-message mb-2"></div>
+                    <div class="text-right">
+                        <button type="submit" class="btn btn-warning"><i class='bx bxs-edit'></i> แก้ไข</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="NameModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"><i class="fas fa-book"></i>
+                    แก้ไขชื่อวิชา</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/classroom/{{course.id}}/" id="name_form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group row">
+                        <label for="staticEmail" class="col-sm-3 col-form-label">ชื่อวิชา</label>
+                        <div class="col-sm-9">
+                            <input class="form-control" required name="course_name" value="{{course.course_name}}" />
+                        </div>
+                    </div>
+                    <div class="loading mb-2">loading</div>
+                    <div class="error-message mb-2"></div>
+                    <div class="text-right">
+                        <button type="submit" class="btn btn-warning"><i class='bx bxs-edit'></i></i> แก้ไข</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function ($) {
+
+        $('#steam_div').keydown(function (e) {
+            let this_steam = $(this);
+            let link = this_steam.find('a');
+            link.attr('target', '_blank');
+
+        }).keyup(function () {
+            let this_steam = $(this);
+            let link = this_steam.find('a');
+            link.attr('target', '_blank');
+        });
+
+        $('#get_file').change(function (e) {
+            let files = e.target.files[0]
+            let csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+            let loading = $('#post_loading');
+            var $progress = $('.progress');
+            var $progressBar = $('#get_file_progress_bar');
+            let show_file = $('#show_file');
+            let file_data = new FormData();
+            file_data.append('file', files);
+            file_data.append('csrfmiddlewaretoken', csrfToken);
+            loading.slideDown();
+            $progress.show();
+
+            $.ajax('/classroom/{{course.id}}/', {
+                method: 'POST',
+                data: file_data,
+                processData: false,
+                contentType: false,
+                xhr: function () {
+                    var xhr = new XMLHttpRequest();
+
+                    xhr.upload.onprogress = function (e) {
+                        var percent = '0';
+                        var percentage = '0%';
+
+                        if (e.lengthComputable) {
+                            percent = Math.round((e.loaded / e.total) * 100);
+                            percentage = percent + '%';
+                            $progressBar.width(percentage).attr('aria-valuenow', percent).text(percentage);
+                        }
+                    };
+                    return xhr;
+                },
+                success: function (data) {
+                    let d = data.data;
+                    let txt = "";
+                    if (d.file_name.length >= 35) {
+                        d.file_name = d.file_name.substr(0, 30);
+                        d.file_name += "...";
+                    }
+                    if (d.file_type.search('image') != -1) {
+                        txt += "<a href='" + d.file_link + "' style='text-decoration: none;color: #000;' target='_blank'><div class='row no-gutters rounded opengraph mb-2'><div class='col-3'><img src='" + d.file_link + "' style='width: 100%;'></div>";
+                        txt += "<div class='col-9 p-3 bg-light'><h5>" + d.file_name + "</h5></div></div></a>";
+                    } else if (d.file_type.search('video') != -1) {
+                        txt += "<a class='cursor' style='text-decoration: none;color: #000;' target='_blank'";
+                        txt += "data-toggle='modal' data-target='#f" + d.id + "'>";
+                        txt += "<div class='row no-gutters rounded opengraph mb-2'>";
+                        txt += "<div class='col-3'><img src='/uploads/0/thumbnail/video.png' style='width: 100%;'>";
+                        txt += "</div><div class='col-9 p-3 bg-light'><h5>" + d.file_name + "</h5></div></div></a>";
+                    } else {
+                        txt += "<a href='"+d.file_link+"' style='text-decoration: none;color: #000;' target='_blank'>";
+                        txt += "<div class='row no-gutters rounded opengraph mb-2'><div class='col-3'><img src='/uploads/0/thumbnail/app.png' style='width: 100%;'>";
+                        txt += "</div><div class='col-9 p-3 bg-light'><h5>"+d.file_name+"</h5></div></div></a>";
+                    }
+                    txt += "<input type='hidden' name='file_id[]' value='" + d.id + "'>";
+                    if (data.status == 1) {
+                        loading.slideUp();
+                        show_file.append(txt);
+                    }
+                },
+                complete: function () {
+                    $progress.hide();
+                },
+            });
+        });
+
+        $('.reply_form').submit(function () {
+            let this_form = $(this);
+            let data = this_form.serialize();
+            let action = this_form.attr('action');
+            let method = this_form.attr('method');
+
+
+            $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                    if (data.status == 1) {
+                        window.location.replace("/classroom/{{course.id}}");
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    errorFunction();
+                }
+            });
+
+            return false;
+        });
+
+
+        $('#post_form').submit(function () {
+            let this_form = $(this);
+            let data = this_form.serializeArray();
+            let action = this_form.attr('action');
+            let method = this_form.attr('method');
+            let loading = this_form.find('.loading');
+            let post = $('#post');
+            loading.slideDown();
+            let steam_div = $('#steam_div');
+            data.push({ name: 'steam_div', value: steam_div.html() });
+
+
+            $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    loading.slideUp();
+                    this_form.trigger('reset');
+                    let d = data.data;
+                    let f = d.firstname;
+                    let l = d.lastname;
+                    if (f.length >= 55) {
+                        f = f.substr(0, 50);
+                    }
+
+                    if (l.length >= 50) {
+                        l = l.substr(0, 50);
+                    }
+
+                    window.location.replace("/classroom/{{course.id}}")
+                    let txt = "<div class='col-12 mb-3 rounded shadow-sm border p-3'><div class='row'><div class='col-12'>";
+                    txt += "<img src='" + d.picture + "' class='rounded-circle' style='width: 50px; height:50px;'> ";
+                    txt += f + " " + l + " <small class='text-muted'>เมื่อซักครู่</small>";
+                    txt += "</div><div class='w-100'></div><div class='col-12' style='min-height: 90px;'><hr>";
+                    txt += d.description + "</div>";
+                    txt += "</div></div>";
+                    $(txt).hide().fadeIn(2000).insertAfter(post);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    loading.slideUp();
+                    errorFunction();
+                }
+            });
+
+            return false;
+        })
+
+        $('#name_form').submit(function () {
+            let this_form = $(this);
+            let data = this_form.serialize();
+            let action = this_form.attr('action');
+            let method = this_form.attr('method');
+            let loading = this_form.find('.loading');
+            let error = this_form.find('.error-message');
+            loading.slideDown();
+
+
+            $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    loading.slideUp();
+                    if (data.status == 1) {
+                        window.location.replace("/classroom/{{course.id}}");
+                    } else {
+                        error.html('ท่านไม่มีสิทธิ์ในการแก้ไขข้อมูล');
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    loading.slideUp();
+                    error.html('ไม่สามารถส่งข้อมูลได้');
+                    errorFunction();
+                }
+            });
+
+            return false;
+        });
+
+        $('#description_form').submit(function () {
+            let this_form = $(this);
+            let data = this_form.serializeArray();
+            let action = this_form.attr('action');
+            let method = this_form.attr('method');
+            let loading = this_form.find('.loading');
+            let error = this_form.find('.error-message');
+            loading.slideDown();
+
+
+            $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    loading.slideUp();
+                    if (data.status == 1) {
+                        window.location.replace("/classroom/{{course.id}}");
+                    } else {
+                        error.html('ท่านไม่มีสิทธิ์ในการแก้ไขข้อมูล');
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    loading.slideUp();
+                    error.html('ไม่สามารถส่งข้อมูลได้');
+                    errorFunction();
+                }
+            });
+
+            return false;
+        });
+    });
+
+
+</script>
+
+
+{% endblock %}
