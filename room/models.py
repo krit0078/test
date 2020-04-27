@@ -192,6 +192,40 @@ class EdResourceOpengraph(models.Model):
         managed = True
         db_table = 'ed_resource_opengraph'
 
+class EdSocial(models.Model):
+    description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_social'
+
+class EdSocialFile(models.Model):
+    file_name=models.CharField(max_length=250)
+    file_link=models.TextField(blank=True, null=True)
+    file_type=models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    social=models.ForeignKey(EdSocial, models.DO_NOTHING, blank=True, null=True,related_name='social')
+
+    class Meta:
+        managed = True
+        db_table = 'ed_social_file'
+
+class EdSocialOpengraph(models.Model):
+    title = models.CharField(max_length=512, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    url=models.TextField(blank=True, null=True)
+    image=models.TextField(blank=True, null=True)
+    social=models.ForeignKey(EdSocial, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_social_opengraph'
+
 class EdLog(models.Model):
     ip=models.CharField(max_length=50)
     device=models.CharField(max_length=200,null=True)

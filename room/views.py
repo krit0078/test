@@ -757,31 +757,31 @@ def resource(request,classroom_id,task_id):
             link_id=request.POST.getlist('link_id[]')
             steam_div=request.POST.get('steam_div')
 
-            # if steam_div or file_id or link_id:
+            if steam_div or file_id or link_id:
 
-            #     post=models.EdTask(description=steam_div,course_id=classroom_id,teacher_id=member.id)
-            #     post.save()
+                post=models.EdResource(description=steam_div,task_id=task_id,teacher_id=member.id)
+                post.save()
 
-            #     p=models.EdTask.objects.latest('id')
-            #     m=models.EdMember.objects.get(id=p.teacher_id)
+                p=models.EdResource.objects.latest('id')
+                m=models.EdMember.objects.get(id=p.teacher_id)
 
-            #     if file_id:
-            #         for i in file_id:
-            #             f=models.EdTaskFile.objects.get(id=i)
-            #             f.task_id=p.id
-            #             f.save()
+                if file_id:
+                    for i in file_id:
+                        f=models.EdResourceFile.objects.get(id=i)
+                        f.resource_id=p.id
+                        f.save()
                 
-            #     if link_id:
-            #         for i in link_id:
-            #             o=models.EdTaskOpengraph.objects.get(id=i)
-            #             o.task_id=p.id
-            #             o.save()
+                if link_id:
+                    for i in link_id:
+                        o=models.EdResourceOpengraph.objects.get(id=i)
+                        o.resource_id=p.id
+                        o.save()
 
-            #     data={
-            #         'status':1,
-            #         'data':{'id':p.id,'description':p.description,'timestamp':p.timestamp,'firstname':m.firstname,'lastname':m.lastname,'picture':m.picture}
-            #     }
-            #     return JsonResponse(data)
+                data={
+                    'status':1,
+                    'data':{'id':p.id,'description':p.description,'timestamp':p.timestamp,'firstname':m.firstname,'lastname':m.lastname,'picture':m.picture}
+                }
+                return JsonResponse(data)
             
             if file_data:
 
@@ -817,8 +817,28 @@ def resource(request,classroom_id,task_id):
         course=models.EdCourse.objects.get(id=classroom_id)
 
         #query task
-        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher').select_related('course')
+        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
+
+        #query resource
+        resource=models.EdResource.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
+        i=0
+        for x in resource:
+            resource_file=models.EdResourceFile.objects.filter(resource=x.id).filter(status="ACTIVE")
+            j=0
+            for y in resource_file:
+                if y.file_type.find("image") != -1:
+                    resource_file[j].type="image"
+                elif y.file_type.find("video") != -1:
+                    resource_file[j].type="video"
+                else:
+                    resource_file[j].type="app"
+                j=j+1
+
+            resource_og=models.EdResourceOpengraph.objects.filter(resource_id=x.id)
+            resource[i].resource_file=resource_file
+            resource[i].og=resource_og  
     
+            i=i+1          
 
         is_active=['']*5
         is_active[1]="active"
@@ -829,10 +849,136 @@ def resource(request,classroom_id,task_id):
             'course':course,
             'task':task,
             'task_id':task_id,
-            'is_active':is_active
+            'is_active':is_active,
+            'resource':resource
         }
         return render(request,'teacher/main_resource.html',context)
 
+def social(request,classroom_id,task_id):
+    #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    if request.session['type'] == 'STUDENT':
+        context={
+            'title':'หน้าหลักนักเรียน',
+            'member':member
+        }
+    else:
+        #check owner
+        if check_owner(classroom_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #check owner task
+        if check_owner_task(classroom_id,task_id):
+            return HttpResponseRedirect("/dashboard")
+
+        if request.method == 'POST':
+            file_data=request.FILES.getlist('file')
+            file_id=request.POST.getlist('file_id[]')
+            link_id=request.POST.getlist('link_id[]')
+            steam_div=request.POST.get('steam_div')
+
+            if steam_div or file_id or link_id:
+
+                post=models.EdResource(description=steam_div,task_id=task_id,teacher_id=member.id)
+                post.save()
+
+                p=models.EdResource.objects.latest('id')
+                m=models.EdMember.objects.get(id=p.teacher_id)
+
+                if file_id:
+                    for i in file_id:
+                        f=models.EdResourceFile.objects.get(id=i)
+                        f.resource_id=p.id
+                        f.save()
+                
+                if link_id:
+                    for i in link_id:
+                        o=models.EdResourceOpengraph.objects.get(id=i)
+                        o.resource_id=p.id
+                        o.save()
+
+                data={
+                    'status':1,
+                    'data':{'id':p.id,'description':p.description,'timestamp':p.timestamp,'firstname':m.firstname,'lastname':m.lastname,'picture':m.picture}
+                }
+                return JsonResponse(data)
+            
+            if file_data:
+
+                list = []
+                name = []
+                file_type = []
+                for f in file_data:
+                    import datetime
+                    fs = FileSystemStorage()
+
+                    date = datetime.date.today()
+                    path = "course_id_{0}/social/files/{1}/{2}"
+                    path = path.format(
+                        classroom_id,date,f.name)
+                    filename = fs.save(path, f)
+                    list.append(fs.url(filename))
+                    name.append(f.name)
+                    file_type.append(f.content_type)
+
+                social_file=models.EdSocialFile(file_name=name[0],file_type=file_type[0],file_link=list[0],social_id="")
+                social_file.save()
+
+                p=models.EdSocialFile.objects.latest('id')
+
+                data={
+                    'status':1,
+                    'data':{'id':p.id,'file_name':p.file_name,'file_link':p.file_link,'file_type':p.file_type}
+                }
+
+                return JsonResponse(data)
+
+        #query course
+        course=models.EdCourse.objects.get(id=classroom_id)
+
+        #query task
+        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
+
+        #query resource
+        social=models.EdSocial.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
+        i=0
+        for x in social:
+            ssocial_file=models.EdSocial.objects.filter(social_id=x.id).filter(status="ACTIVE")
+            j=0
+            for y in social_file:
+                if y.file_type.find("image") != -1:
+                    social_file[j].type="image"
+                elif y.file_type.find("video") != -1:
+                    social_file[j].type="video"
+                else:
+                    social_file[j].type="app"
+                j=j+1
+
+            social_og=models.EdResourceOpengraph.objects.filter(resource_id=x.id)
+            social[i].social_file=social_file
+            social[i].og=social_og  
+    
+            i=i+1          
+
+        is_active=['']*5
+        is_active[3]="active"
+
+        context={
+            'title':'ชุมชนการเรียนรู้',
+            'member':member,
+            'course':course,
+            'task':task,
+            'task_id':task_id,
+            'is_active':is_active,
+            'social':social
+        }
+        return render(request,'teacher/main_social.html',context)
+    
 def check_owner(classroom_id,member_id):
     owner=len(models.EdCourse.objects.filter(id=classroom_id).filter(teacher_id=member_id))
     if owner == 0:
@@ -893,6 +1039,30 @@ def delete_task(request,classroom_id,task_id):
 
     url="/classroom/{0}/task"
     url=url.format(classroom_id)
+    return HttpResponseRedirect(url)
+
+def delete_resource(request,classroom_id,task_id,resource_id):
+    #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    #check owner
+    if check_owner(classroom_id,member.id):
+        return HttpResponseRedirect("/dashboard")
+    
+    #check owner task
+    if check_owner_task(classroom_id,task_id):
+        return HttpResponseRedirect("/dashboard")
+    
+    resource=models.EdResource.objects.get(id=resource_id)
+    resource.status="DELETE"
+    resource.save()
+
+    url="/classroom/{0}/task/{1}/resource"
+    url=url.format(classroom_id,task_id)
     return HttpResponseRedirect(url)
 
 def delete_steam(request,classroom_id,steam_id):
@@ -983,10 +1153,12 @@ def update_cover(request):
 
 import urllib.request
 from bs4 import BeautifulSoup
+import urllib.parse
 
-def fetch_og_task(request):
+def fetch_og(request):
     
     url_req=request.GET.get('url')
+    target=request.GET.get('target')
 
     page = urllib.request.urlopen(url_req).read()
     html = BeautifulSoup(page)
@@ -995,10 +1167,23 @@ def fetch_og_task(request):
     url = html.find("meta",  property="og:url")
     image = html.find("meta",  property="og:image")
 
-    og = models.EdTaskOpengraph(title='', description='', url='', image='',task_id="")
-    og.save()
+    og=[]
 
-    og = models.EdTaskOpengraph.objects.latest('id')
+    if target == 'task':
+        og = models.EdTaskOpengraph(title='', description='', url='', image='',task_id="")
+        og.save()
+
+        og = models.EdTaskOpengraph.objects.latest('id')
+    elif target == 'resource':
+        og = models.EdResourceOpengraph(title='', description='', url='', image='',resource_id='')
+        og.save()
+
+        og = models.EdResourceOpengraph.objects.latest('id')
+    elif target == 'social':
+        og = models.EdSocialOpengraph(title='', description='', url='', image='',social_id='')
+        og.save()
+
+        og = models.EdSocialOpengraph.objects.latest('id')
 
     if title is None:
         title=html.find("title")
@@ -1014,6 +1199,10 @@ def fetch_og_task(request):
     if image is None:
         og.image = ""
     else:
+        if 'http' not in image['content']:
+            if url_req.endswith('/'):
+                url_req=url_req[0:-1]
+            image['content']=url_req+image['content']
         og.image = image['content']
         og.save()
     if url is None:
@@ -1026,51 +1215,4 @@ def fetch_og_task(request):
         'status':1,
         'og':{'id':og.id,'title':og.title,'image':og.image,'url':og.url,'description':og.description}
     }
-
     return JsonResponse(data)
-
-def fetch_og_resource(request):
-    
-    url_req=request.GET.get('url')
-
-    page = urllib.request.urlopen(url_req).read()
-    html = BeautifulSoup(page)
-    title = html.find("meta",  property="og:title")
-    description = html.find("meta",  property="og:description")
-    url = html.find("meta",  property="og:url")
-    image = html.find("meta",  property="og:image")
-
-    og = models.EdResourceOpengraph(title='', description='', url='', image='',resource_id='')
-    og.save()
-
-    og = models.EdResourceOpengraph.objects.latest('id')
-
-    if title is None:
-        title=html.find("title")
-        og.title = title
-    else:
-        og.title = title['content']
-        og.save()
-    if description is None:
-        og.description = ""
-    else:
-        og.description = description['content']
-        og.save()
-    if image is None:
-        og.image = ""
-    else:
-        og.image = image['content']
-        og.save()
-    if url is None:
-        og.url = url_req
-    else:
-        og.url = url['content']
-        og.save()
-
-    data={
-        'status':1,
-        'og':{'id':og.id,'title':og.title,'image':og.image,'url':og.url,'description':og.description}
-    }
-
-    return JsonResponse(data)
-    

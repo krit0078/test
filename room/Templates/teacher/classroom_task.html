@@ -349,7 +349,7 @@
                     
                 $.ajax('/ajax/fetch_og', {
                     method: 'GET',
-                    data: { 'url': val },
+                    data: { 'url': val,'target':'task' },
                     dataType: 'json',
                     success: function (data) {
                         let d = data.og;

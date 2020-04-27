@@ -19,9 +19,10 @@ urlpatterns = [
     path('classroom/<int:classroom_id>/live/<int:live_id>',views.delete_live),
     path('classroom/<int:classroom_id>/task/<int:task_id>/main',views.main),
     path('classroom/<int:classroom_id>/task/<int:task_id>/resource',views.resource),
+    path('classroom/<int:classroom_id>/task/<int:task_id>/resource/<int:resource_id>/delete',views.delete_resource),
+    path('classroom/<int:classroom_id>/task/<int:task_id>/social',views.social),
     path('ajax/check_email',views.check_email),
     path('ajax/get_ed_sublevel',views.get_ed_sublevel),
     path('ajax/update_cover',views.update_cover),
-    path('ajax/fetch_og',views.fetch_og_task),
-    path('ajax/fetch_og/resource',views.fetch_og_resource)
+    path('ajax/fetch_og',views.fetch_og),
 ]
