@@ -14,7 +14,7 @@
         </div>
         <div class="col-md-7 col-12 mb-3 mt-md-5">
             <div class="col-12 mb-2 rounded shadow-sm border p-3 bg-white steam">
-                <form id="post_form" method="POST" action="/classroom/{{course.id}}/task/{{task.0.id}}/social">
+                <form id="post_form" method="POST" action="/classroom/{{course.id}}/task/{{task.0.id}}/scaffolding">
                     {% csrf_token %}
                     <div class="form-row">
                         <div class="col-md-12 form-group">
@@ -35,31 +35,11 @@
                                     0%</div>
                             </div>
                         </div>
+
                         <div class="col-md-12 mt-1 form-group text-right">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-light" data-toggle="dropdown" data-display="static"
-                                    aria-haspopup="true" aria-expanded="false">
-                                    <i class='bx bx-link-alt'></i> แทรกลิงก์
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left p-2">
-                                    <input type="text" placeholder="แทรกลิงก์" class="form-control"
-                                        style="min-width: 300px;" id="insert_video">
-                                </div>
-                            </div>
-
-                            <div class="btn-group d-none">
-                                <button type="button" class="btn btn-light" data-toggle="dropdown" data-display="static"
-                                    aria-haspopup="true" aria-expanded="false">
-                                    <i class='bx bx-link-alt'></i> แทรกลิงก์
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left p-2">
-                                    <input type="text" placeholder="แทรกลิงก์" class="form-control"
-                                        style="min-width: 300px;" id="insert_link">
-                                </div>
-                            </div>
-
                             <span class="btn btn-light" style="position: relative;overflow: hidden;">
-                                <i class='bx bxs-file-plus'></i> เพิ่มไฟล์ <input type="file" id="get_file" style="position: absolute;
+                                <i class='bx bxs-photo-album'></i> เพิ่มรูป <input type="file" id="get_file"
+                                    accept="image/*" style="position: absolute;
                                 top: 0;
                                 right: 0;
                                 min-width: 100%;

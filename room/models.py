@@ -226,6 +226,61 @@ class EdSocialOpengraph(models.Model):
         managed = True
         db_table = 'ed_social_opengraph'
 
+class EdScaffoldingType(models.Model):
+    prefix=models.CharField(max_length=95,blank=True,null=True)
+    title=models.CharField(max_length=95,blank=True,null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_scaffolding_type'
+
+class EdScaffolding(models.Model):
+    description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
+    scaff_type=models.ForeignKey(EdScaffoldingType, models.DO_NOTHING, blank=True, null=True,related_name='scaff_type')
+
+    class Meta:
+        managed = True
+        db_table = 'ed_scaffolding'
+
+class EdScaffoldingFile(models.Model):
+    file_name=models.CharField(max_length=250)
+    file_link=models.TextField(blank=True, null=True)
+    file_type=models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    scaffolding=models.ForeignKey(EdScaffolding, models.DO_NOTHING, blank=True, null=True,related_name='scaffolding')
+
+    class Meta:
+        managed = True
+        db_table = 'ed_scaffolding_file'
+
+class EdCoach(models.Model):
+    description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_coach'
+
+class EdCoachFile(models.Model):
+    file_name=models.CharField(max_length=250)
+    file_link=models.TextField(blank=True, null=True)
+    file_type=models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    coach=models.ForeignKey(EdCoach, models.DO_NOTHING, blank=True, null=True,related_name='coach')
+
+    class Meta:
+        managed = True
+        db_table = 'ed_coach_file'
+
 class EdLog(models.Model):
     ip=models.CharField(max_length=50)
     device=models.CharField(max_length=200,null=True)

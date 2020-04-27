@@ -854,6 +854,132 @@ def resource(request,classroom_id,task_id):
         }
         return render(request,'teacher/main_resource.html',context)
 
+def scaffolding(request,classroom_id,task_id):
+    #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    if request.session['type'] == 'STUDENT':
+        context={
+            'title':'หน้าหลักนักเรียน',
+            'member':member
+        }
+    else:
+        #check owner
+        if check_owner(classroom_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #check owner task
+        if check_owner_task(classroom_id,task_id):
+            return HttpResponseRedirect("/dashboard")
+
+        if request.method == 'POST':
+            file_data=request.FILES.getlist('file')
+            file_id=request.POST.getlist('file_id[]')
+            link_id=request.POST.getlist('link_id[]')
+            steam_div=request.POST.get('steam_div')
+            scaff_type=request.POST.get('scaff_type')
+
+            if steam_div or file_id or link_id:
+                s=models.EdScaffolding.objects.filter(task_id=task_id).filter(scaff_type_id=scaff_type)
+                for i in s:
+                    i.status="DELETE"
+                    i.save()
+
+                post=models.EdScaffolding(description=steam_div,task_id=task_id,teacher_id=member.id,scaff_type_id=scaff_type)
+                post.save()
+
+                p=models.EdScaffolding.objects.latest('id')
+                m=models.EdMember.objects.get(id=p.teacher_id)
+
+                if file_id:
+                    for i in file_id:
+                        f=models.EdScaffoldingFile.objects.get(id=i)
+                        f.scaffolding_id=p.id
+                        f.save()
+
+                data={
+                    'status':1,
+                    'data':{'id':p.id,'description':p.description,'timestamp':p.timestamp,'firstname':m.firstname,'lastname':m.lastname,'picture':m.picture}
+                }
+                return JsonResponse(data)
+            
+            if file_data:
+
+                list = []
+                name = []
+                file_type = []
+                for f in file_data:
+                    if f.content_type.find("image") != -1:
+                        import datetime
+                        fs = FileSystemStorage()
+
+                        date = datetime.date.today()
+                        path = "course_id_{0}/scaffolding/files/{1}/{2}"
+                        path = path.format(
+                            classroom_id,date,f.name)
+                        filename = fs.save(path, f)
+                        list.append(fs.url(filename))
+                        name.append(f.name)
+                        file_type.append(f.content_type)
+
+                scaff_file=models.EdScaffoldingFile(file_name=name[0],file_type=file_type[0],file_link=list[0],scaffolding_id="")
+                scaff_file.save()
+
+                p=models.EdScaffoldingFile.objects.latest('id')
+
+                data={
+                    'status':1,
+                    'data':{'id':p.id,'file_name':p.file_name,'file_link':p.file_link,'file_type':p.file_type}
+                }
+
+                return JsonResponse(data)
+
+        #query course
+        course=models.EdCourse.objects.get(id=classroom_id)
+
+        #query task
+        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
+
+        #query scaff_type
+        scaff_type=models.EdScaffoldingType.objects.all()
+
+        #query scaffolding
+        scaff=models.EdScaffolding.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
+        i=0
+        for x in scaff:
+            scaff_file=models.EdScaffoldingFile.objects.filter(scaffolding_id=x.id).filter(status="ACTIVE")
+            j=0
+            for y in scaff_file:
+                if y.file_type.find("image") != -1:
+                    scaff_file[j].type="image"
+                elif y.file_type.find("video") != -1:
+                    scaff_file[j].type="video"
+                else:
+                    scaff_file[j].type="app"
+                j=j+1
+
+            scaff[i].scaff_file=scaff_file
+            i=i+1          
+
+        is_active=['']*5
+        is_active[2]="active"
+
+        context={
+            'title':'ฐานความช่วยเหลือ',
+            'member':member,
+            'course':course,
+            'task':task,
+            'task_id':task_id,
+            'is_active':is_active,
+            'scaff':scaff,
+            'scaff_type':scaff_type
+        }
+        return render(request,'teacher/main_scaff.html',context)
+
 def social(request,classroom_id,task_id):
     #check session
     if 'email'not in request.session:
@@ -884,22 +1010,22 @@ def social(request,classroom_id,task_id):
 
             if steam_div or file_id or link_id:
 
-                post=models.EdResource(description=steam_div,task_id=task_id,teacher_id=member.id)
+                post=models.EdSocial(description=steam_div,task_id=task_id,teacher_id=member.id)
                 post.save()
 
-                p=models.EdResource.objects.latest('id')
+                p=models.EdSocial.objects.latest('id')
                 m=models.EdMember.objects.get(id=p.teacher_id)
 
                 if file_id:
                     for i in file_id:
-                        f=models.EdResourceFile.objects.get(id=i)
-                        f.resource_id=p.id
+                        f=models.EdSocialFile.objects.get(id=i)
+                        f.social_id=p.id
                         f.save()
                 
                 if link_id:
                     for i in link_id:
-                        o=models.EdResourceOpengraph.objects.get(id=i)
-                        o.resource_id=p.id
+                        o=models.EdSocialOpengraph.objects.get(id=i)
+                        o.social_id=p.id
                         o.save()
 
                 data={
@@ -948,7 +1074,7 @@ def social(request,classroom_id,task_id):
         social=models.EdSocial.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
         i=0
         for x in social:
-            ssocial_file=models.EdSocial.objects.filter(social_id=x.id).filter(status="ACTIVE")
+            social_file=models.EdSocialFile.objects.filter(social_id=x.id).filter(status="ACTIVE")
             j=0
             for y in social_file:
                 if y.file_type.find("image") != -1:
@@ -959,7 +1085,7 @@ def social(request,classroom_id,task_id):
                     social_file[j].type="app"
                 j=j+1
 
-            social_og=models.EdResourceOpengraph.objects.filter(resource_id=x.id)
+            social_og=models.EdSocialOpengraph.objects.filter(social_id=x.id)
             social[i].social_file=social_file
             social[i].og=social_og  
     
@@ -978,7 +1104,132 @@ def social(request,classroom_id,task_id):
             'social':social
         }
         return render(request,'teacher/main_social.html',context)
+
+def coaching(request,classroom_id,task_id):
+    #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    if request.session['type'] == 'STUDENT':
+        context={
+            'title':'หน้าหลักนักเรียน',
+            'member':member
+        }
+    else:
+        #check owner
+        if check_owner(classroom_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #check owner task
+        if check_owner_task(classroom_id,task_id):
+            return HttpResponseRedirect("/dashboard")
+
+        if request.method == 'POST':
+            file_data=request.FILES.getlist('file')
+            file_id=request.POST.getlist('file_id[]')
+            link_id=request.POST.getlist('link_id[]')
+            steam_div=request.POST.get('steam_div')
+
+            if steam_div or file_id or link_id:
+
+                post=models.EdSocial(description=steam_div,task_id=task_id,teacher_id=member.id)
+                post.save()
+
+                p=models.EdSocial.objects.latest('id')
+                m=models.EdMember.objects.get(id=p.teacher_id)
+
+                if file_id:
+                    for i in file_id:
+                        f=models.EdSocialFile.objects.get(id=i)
+                        f.social_id=p.id
+                        f.save()
+                
+                if link_id:
+                    for i in link_id:
+                        o=models.EdSocialOpengraph.objects.get(id=i)
+                        o.social_id=p.id
+                        o.save()
+
+                data={
+                    'status':1,
+                    'data':{'id':p.id,'description':p.description,'timestamp':p.timestamp,'firstname':m.firstname,'lastname':m.lastname,'picture':m.picture}
+                }
+                return JsonResponse(data)
+            
+            if file_data:
+
+                list = []
+                name = []
+                file_type = []
+                for f in file_data:
+                    import datetime
+                    fs = FileSystemStorage()
+
+                    date = datetime.date.today()
+                    path = "course_id_{0}/social/files/{1}/{2}"
+                    path = path.format(
+                        classroom_id,date,f.name)
+                    filename = fs.save(path, f)
+                    list.append(fs.url(filename))
+                    name.append(f.name)
+                    file_type.append(f.content_type)
+
+                social_file=models.EdSocialFile(file_name=name[0],file_type=file_type[0],file_link=list[0],social_id="")
+                social_file.save()
+
+                p=models.EdSocialFile.objects.latest('id')
+
+                data={
+                    'status':1,
+                    'data':{'id':p.id,'file_name':p.file_name,'file_link':p.file_link,'file_type':p.file_type}
+                }
+
+                return JsonResponse(data)
+
+        #query course
+        course=models.EdCourse.objects.get(id=classroom_id)
+
+        #query task
+        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
+
+        #query resource
+        social=models.EdSocial.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
+        i=0
+        for x in social:
+            social_file=models.EdSocialFile.objects.filter(social_id=x.id).filter(status="ACTIVE")
+            j=0
+            for y in social_file:
+                if y.file_type.find("image") != -1:
+                    social_file[j].type="image"
+                elif y.file_type.find("video") != -1:
+                    social_file[j].type="video"
+                else:
+                    social_file[j].type="app"
+                j=j+1
+
+            social_og=models.EdSocialOpengraph.objects.filter(social_id=x.id)
+            social[i].social_file=social_file
+            social[i].og=social_og  
     
+            i=i+1          
+
+        is_active=['']*5
+        is_active[4]="active"
+
+        context={
+            'title':'ปรึกษาผู้เชียวชาญ',
+            'member':member,
+            'course':course,
+            'task':task,
+            'task_id':task_id,
+            'is_active':is_active,
+            'social':social
+        }
+        return render(request,'teacher/main_coach.html',context)
+
 def check_owner(classroom_id,member_id):
     owner=len(models.EdCourse.objects.filter(id=classroom_id).filter(teacher_id=member_id))
     if owner == 0:
@@ -1062,6 +1313,30 @@ def delete_resource(request,classroom_id,task_id,resource_id):
     resource.save()
 
     url="/classroom/{0}/task/{1}/resource"
+    url=url.format(classroom_id,task_id)
+    return HttpResponseRedirect(url)
+
+def delete_social(request,classroom_id,task_id,social_id):
+    #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    #check owner
+    if check_owner(classroom_id,member.id):
+        return HttpResponseRedirect("/dashboard")
+    
+    #check owner task
+    if check_owner_task(classroom_id,task_id):
+        return HttpResponseRedirect("/dashboard")
+    
+    resource=models.EdSocial.objects.get(id=social_id)
+    resource.status="DELETE"
+    resource.save()
+
+    url="/classroom/{0}/task/{1}/social"
     url=url.format(classroom_id,task_id)
     return HttpResponseRedirect(url)
 
