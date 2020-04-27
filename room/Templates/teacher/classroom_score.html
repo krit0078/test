@@ -34,12 +34,17 @@
                                         {% endif %}
                                         {{forloop.counter}}
                                     </td>
-                                    <td class="text-left">                                     
+                                    <td class="text-left">
                                         <img src="{{i.member.picture}}"
                                             style="width:40px;margin-right: 0.8rem;height: 40px;"
-                                            class="rounded-circle">{{i.member.firstname | truncatechars:50}}  {{i.member.lastname | truncatechars:50}}                                     
+                                            class="rounded-circle">{{i.member.firstname | truncatechars:50}}
+                                        {{i.member.lastname | truncatechars:50}}
                                     </td>
-                                    <td>{{i.sum_score}}</td>
+                                    <td>
+                                        {% if i.sum_score %}
+                                        {{i.sum_score}}
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

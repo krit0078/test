@@ -144,6 +144,28 @@ class EdTurnedIn(models.Model):
         managed = True
         db_table = 'ed_turnedin'
 
+class EdTurnedinFile(models.Model):
+    file_name=models.CharField(max_length=250)
+    file_link=models.TextField(blank=True, null=True)
+    file_type=models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    turnedin=models.ForeignKey(EdTurnedIn, models.DO_NOTHING, blank=True, null=True,related_name='turnedin')
+
+    class Meta:
+        managed = True
+        db_table = 'ed_turnedin_file'
+
+class EdTurnedinOpengraph(models.Model):
+    title = models.CharField(max_length=512, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    url=models.TextField(blank=True, null=True)
+    image=models.TextField(blank=True, null=True)
+    turnedin=models.ForeignKey(EdTurnedIn, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_turnedin_opengraph'
 
 class EdLive(models.Model):
     url=models.TextField(blank=True, null=True)
@@ -259,7 +281,8 @@ class EdScaffoldingFile(models.Model):
         db_table = 'ed_scaffolding_file'
 
 class EdCoach(models.Model):
-    description = models.TextField(blank=True, null=True)
+    name=models.CharField(max_length=250,null=True,blank=True)
+    email=models.CharField(max_length=250,null=True,blank=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
