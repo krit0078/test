@@ -50,8 +50,12 @@
                         {% for j in i.coach_file %}
                         <img src="{{j.file_link}}" class="img-fluid mb-3">
                         {% endfor %}
+                        {% if i.email  %}
                         <h6 class="text-center">อีเมลล์ : {{i.email}}</h6>
+                        {% endif %}
+                        {% if i.name %}
                         <h5 class="text-center">ชื่อ : {{i.name}}</h5>
+                        {% endif %}
                         <div class="dropdown" style="position: absolute;top: 10px;right: 25px;">
                             <a class="btn btn-light" type="button" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false"><i class='bx bx-dots-vertical-rounded'></i>
@@ -79,8 +83,12 @@
                                     {% for j in i.coach_file %}
                                     <img src="{{j.file_link}}" class="img-fluid mb-3">
                                     {% endfor %}
+                                    {% if i.email  %}
                                     <h6 class="text-center">อีเมลล์ : {{i.email}}</h6>
+                                    {% endif %}
+                                    {% if i.name %}
                                     <h5 class="text-center">ชื่อ : {{i.name}}</h5>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>

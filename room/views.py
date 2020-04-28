@@ -332,6 +332,21 @@ def classroom(request,classroom_id):
         #check enrolment
         if check_enrolment(classroom_id,member.id):
             return HttpResponseRedirect("/dashboard")
+        
+        if request.method == 'POST':
+            reply=request.POST.get('reply')
+            if reply:
+                post_id=request.POST.get('post_id')
+                reply=models.EdReply(description=reply,post_id=post_id,member_id=member.id)
+                reply.save()
+
+                r=models.EdReply.objects.latest('id')
+
+                data={
+                    'status':1
+                }
+
+                return JsonResponse(data)
 
         #query course
         course=models.EdCourse.objects.get(id=classroom_id)
@@ -1216,10 +1231,55 @@ def resource(request,classroom_id,task_id):
     member=models.EdMember.objects.get(email=email)
 
     if request.session['type'] == 'STUDENT':
+        #check enrolment
+        if check_enrolment(classroom_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #check task_enrolment
+        if check_enrolment_task(classroom_id,task_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #query course
+        course=models.EdCourse.objects.get(id=classroom_id)
+
+        #query task
+        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
+
+        #query resource
+        resource=models.EdResource.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
+        i=0
+        for x in resource:
+            resource_file=models.EdResourceFile.objects.filter(resource=x.id).filter(status="ACTIVE")
+            j=0
+            for y in resource_file:
+                if y.file_type.find("image") != -1:
+                    resource_file[j].type="image"
+                elif y.file_type.find("video") != -1:
+                    resource_file[j].type="video"
+                else:
+                    resource_file[j].type="app"
+                j=j+1
+
+            resource_og=models.EdResourceOpengraph.objects.filter(resource_id=x.id)
+            resource[i].resource_file=resource_file
+            resource[i].og=resource_og  
+    
+            i=i+1          
+
+        is_active=['']*5
+        is_active[1]="active"
+
         context={
-            'title':'หน้าหลักนักเรียน',
-            'member':member
+            'title':'แหล่งเรียนรู้',
+            'member':member,
+            'course':course,
+            'task':task,
+            'task_id':task_id,
+            'is_active':is_active,
+            'resource':resource
         }
+        return render(request,'student/main_resource.html',context)
+
     else:
         #check owner
         if check_owner(classroom_id,member.id):
@@ -1341,10 +1401,55 @@ def scaffolding(request,classroom_id,task_id):
     member=models.EdMember.objects.get(email=email)
 
     if request.session['type'] == 'STUDENT':
+        #check enrolment
+        if check_enrolment(classroom_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #check task_enrolment
+        if check_enrolment_task(classroom_id,task_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+        #query course
+        course=models.EdCourse.objects.get(id=classroom_id)
+
+        #query task
+        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
+
+        #query scaff_type
+        scaff_type=models.EdScaffoldingType.objects.all()
+
+        #query scaffolding
+        scaff=models.EdScaffolding.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
+        i=0
+        for x in scaff:
+            scaff_file=models.EdScaffoldingFile.objects.filter(scaffolding_id=x.id).filter(status="ACTIVE")
+            j=0
+            for y in scaff_file:
+                if y.file_type.find("image") != -1:
+                    scaff_file[j].type="image"
+                elif y.file_type.find("video") != -1:
+                    scaff_file[j].type="video"
+                else:
+                    scaff_file[j].type="app"
+                j=j+1
+
+            scaff[i].scaff_file=scaff_file
+            i=i+1          
+
+        is_active=['']*5
+        is_active[2]="active"
+
         context={
-            'title':'หน้าหลักนักเรียน',
-            'member':member
+            'title':'ฐานความช่วยเหลือ',
+            'member':member,
+            'course':course,
+            'task':task,
+            'task_id':task_id,
+            'is_active':is_active,
+            'scaff':scaff,
+            'scaff_type':scaff_type
         }
+        return render(request,'student/main_scaff.html',context)
+
     else:
         #check owner
         if check_owner(classroom_id,member.id):
@@ -1467,10 +1572,55 @@ def social(request,classroom_id,task_id):
     member=models.EdMember.objects.get(email=email)
 
     if request.session['type'] == 'STUDENT':
+        #check enrolment
+        if check_enrolment(classroom_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #check task_enrolment
+        if check_enrolment_task(classroom_id,task_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #query course
+        course=models.EdCourse.objects.get(id=classroom_id)
+
+        #query task
+        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
+
+        #query resource
+        social=models.EdSocial.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
+        i=0
+        for x in social:
+            social_file=models.EdSocialFile.objects.filter(social_id=x.id).filter(status="ACTIVE")
+            j=0
+            for y in social_file:
+                if y.file_type.find("image") != -1:
+                    social_file[j].type="image"
+                elif y.file_type.find("video") != -1:
+                    social_file[j].type="video"
+                else:
+                    social_file[j].type="app"
+                j=j+1
+
+            social_og=models.EdSocialOpengraph.objects.filter(social_id=x.id)
+            social[i].social_file=social_file
+            social[i].og=social_og  
+    
+            i=i+1          
+
+        is_active=['']*5
+        is_active[3]="active"
+
         context={
-            'title':'หน้าหลักนักเรียน',
-            'member':member
+            'title':'ชุมชนการเรียนรู้',
+            'member':member,
+            'course':course,
+            'task':task,
+            'task_id':task_id,
+            'is_active':is_active,
+            'social':social
         }
+        return render(request,'student/main_social.html',context)
+
     else:
         #check owner
         if check_owner(classroom_id,member.id):
@@ -1592,10 +1742,53 @@ def coaching(request,classroom_id,task_id):
     member=models.EdMember.objects.get(email=email)
 
     if request.session['type'] == 'STUDENT':
+        #check enrolment
+        if check_enrolment(classroom_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #check task_enrolment
+        if check_enrolment_task(classroom_id,task_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #query course
+        course=models.EdCourse.objects.get(id=classroom_id)
+
+        #query task
+        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
+
+        #query coach
+        coach=models.EdCoach.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
+        i=0
+        for x in coach:
+            coach_file=models.EdCoachFile.objects.filter(coach_id=x.id).filter(status="ACTIVE")
+            j=0
+            for y in coach_file:
+                if y.file_type.find("image") != -1:
+                    coach_file[j].type="image"
+                elif y.file_type.find("video") != -1:
+                    coach_file[j].type="video"
+                else:
+                    coach_file[j].type="app"
+                j=j+1
+
+            coach[i].coach_file=coach_file
+    
+            i=i+1          
+
+        is_active=['']*5
+        is_active[4]="active"
+
         context={
-            'title':'หน้าหลักนักเรียน',
-            'member':member
+            'title':'ปรึกษาผู้เชียวชาญ',
+            'member':member,
+            'course':course,
+            'task':task,
+            'task_id':task_id,
+            'is_active':is_active,
+            'coach':coach
         }
+        return render(request,'student/main_coach.html',context)
+
     else:
         #check owner
         if check_owner(classroom_id,member.id):
