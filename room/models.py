@@ -41,6 +41,16 @@ class EdMember(models.Model):
         managed = True
         db_table = 'ed_member'
 
+class EdChangePass(models.Model):
+    timestamp = models.DateTimeField(default=timezone.now)
+    token=models.CharField(max_length=512,db_index=True)
+    member = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_changepass'
+
 class EdCourse(models.Model):
     course_name = models.CharField(max_length=45)
     teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True, related_name="teacher")

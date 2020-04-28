@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <img src="/static/assets/img/login-01.png" class="img-fluid">
+            </div>
+            <div class="col-md-6 rounded p-3 shadow" data-aos="fade-up" data-aos-delay="200"
+                style="border:3px solid orange">
+                <div class="bg-white p-3 rounded" id="login">
+                    <h4 class="text-center">เปลี่ยนรหัสผ่าน</h4>
+                    <hr>
+                    <form method="POST" action="/changepass/{{token}}/" id="form-change">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="col-md-12 form-group">
+                                <input type="password" name="password" class="form-control"
+                                    placeholder="รหัสผ่าน" />
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <input type="password" class="form-control" name="repassword" id="id_password"
+                                    placeholder="ยืนยันรหัสผ่าน" />
+                                    <div class="invalid-feedback">
+                                        รหัสผ่านไม่ตรงกัน
+                                      </div>
+                            </div>
+                        </div>
+                        <div class="loading mb-2">loading</div>
+                        <div class="error-message mb-2"></div>
+                        <div id="status" class="sent-message mb-2">เปลี่ยนรหัสผ่านเรียบร้อย</div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-warning">เปลี่ยนรหัสผ่าน</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    </div>
+</section>
+{% endblock %}
+{% block js %}
+<script>
+    $(document).ready(function(){
+        const repassword=$('input[name="repassword"]');
+        const password=$('input[name="password"]');
+
+        repassword.keyup(function(){
+            if($(this).val()!=password.val()){
+                password.addClass('is-invalid');
+                $(this).addClass('is-invalid');
+            }else{
+                password.removeClass('is-invalid');
+                $(this).removeClass('is-invalid');
+            }
+        });
+    });
+
+    $('#form-change').submit(function () {
+        let this_form = $(this);
+        let action = this_form.attr('action');
+        let method = this_form.attr('method');
+        const email = $('#id_email');
+        const password = $('#id_password');
+        const status = $('#status');
+        let str=this_form.serialize();
+
+
+        this_form.find('.loading').slideDown();
+
+        const repassword=$('input[name="password"]');
+
+        if(repassword.hasClass('is-invalid')){
+            this_form.find('.loading').slideUp();
+            return false;
+        }
+
+        $.ajax({
+            type: method,
+            url: action,
+            data: str,
+            success: function (data) {
+                if (data.status == 1) {
+                    this_form.find('.loading').slideUp();
+                    this_form.find('.sent-message').slideDown();
+                    this_form.find('.error-message').slideUp()
+                    this_form.find("input:not(input[type=submit]), textarea").val('');
+                    setTimeout(window.location.replace("/login/"), 4000);
+
+                } else {
+                    this_form.find('.loading').slideUp();
+                    this_form.find('.error-message').slideDown().html("toke หมดอายุ");
+                }
+            },
+            error:function(){
+                this_form.find('.loading').slideUp();
+                this_form.find('.error-message').slideDown().html("มีข้อผิดพลาด");
+            }
+        });
+
+        return false;
+    });
+
+</script>
+{% endblock %}

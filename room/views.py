@@ -18,51 +18,122 @@ def index(request):
     }
     return render(request, 'index.html', context)
 
+import secrets
+from django.core.mail import send_mail
 def login(request):
     if 'email' in request.session:
         return HttpResponseRedirect("/dashboard")
 
     if request.method == 'POST':
         email = request.POST.get('email')
-        password=request.POST.get('password')
-        password=hashlib.md5(password.encode("utf-8")).hexdigest()
+        target = request.POST.get('target')
 
-        member=len(models.EdMember.objects.filter(email=email,password=password))
-        if member==1:
-
+        if target == "forget":
             member=models.EdMember.objects.get(email=email)
-            user_type=models.EdUserType.objects.get(id=member.user_type_id)
+            if member:
+                link = secrets.token_urlsafe()
 
-            request.session['email']=email
-            request.session['type']=user_type.prefix
+                changepass=models.EdChangePass(member_id=member.id,token=link)
+                changepass.save()
+
+                link = "http://"+request.get_host()+"/changepass/"+link
+                link = "<p>To change your password please click this link</p><a href="+link+">"+link+"</a>"
+
+                subject = 'Change Your Password'
+                message = link
+                email_from = 'Edulearn <noreply.edulearn@gmail.com>'
+                recipient_list = [email]
+                send_mail(subject, link, email_from,
+                        recipient_list, html_message=link)
 
 
-            from django_user_agents.utils import get_user_agent
-            user_agent = get_user_agent(request)
-            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-            if x_forwarded_for:
-                ip = x_forwarded_for.split(',')[0]
+                status=1
             else:
-                ip = request.META.get('REMOTE_ADDR')
+                status=0
             
-            log=models.EdLog(ip=ip,device=user_agent.device,ed_member_id=member.id)
-            log.save()
-            
-
-            status=1
+            data={
+                'status':status
+            }
+            return JsonResponse(data)
+                
         else:
-            status=0
+            password=request.POST.get('password')
+            password=hashlib.md5(password.encode("utf-8")).hexdigest()
 
-        data={
-            'status':status
-        }
+            member=len(models.EdMember.objects.filter(email=email,password=password))
+            if member==1:
 
-        return JsonResponse(data)
+                member=models.EdMember.objects.get(email=email)
+                user_type=models.EdUserType.objects.get(id=member.user_type_id)
+
+                request.session['email']=email
+                request.session['type']=user_type.prefix
+
+
+                from django_user_agents.utils import get_user_agent
+                user_agent = get_user_agent(request)
+                x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+                if x_forwarded_for:
+                    ip = x_forwarded_for.split(',')[0]
+                else:
+                    ip = request.META.get('REMOTE_ADDR')
+                
+                log=models.EdLog(ip=ip,device=user_agent.device,ed_member_id=member.id)
+                log.save()
+                
+
+                status=1
+            else:
+                status=0
+
+            data={
+                'status':status
+            }
+
+            return JsonResponse(data)                   
 
     context={
         'title':'เข้าสู่ระบบ | EduLearn',
     }
     return render(request,'login.html',context)
+
+import datetime 
+
+def changepass(request,token):
+
+    if request.method == 'POST':
+        password=request.POST.get('password')
+        changepass=len(models.EdChangePass.objects.filter(token=token).filter(status="ACTIVE"))
+
+        status=0
+        if changepass > 0 :
+            changepass=models.EdChangePass.objects.get(token=token)
+
+            dt=changepass.timestamp
+            b=datetime.datetime.now()
+            dt=b-dt
+            if dt.days<15:
+                member=models.EdMember.objects.get(id=changepass.member_id)
+                password=hashlib.md5(password.encode("utf-8")).hexdigest()
+                member.password=password
+                member.save()
+
+            changepass.status="DELETE"
+            changepass.save()
+            status=1
+          
+
+        data={
+            'status':status
+        }
+        return JsonResponse(data)
+ 
+    context={
+        'title':'เปลี่ยนรหัสผ่าน',
+        'token':token
+    }
+    return render(request, 'changepass.html', context)
+
 
 def logout(request):
     if 'email' in request.session:

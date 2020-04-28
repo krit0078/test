@@ -9,7 +9,7 @@
             </div>
             <div class="col-md-6 rounded p-3 shadow" data-aos="fade-up" data-aos-delay="200"
                 style="border:3px solid orange">
-                <div class="bg-white p-3 rounded">
+                <div class="bg-white p-3 rounded" id="login">
                     <h4 class="text-center">เข้าสู่ระบบ</h4>
                     <hr>
                     <form method="POST" action="/login/" id="form-login">
@@ -28,7 +28,27 @@
                         <div class="error-message mb-2"></div>
                         <div id="status" class="sent-message mb-2">เข้าสู่ระบบเรียบร้อย</div>
                         <div class="text-center">
-                            <button type="submit" class="btn btn-warning">เข้าสู่ระบบ</button><a class="btn btn-danger ml-2" href="#">ลืมรหัสผ่าน</a>
+                            <button type="submit" class="btn btn-warning">เข้าสู่ระบบ</button><a
+                                class="btn btn-danger ml-2" href="#" onclick="return forget()">ลืมรหัสผ่าน</a>
+                        </div>
+                    </form>
+                </div>
+                <div class="bg-white p-3 rounded" id="forget" style="display: none;">
+                    <h4 class="text-center">ลืมรหัสผ่าน</h4>
+                    <hr>
+                    <form method="POST" action="/login/" id="form-forget">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="col-md-12 form-group">
+                                <input type="email" name="email" class="form-control" placeholder="อีเมลล์" />
+                                <input type="hidden" name="target" value="forget">
+                            </div>
+                        </div>
+                        <div class="loading mb-2">loading</div>
+                        <div class="error-message mb-2"></div>
+                        <div class="status sent-message mb-2">ส่งอีเมลล์เรียบร้อย</div>
+                        <div class="text-center">
+                            <button class="btn btn-danger ml-2" type="submit">ลืมรหัสผ่าน</button>
                         </div>
                     </form>
                 </div>
@@ -40,6 +60,51 @@
 {% endblock %}
 {% block js %}
 <script>
+    function forget() {
+        let login = $('#login');
+        let forget = $('#forget');
+        login.slideToggle('slow');
+        forget.slideToggle('slow')
+
+
+    }
+
+    $('#form-forget').submit(function () {
+        let this_form = $(this);
+        let action = this_form.attr('action');
+        let method = this_form.attr('method');
+        const status = this_form.find('.status');
+        let str = this_form.serialize();
+
+
+        this_form.find('.loading').slideDown();
+
+        $.ajax({
+            type: method,
+            url: action,
+            data: str,
+            success: function (data) {
+                console.log(data);
+                if (data.status == 1) {
+                    this_form.find('.loading').slideUp();
+                    this_form.find('.sent-message').slideDown();
+                    this_form.find('.error-message').slideUp()
+                    this_form.find("input:not(input[type=submit]), textarea").val('');
+
+                } else {
+                    this_form.find('.loading').slideUp();
+                    this_form.find('.error-message').slideDown().html("อีเมลล์ไม่ถูกต้อง");
+                }
+            },
+            error: function () {
+                this_form.find('.loading').slideUp();
+                this_form.find('.error-message').slideDown().html("อีเมลล์ไม่ถูกต้อง");
+            }
+        });
+
+        return false;
+    });
+
     $('#form-login').submit(function () {
         let this_form = $(this);
         let action = this_form.attr('action');
@@ -47,7 +112,7 @@
         const email = $('#id_email');
         const password = $('#id_password');
         const status = $('#status');
-        let str=this_form.serialize();
+        let str = this_form.serialize();
 
 
         this_form.find('.loading').slideDown();
