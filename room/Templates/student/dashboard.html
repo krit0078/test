@@ -20,7 +20,7 @@
                         </div>
                         <div class="card-detail">
                             <h4>{{i.course_name | truncatechars:50}}</h4>
-                            <span><i class='bx bxs-user' ></i> จำนวนผู้เรียน : {{i.enrolment}}</span>
+                            <span><i class='bx bxs-user'></i> จำนวนผู้เรียน : {{i.enrolment}}</span>
                         </div>
                     </div>
                 </a>
@@ -35,62 +35,28 @@
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">สร้างห้องเรียน</h5>
+                <h5 class="modal-title" id="exampleModalLabel">เข้าร่วมชั้นเรียน</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="/dashboard/" enctype="multipart/form-data" id="add-class" class="cc">
+                <form method="POST" action="/dashboard/" id="add-class" class="cc">
                     {% csrf_token %}
                     <div class="form-group row">
-                        <label for="class-name" class="col-sm-2 col-form-label">ชื่อห้องเรียน</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="class-name" id="class-name" required>
+                        <div class="col-sm-12">
+                            <input type="text" placeholder="รหัสเข้าร่วมชั้นเรียน" autocomplete="off" class="form-control" name="uid"
+                                id="class-name" required>
                         </div>
                     </div>
 
-                    <div class="form-group row">
-                        <label for="class-description" class="col-sm-2 col-form-label">คำอธิบายรายวิชา</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control" name="class-description" id="class-description">
-                                </textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <label for="class-description" class="col-sm-2 col-form-label">ระดับการศึกษา</label>
-                        <div class="col-sm-6">
-                            <select class="custom-select my-1 mr-sm-2" name="edlevel" id="id_edlevel">
-                                <option value="0" selected>-</option>
-                                {% for i in edlevel %}
-                                <option value="{{i.id}}">{{i.title}}</option>
-                                {% endfor %}
-                            </select>
-                            <div class="invalid-feedback">
-                                กรุณาเลือกระดับการศึกษา
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <label for="class-description" class="col-sm-2 col-form-label">ระดับชั้น</label>
-                        <div class="col-sm-6">
-                            <select class="custom-select my-1 mr-sm-2" name="ed_sublevel" id="id_ed_sublevel">
-                                <option value="0" selected>-</option>
-                            </select>
-                            <div class="invalid-feedback">
-                                กรุณาเลือกระดับชั้น
-                            </div>
-                        </div>
-                    </div>
                     <div class="loading mb-3">Loading</div>
                     <div class="error-message"></div>
-                    <div class="text-right"><button type="submit" class="btn btn-primary">สร้างห้องเรียน</button>
-                </form>
+                    <div class="text-right"><button type="submit" class="btn btn-primary">เข้าร่วม</button></div>
+
 
                 </form>
             </div>
@@ -101,54 +67,15 @@
 
 {% block js %}
 <script>
-    $('select#id_edlevel').change(function () {
-        const ed_sublevel = $('#id_ed_sublevel')
-        $.ajax({
-            type: "GET",
-            url: '/ajax/get_ed_sublevel',
-            data: { 'edlevel': $(this).val() },
-            dataType: 'json',
-            success: function (data) {
-                text = ""
-                for (i in data.result) {
-                    text += "<option value='" + data.result[i].id + "'>" + data.result[i].title + "</option>";
-                }
-                ed_sublevel.html(text);
-            },
-            error: function (jqXHR, textStatus, errorThrown) { errorFunction(); }
-        });
-    });
-
-
     jQuery(document).ready(function ($) {
-        "use strict";
-        const edlevel = $('#id_edlevel');
-        const ed_sublevel = $('#id_ed_sublevel');
 
-        $('.cc').submit(function () {
-            const this_form = $(this);
-            this_form.find('.loading').slideDown();
-
-            if (edlevel.val() == 0) {
-                this_form.find('.loading').slideUp();
-                edlevel.addClass('is-invalid');
-                return false;
-            } else {
-                edlevel.removeClass('is-invalid');
-            }
-
-            if (ed_sublevel.val() == 0) {
-                this_form.find('.loading').slideUp();
-                ed_sublevel.addClass('is-invalid');
-                return false;
-            } else {
-                ed_sublevel.removeClass('is-invalid');
-            }
-
-            let str = $(this).serialize();
-            let action = $(this).attr('action');
-            let method = $(this).attr('method');
-
+        $('#add-class').submit(function () {
+            let this_form = $(this);
+            let data = this_form.serializeArray();
+            let action = this_form.attr('action');
+            let method = this_form.attr('method');
+            let loading = this_form.find('.loading');
+            loading.slideDown();
 
             function create_card(id, course_name, description, cover_pic, enrolment) {
                 if (course_name.length > 50) {
@@ -166,25 +93,39 @@
                 return html;
             }
 
+
             $.ajax({
                 type: method,
                 url: action,
-                data: str,
+                data: data,
+                dataType: 'json',
                 success: function (data) {
-                    console.log(data);
+                    loading.slideUp();
+                    this_form.trigger('reset');
+                    let d = data.data;
+                    let f = d.firstname;
+                    let l = d.lastname;
+                    if (f.length >= 55) {
+                        f = f.substr(0, 50);
+                    }
+                    if (l.length >= 50) {
+                        l = l.substr(0, 50);
+                    }
                     if (data.status == 1) {
                         this_form.find('.loading').slideUp();
                         this_form.find("input, textarea").val('');
                         $('#exampleModal').modal('toggle');
                         $('#exampleModal').hide();
-                        let txt="";
-                        let source=data.latest_course;
-                        txt=create_card(source.id,source.course_name,source.description,source.cover_pic,source.enrolment);
+                        let txt = "";
+                        let source = data.latest_course;
+                        txt = create_card(source.id, source.course_name, source.description, source.cover_pic, source.enrolment);
                         $('#add-card').after(txt);
-                    } else {
-                        this_form.find('.loading').slideUp();
-                        this_form.find('.error-message').slideDown().html('ไม่สามารถเพิ่มข้อมูลได้');
                     }
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    loading.slideUp();
+                    errorFunction();
                 }
             });
 

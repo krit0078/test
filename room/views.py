@@ -147,6 +147,26 @@ def dashboard(request):
     member=models.EdMember.objects.get(email=email)
 
     if request.session['type'] == 'STUDENT':
+
+        if request.method == 'POST':
+            uid=request.POST.get('uid')
+
+            row=len(models.EdCourse.objects.filter(uid=uid))
+            course=""
+            if row>1:
+                course=models.EdCourse.objects.get(uid=uid).filter(status="ACTIVE").select_related('teacher')
+                enrolment=models.EdEnrolment(member_id=member.id,course_id=course.id)
+                enrolment.save()
+
+            c=course
+
+
+            data={
+                'status':1,
+                # 'latest_course':{'id':c.id,'course_name':c.course_name,'cover_pic':c.cover_pic,'description':c.description,'enrolment':enrolment,'firstname':c.teacher.firstname,'lastname':c.teacher.lastname}
+            }
+            return JsonResponse(data)
+
         context={
             'title':'หน้าหลักนักเรียน',
             'member':member
@@ -169,7 +189,7 @@ def dashboard(request):
                     value = "".join(random.choice(chars)
                                     for _ in range(i))
                     row = len(
-                        models.EdCourse.objects.filter(uid__iexact=value))
+                        models.EdCourse.objects.filter(uid=value))
 
                     if row == 0:
                         return value

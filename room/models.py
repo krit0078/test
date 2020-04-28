@@ -48,7 +48,8 @@ class EdCourse(models.Model):
     catagory = models.ForeignKey(EdSubLevel, models.DO_NOTHING, blank=True, null=True, related_name="catagory")
     cover_pic = models.TextField(blank=True, null=True, default='/uploads/0/cover/cover1.png')
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
-    uid = models.CharField(max_length=45, blank=True, null=True)  # Field name made lowercase.
+    uid = models.CharField(max_length=45, blank=True, null=True,unique=True)  # Field name made lowercase.
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
 
     class Meta:
