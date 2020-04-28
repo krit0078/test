@@ -5,21 +5,7 @@
     <div class="container">
         {% include 'teacher/classroom_nav.html' %}
         <div class="row">
-            <div class="col-md-4">
-                <div class="bg-white border shadow border-grey p-3 mb-2 rounded">
-                    <h5 class="text-center">เลือกแพลตฟอร์ม</h5><br>
-                    <div class="row">
-                        <div class="col-6">
-                            <img src="/static/assets/img/zoom.png" class="img-fluid rounded cursor" data-toggle="modal"
-                                data-target="#zoom">
-                        </div>
-                        <div class="col-6">
-                            <img src="/static/assets/img/meet.png" class="img-fluid border rounded cursor"
-                                data-toggle="modal" data-target="#meet">
-                        </div>
-                    </div>
-                </div>
-            </div>
+
             {% for i in live %}
             <div class="col-md-4 align-items-center">
                 <div class="shadow mb-2 border card cursor" data-toggle="modal" data-target="#live{{i.id}}">
@@ -33,14 +19,6 @@
                 </div>
                 <div>
 
-                </div>
-                <div class="dropdown" style="position: absolute;top: 10px;right: 25px;">
-                    <a class="btn btn-light" type="button" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false"><i class='bx bx-dots-vertical-rounded' ></i>
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="/classroom/{{course.id}}/live/{{i.id}}">ลบ</a>
-                    </div>
                 </div>
             </div>
             {% endfor %}

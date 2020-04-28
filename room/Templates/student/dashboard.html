@@ -11,7 +11,8 @@
                 </div>
             </div>
 
-            {% for i in course %}
+            {% for k in enrolment %}
+            {% for i in k.c %}
             <div class="col-md-4 col-xl-3 align-items-center">
                 <a href="/classroom/{{i.id}}">
                     <div class="shadow mb-2 border card">
@@ -20,11 +21,13 @@
                         </div>
                         <div class="card-detail">
                             <h4>{{i.course_name | truncatechars:50}}</h4>
-                            <span><i class='bx bxs-user'></i> จำนวนผู้เรียน : {{i.enrolment}}</span>
+                            <span>{{i.teacher.firstname}} {{i.teacher.lastname}} | <i class='bx bxs-user'></i> จำนวนผู้เรียน :
+                                {{k.e}}</span>
                         </div>
                     </div>
                 </a>
             </div>
+            {% endfor %}
             {% endfor %}
         </div>
     </div>
@@ -48,13 +51,13 @@
                     {% csrf_token %}
                     <div class="form-group row">
                         <div class="col-sm-12">
-                            <input type="text" placeholder="รหัสเข้าร่วมชั้นเรียน" autocomplete="off" class="form-control" name="uid"
-                                id="class-name" required>
+                            <input type="text" placeholder="รหัสเข้าร่วมชั้นเรียน" autocomplete="off"
+                                class="form-control" name="uid" id="class-name" required>
                         </div>
                     </div>
 
                     <div class="loading mb-3">Loading</div>
-                    <div class="error-message"></div>
+                    <div class="error-message mn-3"></div>
                     <div class="text-right"><button type="submit" class="btn btn-primary">เข้าร่วม</button></div>
 
 
@@ -75,21 +78,29 @@
             let action = this_form.attr('action');
             let method = this_form.attr('method');
             let loading = this_form.find('.loading');
+            let error = this_form.find('.error-message');
             loading.slideDown();
 
-            function create_card(id, course_name, description, cover_pic, enrolment) {
+            function create_card(id, course_name, description, cover_pic, enrolment, firstname, lastname) {
                 if (course_name.length > 50) {
                     course_name = course_name.substr(0, 50);
                     course_name += "...";
                 }
+                if (firstname.length >= 55) {
+                    firstname = firstname.substr(0, 50);
+                }
+                if (lastname.length >= 50) {
+                    lastname = lastname.substr(0, 50);
+                }
+
                 let html = "<div class='col-md-4 col-xl-3 align-items-center' data-aos='fade-right'>";
                 html += "<a href='/classroom/" + id + "'>";
                 html += "<div class='shadow mb-2 border card'>";
                 html += "<div class='card-img'>";
-                html += "<img src='/" + cover_pic + "'></div>";
+                html += "<img src='" + cover_pic + "'></div>";
                 html += "<div class='card-detail'>";
                 html += "<h4>" + course_name + "</h4>";
-                html += "<span>จำนวนผู้เรียน : " + enrolment + "</span></div></div></a></div>";
+                html += "<span> " + firstname + " " + lastname + " | จำนวนผู้เรียน : " + enrolment + "</span></div></div></a></div>";
                 return html;
             }
 
@@ -102,15 +113,8 @@
                 success: function (data) {
                     loading.slideUp();
                     this_form.trigger('reset');
-                    let d = data.data;
-                    let f = d.firstname;
-                    let l = d.lastname;
-                    if (f.length >= 55) {
-                        f = f.substr(0, 50);
-                    }
-                    if (l.length >= 50) {
-                        l = l.substr(0, 50);
-                    }
+                    console.log(data);
+
                     if (data.status == 1) {
                         this_form.find('.loading').slideUp();
                         this_form.find("input, textarea").val('');
@@ -118,8 +122,12 @@
                         $('#exampleModal').hide();
                         let txt = "";
                         let source = data.latest_course;
-                        txt = create_card(source.id, source.course_name, source.description, source.cover_pic, source.enrolment);
+                        txt = create_card(source.id, source.course_name, source.description, source.cover_pic, source.enrolment, source.firstname, source.lastname);
                         $('#add-card').after(txt);
+                    } else if (data.status == -1) {
+                        error.slideDown().html("ท่านลงทะเบียนวิชานี้แล้ว");
+                    } else {
+                        error.slideDown().html("ไม่สามารถลงทะเบียนได้");
                     }
 
                 },

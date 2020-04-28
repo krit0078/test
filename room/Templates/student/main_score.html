@@ -19,7 +19,6 @@
                     <div class="col-12">
                         <h4 class="text-center">ให้คะแนน</h4>
                         <div class="table-responsive mt-5">
-                            <p class="text-danger">* กดปุ่ม Enter เพื่อบันทึกคะแนน</p>
                             <table class="table table-striped">
                                 <thead>
                                     <tr class="text-center">
@@ -27,7 +26,6 @@
                                         <th scope="col">ชื่อ</th>
                                         <th scope="col">คะแนน</th>
                                         <th scope="col">การส่งงาน</th>
-                                        <th scope="col">ดูชิ้นงาน</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -42,15 +40,14 @@
                                                 class="rounded-circle">{{i.member.firstname | truncatechars:50}}
                                             {{i.member.lastname | truncatechars:50}}
                                         </td>
-                                        <td class="text-center">
+                                        <td class="text-center justify-content-center">
                                             {% for j in i.turnedin %}
-                                            <form method="POST"
-                                                action="/classroom/{{course.id}}/task/{{task.0.id}}/score/"
+                                            <form
                                                 class="scoring">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="turnedin_id" value="{{j.id}}">
-                                                <input type="text" class="form-control text-center" name="score"
-                                                    value="{{j.score}}" style="width: 70px;">
+                                                <input type="text" readonly class="form-control-plaintext text-center" name="score"
+                                                    value="{{j.score}}">
                                             </form>
                                             {% endfor %}
                                         </td>
@@ -61,16 +58,7 @@
                                             <span class="text-danger"><i class='bx bx-x'></i> ยังไม่ส่ง</span>
                                             {% endif %}
                                         </td>
-                                        <td>
-                                            {% if i.turnedin_status == 'turnedin' %}
-                                            {% for j in i.turnedin %}
-                                            <button class="btn btn-info" data-toggle="modal"
-                                                data-target="#t{{j.id}}">ดูชิ้นงาน</button>
-
-
-                                            {% endfor %}
-                                            {% endif %}
-                                        </td>
+                                 
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -84,119 +72,4 @@
     </div>
 </div>
 <!-- </section> -->
-{% endblock %}
-
-{% block modal %}
-
-{% for i in enrolment %}
-{% for j in i.turnedin %}
-<!-- Modal -->
-<div class="modal fade" id="t{{j.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">ดูชิ้นงาน
-                </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                {% if j.description %}
-                <div class="col-12">
-                    {{j.description}}
-                    <hr>
-                </div>
-                {% endif %}
-                <div class="col-12">
-                    {% for k in j.turnedin_file %}
-                    {% if k.type == 'image' %}
-                    <a href='{{k.file_link}}' style='text-decoration: none;color: #000;' target='_blank'>
-                        <div class='row no-gutters rounded opengraph mb-2'>
-                            <div class='col-3'><img src="{{k.file_link}}" style="width: 100%;"></div>
-                            <div class='col-9 p-3 bg-light'>
-                                <h5>{{k.file_name| truncatechars:35 }}</h5>
-                            </div>
-                        </div>
-                    </a>
-                    {% elif k.type == 'video' %}
-                    <video class="embed-responsive embed-responsive-21by9" controls>
-                        <source src="{{k.file_link}}" type="{{k.file_type}}">
-                        Your browser does not support the
-                        video tag.
-                    </video>
-
-                    {% else %}
-                    <a href='{{k.file_link}}' style='text-decoration: none;color: #000;' target='_blank'>
-                        <div class='row no-gutters rounded opengraph mb-2'>
-                            <div class='col-3'><img src="/uploads/0/thumbnail/app.png" style="width: 100%;">
-                            </div>
-                            <div class='col-9 p-3 bg-light'>
-                                <h5>{{k.file_name| truncatechars:35 }}</h5>
-                            </div>
-                        </div>
-                    </a>
-                    {% endif %}
-                    {% endfor %}
-                    {% if j.turnedin_file %}
-                    <hr>
-                    {% endif %}
-                </div>
-                <div class="col-12">
-                    {% for k in j.og %}
-                    <a href="{{o.url}}" style="text-decoration: none;color: #000;" target="_blank">
-                        <div class="row no-gutters rounded opengraph mb-2">
-                            <div class="col-3"><img src="{{o.image}}" style="width: 100%;"></div>
-                            <div class="col-9 p-3 bg-light">
-                                <h5>{{o.title}}</h5>
-                                <p>{{o.description | truncatechars:55}}</p>
-                            </div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                    {% if j.og %}
-                    <hr>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endfor %}
-{% endfor %}
-
-{% endblock %}
-
-{% block js %}
-<script>
-    $(document).ready(function () {
-        $('.scoring').submit(function () {
-            let this_form = $(this);
-            let data = this_form.serializeArray();
-            let action = this_form.attr('action');
-            let method = this_form.attr('method');
-            let this_input = this_form.find('input')
-            this_input.attr('disabled', true);
-
-            $.ajax({
-                type: method,
-                url: action,
-                data: data,
-                dataType: 'json',
-                success: function (data) {
-                    if (data.status == 1) {
-                        this_input.attr('disabled', false);
-                    }
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    this_input.attr('disabled', false);
-                    errorFunction();
-                }
-            });
-
-            return false;
-        });
-    });
-</script>
 {% endblock %}
