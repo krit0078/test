@@ -258,7 +258,7 @@ def dashboard(request):
             i=i+1
 
         context={
-            'title':'หน้าหลักนักเรียน',
+            'title':'หน้าหลักผู้เรียน',
             'member':member,
             'enrolment':enrolment
         }
@@ -662,7 +662,7 @@ def classroom_task(request,classroom_id):
         return render(request,'student/classroom_task.html',context)
 
         context={
-            'title':'หน้าหลักนักเรียน',
+            'title':'หน้าหลักผู้เรียน',
             'member':member
         }
 
@@ -2106,7 +2106,7 @@ def delete_coach(request,classroom_id,task_id,coach_id):
     url=url.format(classroom_id,task_id)
     return HttpResponseRedirect(url)
 
-def delete_task(request,classroom_id,task_id,turnedin_id):
+def delete_turnin(request,classroom_id,task_id,turnedin_id):
     #check session
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
