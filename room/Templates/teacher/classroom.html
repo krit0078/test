@@ -24,6 +24,8 @@
                                         class='bx bxs-book'></i> แก้ไขชื่อวิชา</a>
                                 <a class="dropdown-item cursor" data-toggle="modal" data-target="#DescriptionModal"><i
                                         class='bx bxs-detail'></i> แก้ไขคำอธิบายรายวิชา</a>
+                                <a class="dropdown-item cursor" data-toggle="modal" data-target="#CoTeacherModal"><i
+                                        class='bx bxs-user-plus'></i> เพิ่มผู้สอน</a>
                             </div>
                         </div>
                     </div>
@@ -47,6 +49,22 @@
                     <p>
                         {{course.description | safe}}
                     </p>
+                </div>
+                <div class="col rounded shadow-sm border mb-2 p-3 d-none d-md-block bg-white">
+                    <h5 class="text-center">ผู้สอน</h5>
+                    <hr>
+                    <div class="row justify-content-center">
+                        <div class="col-3">
+                            <img src="{{course.teacher.picture}}" class="img-fluid rounded-circle"
+                                title="{{course.teacher.firstname}}  {{course.teacher.lastname}}">
+                        </div>
+                        {% for i in co_teacher %}
+                        <div class="col-3">
+                            <img src="{{i.member.picture}}" class="img-fluid rounded-circle"
+                                title="{{i.member.firstname}}  {{i.member.lastname}}">
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
             <div class="col-md-8">
@@ -549,9 +567,9 @@
                         txt += "<div class='col-3'><img src='/uploads/0/thumbnail/video.png' style='width: 100%;'>";
                         txt += "</div><div class='col-9 p-3 bg-light'><h5>" + d.file_name + "</h5></div></div></a>";
                     } else {
-                        txt += "<a href='"+d.file_link+"' style='text-decoration: none;color: #000;' target='_blank'>";
+                        txt += "<a href='" + d.file_link + "' style='text-decoration: none;color: #000;' target='_blank'>";
                         txt += "<div class='row no-gutters rounded opengraph mb-2'><div class='col-3'><img src='/uploads/0/thumbnail/app.png' style='width: 100%;'>";
-                        txt += "</div><div class='col-9 p-3 bg-light'><h5>"+d.file_name+"</h5></div></div></a>";
+                        txt += "</div><div class='col-9 p-3 bg-light'><h5>" + d.file_name + "</h5></div></div></a>";
                     }
                     txt += "<input type='hidden' name='file_id[]' value='" + d.id + "'>";
                     if (data.status == 1) {

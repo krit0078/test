@@ -60,7 +60,7 @@ def login(request):
             password=request.POST.get('password')
             password=hashlib.md5(password.encode("utf-8")).hexdigest()
 
-            member=len(models.EdMember.objects.filter(email=email,password=password))
+            member=len(models.EdMember.objects.filter(email=email,password=password).filter(status="ACTIVE"))
             if member==1:
 
                 member=models.EdMember.objects.get(email=email)
@@ -298,12 +298,24 @@ def dashboard(request):
 
             data={
                 'status':1,
-                'latest_course':{'id':c.id,'course_name':c.course_name,'cover_pic':c.cover_pic,'description':c.description,'enrolment':enrolment}
+                'latest_course':{'id':c.id,'course_name':c.course_name,'cover_pic':c.cover_pic,'description':c.description,'enrolment':enrolment,'firstname':c.teacher.firstname,'lastname':c.teacher.lastname}
             }
             return JsonResponse(data)
         
         #query course
-        course=models.EdCourse.objects.filter(status="ACTIVE").filter(teacher_id=member.id).order_by('-id')
+        c=models.EdCourse.objects.filter(status="ACTIVE").filter(teacher_id=member.id).select_related('teacher').order_by('-id')
+
+        co_teacher=models.EdCoTeacher.objects.filter(member_id=member.id).filter(status="ACTIVE")
+
+        course=[]
+        for x in c:
+            course.append(x)
+
+        for x in co_teacher:
+            c=models.EdCourse.objects.get(id=x.course_id)
+            course.append(c)
+
+        course=sorted(course, key= lambda t: t.id, reverse=True)
 
         i=0
         for x in course:
@@ -422,6 +434,9 @@ def classroom(request,classroom_id):
         #query course
         course=models.EdCourse.objects.get(id=classroom_id)
 
+        #query co teacher
+        co_teacher=models.EdCoTeacher.objects.filter(course_id=classroom_id).filter(status="ACTIVE")
+
         #query post
         post=models.EdPost.objects.filter(course_id=classroom_id).filter(status="ACTIVE").select_related('member').order_by('-id')
 
@@ -454,10 +469,10 @@ def classroom(request,classroom_id):
             'member':member,
             'course':course,
             'active_nav':active_nav,
-            'post':post
+            'post':post,
+            'co_teacher':co_teacher
         }
         return render(request,'student/classroom.html',context)
-
 
     else:
         #check owner
@@ -557,6 +572,11 @@ def classroom(request,classroom_id):
         #query course
         course=models.EdCourse.objects.get(id=classroom_id)
 
+
+
+        #query co teacher
+        co_teacher=models.EdCoTeacher.objects.filter(course_id=classroom_id).filter(status="ACTIVE")
+
         #query post
         post=models.EdPost.objects.filter(course_id=classroom_id).filter(status="ACTIVE").select_related('member').order_by('-id')
 
@@ -589,7 +609,8 @@ def classroom(request,classroom_id):
             'member':member,
             'course':course,
             'active_nav':active_nav,
-            'post':post
+            'post':post,
+            'co_teacher':co_teacher
         }
 
         return render(request,'teacher/classroom.html',context)
@@ -1824,6 +1845,9 @@ def coaching(request,classroom_id,task_id):
         #query course
         course=models.EdCourse.objects.get(id=classroom_id)
 
+        #query co teacher
+        co_teacher=models.EdCoTeacher.objects.filter(course_id=classroom_id).filter(status="ACTIVE").select_related('member').order_by('-id')
+
         #query task
         task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
 
@@ -1856,7 +1880,8 @@ def coaching(request,classroom_id,task_id):
             'task':task,
             'task_id':task_id,
             'is_active':is_active,
-            'coach':coach
+            'coach':coach,
+            'co_teacher':co_teacher
         }
         return render(request,'student/main_coach.html',context)
 
@@ -1930,6 +1955,9 @@ def coaching(request,classroom_id,task_id):
         #query course
         course=models.EdCourse.objects.get(id=classroom_id)
 
+        #query co teacher
+        co_teacher=models.EdCoTeacher.objects.filter(course_id=classroom_id).filter(status="ACTIVE").select_related('member').order_by('-id')
+
         #query task
         task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
 
@@ -1962,13 +1990,15 @@ def coaching(request,classroom_id,task_id):
             'task':task,
             'task_id':task_id,
             'is_active':is_active,
-            'coach':coach
+            'coach':coach,
+            'co_teacher':co_teacher
         }
         return render(request,'teacher/main_coach.html',context)
 
 def check_owner(classroom_id,member_id):
     owner=len(models.EdCourse.objects.filter(id=classroom_id).filter(teacher_id=member_id))
-    if owner == 0:
+    co_teacher=len(models.EdCoTeacher.objects.filter(course_id=classroom_id).filter(member_id=member_id))
+    if owner == 0 and co_teacher == 0:
         return 1
     else:
         return 0

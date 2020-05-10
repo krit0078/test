@@ -36,6 +36,7 @@ class EdMember(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     user_type=models.ForeignKey(EdUserType, models.DO_NOTHING,blank=True,null=True, related_name='user_type')
     catagory=models.ForeignKey(EdSubLevel,models.DO_NOTHING,blank=True,null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
 
     class Meta:
         managed = True
@@ -74,6 +75,16 @@ class EdEnrolment(models.Model):
     class Meta:
         managed = True
         db_table = 'ed_enrolment'
+
+class EdCoTeacher(models.Model):
+    timestamp = models.DateTimeField(default=timezone.now)
+    course = models.ForeignKey(EdCourse, models.DO_NOTHING)
+    member = models.ForeignKey(EdMember, models.DO_NOTHING)
+    status = models.CharField(max_length=45,default='PENDING', blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_co_teacher'
 
 class EdPost(models.Model):
     description = models.TextField(blank=True, null=True)

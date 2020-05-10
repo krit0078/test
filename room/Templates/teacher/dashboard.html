@@ -20,7 +20,7 @@
                         </div>
                         <div class="card-detail">
                             <h4>{{i.course_name | truncatechars:50}}</h4>
-                            <span><i class='bx bxs-user' ></i> จำนวนผู้เรียน : {{i.enrolment}}</span>
+                            <span><i class="bx bxs-user-rectangle"></i> {{i.teacher.firstname}} {{i.teacher.lastname}} | <i class='bx bxs-user' ></i> จำนวนผู้เรียน : {{i.enrolment}}</span>
                         </div>
                     </div>
                 </a>
@@ -149,7 +149,7 @@
             let method = $(this).attr('method');
 
 
-            function create_card(id, course_name, description, cover_pic, enrolment) {
+            function create_card(id, course_name, description, cover_pic, enrolment,firstname, lastname) {
                 if (course_name.length > 50) {
                     course_name = course_name.substr(0, 50);
                     course_name += "...";
@@ -161,7 +161,7 @@
                 html += "<img src='" + cover_pic + "'></div>";
                 html += "<div class='card-detail'>";
                 html += "<h4>" + course_name + "</h4>";
-                html += "<span>จำนวนผู้เรียน : " + enrolment + "</span></div></div></a></div>";
+                html += "<span><i class='bx bxs-user-rectangle'></i> "+firstname+" "+lastname+" | จำนวนผู้เรียน : " + enrolment + "</span></div></div></a></div>";
                 return html;
             }
 
@@ -178,7 +178,7 @@
                         $('#exampleModal').hide();
                         let txt="";
                         let source=data.latest_course;
-                        txt=create_card(source.id,source.course_name,source.description,source.cover_pic,source.enrolment);
+                        txt=create_card(source.id,source.course_name,source.description,source.cover_pic,source.enrolment,source.firstname,source.lastname);
                         $('#add-card').after(txt);
                     } else {
                         this_form.find('.loading').slideUp();
