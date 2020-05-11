@@ -835,7 +835,10 @@ def classroom_score(request,classroom_id):
             from django.db.models import Sum
             from collections import OrderedDict
             sum_score=models.EdTurnedIn.objects.filter(member_id=x.member_id).filter(status="TURNEDIN").aggregate(Sum('score'))
-            enrolment[i].sum_score=sum_score['score__sum']
+            if sum_score['score__sum']!=0 and sum_score['score__sum']:
+                enrolment[i].sum_score=sum_score['score__sum']
+            else:
+                enrolment[i].sum_score=0
             i=i+1
 
         #sort array
@@ -874,7 +877,10 @@ def classroom_score(request,classroom_id):
             from django.db.models import Sum
             from collections import OrderedDict
             sum_score=models.EdTurnedIn.objects.filter(member_id=x.member_id).filter(status="TURNEDIN").aggregate(Sum('score'))
-            enrolment[i].sum_score=sum_score['score__sum']
+            if sum_score['score__sum']!=0 and sum_score['score__sum']:
+                enrolment[i].sum_score=sum_score['score__sum']
+            else:
+                enrolment[i].sum_score=0
             i=i+1
 
         #sort array
@@ -2191,6 +2197,30 @@ def check_email(request):
         status=1
     data={
         'status':status
+    }
+    return JsonResponse(data)
+def get_email(request):
+    email=request.GET.get('email')
+    course=request.GET.get('course')
+    c=models.EdCourse.objects.get(id=course)
+    d=models.EdCoTeacher.objects.filter(course_id=course).filter(status="ACTIVE")
+    
+
+    member=[]
+    if email:
+        member=models.EdMember.objects.filter(email__contains=email).filter(user_type_id=2).exclude(id=c.teacher_id)
+        for x in d:
+            member=member.exclude(id=x.member_id)
+        member=member[:5]
+
+    list=[]
+    for x in member:
+        list.append({'email':x.email,'firstname':x.firstname,'lastname':x.lastname})
+
+    status=1
+    data={
+        'status':status,
+        'member':list
     }
     return JsonResponse(data)
 

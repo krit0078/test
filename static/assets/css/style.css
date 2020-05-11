@@ -123,7 +123,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #dashboard .nav-link{
-  color:#101010;
+  color:#e6e6e6;
 }
 
 #dashboard .nav-link:hover{
@@ -196,18 +196,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .classroom_nav{
-  background-color: coral;
+  background-color: #ff54a5;
 }
 .classroom_nav .nav-item{
   padding: 10px 0px;
 }
 
 .nav-active{
-  background-color: sandybrown;
+  background-color: #ff1974;
 }
 
 .classroom_nav .nav-item:hover{
-  background-color: sandybrown;
+  background-color: #ff1974;
 }
 
 .classroom_nav .nav-item .nav-link{
@@ -489,7 +489,7 @@ nav-menu, .nav-menu * {
   color: #fff;
   border-radius: 50px;
   padding: 8px 35px 10px 35px;
-  border: 2px solid #ec85ff;
+  border: 2px solid #fb4c44;
   transition: all ease-in-out 0.3s;
   display: inline-block;
   background: #fb4c44;
@@ -1242,7 +1242,7 @@ section {
 }
 
 .contact .php-email-form input::focus, .contact .php-email-form textarea::focus {
-  background-color: #fdc134;
+  background-color: #FF0066;
 }
 
 .contact .php-email-form input {
@@ -1254,7 +1254,8 @@ section {
 }
 
 .contact .php-email-form button[type="submit"] {
-  background: #fdc134;
+  background: #FF0066;
+  border:1px solid #FF0066;
   border: 0;
   padding: 10px 24px;
   color: #fff;
@@ -1262,7 +1263,9 @@ section {
 }
 
 .contact .php-email-form button[type="submit"]:hover {
-  background: #fdd067;
+  background: #ffffff;
+  border:1px solid #FF0066;
+  color: #FF0066;
 }
 
 @-webkit-keyframes animate-loading {
@@ -1496,12 +1499,17 @@ section {
 }
 #main_nav .nav-item .nav-link:hover{
   color: #fff;
-  background-image: linear-gradient(-60deg, #ff5858 0%, #f09819 100%);
+  background-image: linear-gradient(-225deg, #A445B2 0%, #D41872 52%, #FF0066 100%);
 }
 
 #main_nav .nav-item .active{
   color: #fff;
-  background-image: linear-gradient(-60deg, #ff5858 0%, #f09819 100%);
+  background-image: linear-gradient(-225deg, #A445B2 0%, #D41872 52%, #FF0066 100%);
+}
+
+.chosen-choices{
+  border-radius: 20px !important;
+  padding: .375rem .75rem !important;
 }
 
 @media (max-width: 768px) {

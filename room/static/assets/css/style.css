@@ -203,11 +203,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .nav-active{
-  background-color: #ff8dba;
+  background-color: #ff1974;
 }
 
 .classroom_nav .nav-item:hover{
-  background-color: #ff8dba;
+  background-color: #ff1974;
 }
 
 .classroom_nav .nav-item .nav-link{
@@ -1505,6 +1505,11 @@ section {
 #main_nav .nav-item .active{
   color: #fff;
   background-image: linear-gradient(-225deg, #A445B2 0%, #D41872 52%, #FF0066 100%);
+}
+
+.chosen-choices{
+  border-radius: 20px !important;
+  padding: .375rem .75rem !important;
 }
 
 @media (max-width: 768px) {

@@ -29,6 +29,7 @@ urlpatterns = [
     path('classroom/<int:classroom_id>/task/<int:task_id>/coach/<int:coach_id>/delete',views.delete_coach),
     path('classroom/<int:classroom_id>/task/<int:task_id>/turnedin/<int:turnedin_id>/delete',views.delete_turnin),
     path('ajax/check_email',views.check_email),
+    path('ajax/get_email',views.get_email),
     path('ajax/get_ed_sublevel',views.get_ed_sublevel),
     path('ajax/update_cover',views.update_cover),
     path('ajax/fetch_og',views.fetch_og),
