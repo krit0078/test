@@ -563,7 +563,7 @@ section {
   color: #FF0066;
 }
 
-.section-title p::before {
+.section-title h2::before {
   content: '';
   position: absolute;
   display: block;
@@ -574,7 +574,7 @@ section {
   left: calc(50% - 60px);
 }
 
-.section-title p::after {
+.section-title h2::after {
   content: '';
   position: absolute;
   display: block;
@@ -666,7 +666,7 @@ section {
 }
 
 .about .image {
-  background: url("../img/about.jpg") center center no-repeat;
+  background: url("../img/dean.jpg") center center no-repeat;
   background-size: cover;
   min-height: 400px;
 }
