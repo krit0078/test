@@ -1,6 +1,7 @@
 {% extends 'teacher/base.html' %}
 
 {% block content %}
+<link href="/static/assets/css/select2.css" rel="stylesheet" />
 <section class="mb-5 section-bg">
     <div class="container">
         {% include 'teacher/classroom_nav.html' %}
@@ -538,7 +539,6 @@
 {% endblock %}
 
 {% block js %}
-<link href="/static/assets/css/select2.css" rel="stylesheet" />
 <script src="/static/assets/js/select2.js"></script>
 <script>
     $(document).ready(function () {

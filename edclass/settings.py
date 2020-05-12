@@ -70,6 +70,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'edclass.wsgi.application'
 
+ASGI_APPLICATION = 'mysite.routing.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [("redis://:foolsman@127.0.0.1:6379/0")],
+        },
+    },
+}
+
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

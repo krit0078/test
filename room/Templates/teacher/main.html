@@ -12,110 +12,118 @@
         <div class="col-md-3 mb-3 bg-white border shadow-sm d-block d-md-none">
             {% include 'teacher/main_nav.html' %}
         </div>
-        <div class="col-md-7 col-12 mb-3 mt-md-5">
-            {% for i in task %}
-            <div class="col-12 mb-3 rounded shadow-sm border p-3 bg-white">
-                <div class="row">
-                    <div class="col-12">
-                        <img src="{{i.teacher.picture}}" class="rounded-circle" style="width: 50px; height:50px;">
-                        {{i.teacher.firstname | truncatechars:55}} {{i.teacher.lastname | truncatechars:55}} <small
-                            class="text-muted">{{i.timestamp|date:'d b Y, H:i'}}</small>
-                    </div>
-                    <div class="w-100"></div>
-                    {% if i.description %}
-                    <div class="col-12 steam" style="min-height: 90px;">
-                        <hr>
-                        {{i.description | safe}}
-                    </div>
-                    {% endif %}
-                    {% if i.task_file %}
-                    <div class="col-12">
-                        <hr>
-                        {% for f in i.task_file %}
-                        {% if f.type == 'image' %}
-                        <a href='{{f.file_link}}' style='text-decoration: none;color: #000;' target='_blank'>
-                            <div class='row no-gutters rounded opengraph mb-2'>
-                                <div class='col-3'><img src="{{f.file_link}}" style="width: 100%;"></div>
-                                <div class='col-9 p-3 bg-light'>
-                                    <h5>{{f.file_name| truncatechars:35 }}</h5>
-                                </div>
-                            </div>
-                        </a>
-                        {% elif f.type == 'video' %}
-                        <a class="cursor" style='text-decoration: none;color: #000;' target='_blank' data-toggle="modal"
-                            data-target="#f{{f.id}}">
-                            <div class='row no-gutters rounded opengraph mb-2'>
-                                <div class='col-3'><img src="/uploads/0/thumbnail/video.png" style="width: 100%;">
-                                </div>
-                                <div class='col-9 p-3 bg-light'>
-                                    <h5>{{f.file_name| truncatechars:35 }}</h5>
-                                </div>
-                            </div>
-                        </a>
-                        <!-- Modal -->
-                        <div class="modal fade" id="f{{f.id}}" data-backdrop="static" tabindex="-1" role="dialog"
-                            aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-lg" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="staticBackdropLabel">
-                                            {{f.file_name| truncatechars:55 }}</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
+        <div class="col-md-7 col-12 mb-3 mt-md-4">
+            <div class="row justify-content-center">
+                <div class="col-md-4 main-label text-center">
+                    <h3><i class="bx bx-task"></i> ภารกิจ</h3>
+                </div>
+                {% for i in task %}
+                <div class="col-12 mb-3">
+                    <div class="rounded shadow-sm border p-3 bg-white">
+                    <div class="row">
+                        <div class="col-12">
+                            <img src="{{i.teacher.picture}}" class="rounded-circle" style="width: 50px; height:50px;">
+                            {{i.teacher.firstname | truncatechars:55}} {{i.teacher.lastname | truncatechars:55}} <small
+                                class="text-muted">{{i.timestamp|date:'d b Y, H:i'}}</small>
+                        </div>
+                        <div class="w-100"></div>
+                        {% if i.description %}
+                        <div class="col-12 steam" style="min-height: 90px;">
+                            <hr>
+                            {{i.description | safe}}
+                        </div>
+                        {% endif %}
+                        {% if i.task_file %}
+                        <div class="col-12">
+                            <hr>
+                            {% for f in i.task_file %}
+                            {% if f.type == 'image' %}
+                            <a href='{{f.file_link}}' style='text-decoration: none;color: #000;' target='_blank'>
+                                <div class='row no-gutters rounded opengraph mb-2'>
+                                    <div class='col-3'><img src="{{f.file_link}}" style="width: 100%;"></div>
+                                    <div class='col-9 p-3 bg-light'>
+                                        <h5>{{f.file_name| truncatechars:35 }}</h5>
                                     </div>
-                                    <div class="modal-body">
-                                        <div class="embed-responsive embed-responsive-16by9">
-                                            <video class="embed-responsive embed-responsive-21by9" controls>
-                                                <source src="{{f.file_link}}" type="{{f.file_type}}">
-                                                Your browser does not support the video tag.
-                                            </video>
+                                </div>
+                            </a>
+                            {% elif f.type == 'video' %}
+                            <a class="cursor" style='text-decoration: none;color: #000;' target='_blank'
+                                data-toggle="modal" data-target="#f{{f.id}}">
+                                <div class='row no-gutters rounded opengraph mb-2'>
+                                    <div class='col-3'><img src="/uploads/0/thumbnail/video.png" style="width: 100%;">
+                                    </div>
+                                    <div class='col-9 p-3 bg-light'>
+                                        <h5>{{f.file_name| truncatechars:35 }}</h5>
+                                    </div>
+                                </div>
+                            </a>
+                            <!-- Modal -->
+                            <div class="modal fade" id="f{{f.id}}" data-backdrop="static" tabindex="-1" role="dialog"
+                                aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="staticBackdropLabel">
+                                                {{f.file_name| truncatechars:55 }}</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="embed-responsive embed-responsive-16by9">
+                                                <video class="embed-responsive embed-responsive-21by9" controls>
+                                                    <source src="{{f.file_link}}" type="{{f.file_type}}">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {% else %}
-                        <a href='{{f.file_link}}' style='text-decoration: none;color: #000;' target='_blank'>
-                            <div class='row no-gutters rounded opengraph mb-2'>
-                                <div class='col-3'><img src="/uploads/0/thumbnail/app.png" style="width: 100%;">
+                            {% else %}
+                            <a href='{{f.file_link}}' style='text-decoration: none;color: #000;' target='_blank'>
+                                <div class='row no-gutters rounded opengraph mb-2'>
+                                    <div class='col-3'><img src="/uploads/0/thumbnail/app.png" style="width: 100%;">
+                                    </div>
+                                    <div class='col-9 p-3 bg-light'>
+                                        <h5>{{f.file_name| truncatechars:35 }}</h5>
+                                    </div>
                                 </div>
-                                <div class='col-9 p-3 bg-light'>
-                                    <h5>{{f.file_name| truncatechars:35 }}</h5>
-                                </div>
-                            </div>
-                        </a>
+                            </a>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
                         {% endif %}
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    {% if i.og %}
-                    <div class="col">
-                        <hr>
-                        {% for o in i.og %}
-                        <a href="{{o.url}}" style="text-decoration: none;color: #000;" target="_blank">
-                            <div class="row no-gutters rounded opengraph mb-2">
-                                <div class="col-3"><img src="{{o.image}}" style="width: 100%;"></div>
-                                <div class="col-9 p-3 bg-light">
-                                    <h5>{{o.title}}</h5>
-                                    <p>{{o.description | truncatechars:55}}</p>
+                        {% if i.og %}
+                        <div class="col">
+                            <hr>
+                            {% for o in i.og %}
+                            <a href="{{o.url}}" style="text-decoration: none;color: #000;" target="_blank">
+                                <div class="row no-gutters rounded opengraph mb-2">
+                                    <div class="col-3"><img src="{{o.image}}" style="width: 100%;"></div>
+                                    <div class="col-9 p-3 bg-light">
+                                        <h5>{{o.title}}</h5>
+                                        <p>{{o.description | truncatechars:55}}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </a>
-                        {% endfor %}
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
+                    </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
 
         </div>
         <div class="col-md-2 mb-3 mt-md-5">
             <div class="bg-white border rounded shadow-sm p-3 text-center">
                 <h5 class="text-center">ให้คะแนน</h5>
                 <hr>
-                <a class="btn btn-success" href="/classroom/{{course.id}}/task/{{task_id}}/score"><i class="bx bxs-crown"></i> ให้คะแนน</a>
+                <a class="btn btn-success" href="/classroom/{{course.id}}/task/{{task_id}}/score"><i
+                        class="bx bxs-crown"></i> ให้คะแนน</a>
                 <hr>
                 ความคืบหน้า
                 <div class="progress">
