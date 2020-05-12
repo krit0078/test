@@ -1,7 +1,11 @@
 {% extends 'teacher/base.html' %}
 
-{% block content %}
+{% block css %}
 <link href="/static/assets/css/select2.css" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+
 <section class="mb-5 section-bg">
     <div class="container">
         {% include 'teacher/classroom_nav.html' %}
@@ -520,7 +524,7 @@
                     <div class="form-group row">
                         <label for="staticEmail" class="col-sm-3 col-form-label">อีเมลล์</label>
                         <div class="col-sm-9">
-                            <select class="js-example-basic-multiple" name="states[]" multiple="multiple">
+                            <select class="js-example-basic-single" style="width:100%" name="email" multiple="multiple">
                                 <option value="AL">Alabama</option>
                                 <option value="WY">Wyoming</option>
                             </select>
@@ -542,8 +546,59 @@
 <script src="/static/assets/js/select2.js"></script>
 <script>
     $(document).ready(function () {
-        $('.js-example-basic-single').select2();
+
+        $('.js-example-basic-single').select2({
+            ajax: {
+                url: '/ajax/get_email',
+                dataType: 'json',
+                data: function (params) {
+                    var query = {
+                        email: params.term,
+                        course: '{{course.id}}'
+                    }
+                    return query;
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.member
+                    };
+                },
+                cache: true
+            },
+            placeholder: 'Search for a repository',
+            minimumInputLength: 1,
+            templateResult: formatRepo,
+            templateSelection: formatRepoSelection
+
+        });
+
+        function formatRepo(repo) {
+            if (repo.loading) {
+                return repo.text;
+            }
+
+            var $container = $(
+                "<div class='select2-result-repository clearfix'>" +
+                "<div class='select2-result-repository__avatar'>" +
+                "<div class='select2-result-repository__meta'>" +
+                "<div class='select2-result-repository__title'></div>" +
+                "</div>" +
+                "</div>" +
+                "</div>"
+            );
+
+            $container.find(".select2-result-repository__title").text(repo.firstname + " " + repo.lastname);
+
+            return $container;
+        }
+
+        function formatRepoSelection(repo) {
+            let fullname = repo.firstname + " " + repo.lastname;
+            return fullname || repo.text;
+        }
+
     });
+
 
     $(document).ready(function ($) {
 
