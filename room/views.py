@@ -481,6 +481,7 @@ def classroom(request,classroom_id):
 
         if request.method == 'POST':
             description=request.POST.get('course_description')
+            email=request.POST.getlist('email[]')
             file_id=request.POST.getlist('file_id[]')
             name=request.POST.get('course_name')
             steam_post=request.POST.get('steam_post')
@@ -539,6 +540,20 @@ def classroom(request,classroom_id):
                 }
 
                 return JsonResponse(data)
+
+            elif email:
+                for i in email:
+                    row=len(models.EdCoTeacher.objects.filter(member_id=i).filter(course_id=classroom_id).filter(status="ACTIVE"))
+                    if row==0:
+                        co_teacher=models.EdCoTeacher(course_id=classroom_id,member_id=i)
+                        co_teacher.save()
+
+                data={
+                    'status':1
+                }
+
+                return JsonResponse(data)
+
             if file_data:
 
                 list = []
@@ -2199,6 +2214,7 @@ def check_email(request):
         'status':status
     }
     return JsonResponse(data)
+
 def get_email(request):
     email=request.GET.get('email')
     course=request.GET.get('course')
@@ -2215,7 +2231,7 @@ def get_email(request):
 
     list=[]
     for x in member:
-        list.append({'email':x.email,'firstname':x.firstname,'lastname':x.lastname})
+        list.append({'id':x.id,'email':x.email,'firstname':x.firstname,'lastname':x.lastname})
 
     status=1
     data={

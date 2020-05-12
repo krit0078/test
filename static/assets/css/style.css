@@ -563,7 +563,7 @@ section {
   color: #FF0066;
 }
 
-.section-title h2::before {
+.section-title p::before {
   content: '';
   position: absolute;
   display: block;
@@ -574,7 +574,7 @@ section {
   left: calc(50% - 60px);
 }
 
-.section-title h2::after {
+.section-title p::after {
   content: '';
   position: absolute;
   display: block;

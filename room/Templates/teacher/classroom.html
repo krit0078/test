@@ -524,9 +524,7 @@
                     <div class="form-group row">
                         <label for="staticEmail" class="col-sm-3 col-form-label">อีเมลล์</label>
                         <div class="col-sm-9">
-                            <select class="js-example-basic-single" style="width:100%" name="email" multiple="multiple">
-                                <option value="AL">Alabama</option>
-                                <option value="WY">Wyoming</option>
+                            <select class="js-example-basic-single" style="width:100%" name="email[]" multiple="multiple">
                             </select>
 
                         </div>
@@ -565,7 +563,7 @@
                 },
                 cache: true
             },
-            placeholder: 'Search for a repository',
+            placeholder: 'ค้นหาอีเมลล์',
             minimumInputLength: 1,
             templateResult: formatRepo,
             templateSelection: formatRepoSelection
@@ -579,9 +577,14 @@
 
             var $container = $(
                 "<div class='select2-result-repository clearfix'>" +
-                "<div class='select2-result-repository__avatar'>" +
+                "<div class='select2-result-repository__avatar'><img src='" + "' /></div>" +
                 "<div class='select2-result-repository__meta'>" +
                 "<div class='select2-result-repository__title'></div>" +
+                "<div class='select2-result-repository__description'></div>" +
+                "<div class='select2-result-repository__statistics'>" +
+                "<div class='select2-result-repository__forks'><i class='fa fa-flash'></i> </div>" +
+                "<div class='select2-result-repository__stargazers'><i class='fa fa-star'></i> </div>" +
+                "<div class='select2-result-repository__watchers'><i class='fa fa-eye'></i> </div>" +
                 "</div>" +
                 "</div>" +
                 "</div>"
@@ -847,6 +850,30 @@
 
                 }
             });
+        });
+
+        $('#add_teacher').submit(function () {
+            let this_form = $(this);
+            
+
+            $.ajax({
+                type: this_form.attr('method'),
+                url: this_form.attr("action"),
+                data: this_form.serialize(),
+                dataType: 'json',
+                success: function (data) {
+                    if(data.status==1){
+                        window.location.replace(this_form.attr("action"));
+                    }
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+
+                }
+            });
+
+            return false;
+
         });
 
     });
