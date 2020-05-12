@@ -105,7 +105,8 @@ h1, h2, h3, h4, h5, h6 {
 #header .logo img, #dashboard .logo img {
   padding: 0;
   margin: 0;
-  max-height: 50px;
+  max-height: auto;
+  max-width: 100%;
 }
 
 #dashboard .logo{
@@ -1505,6 +1506,15 @@ section {
 #main_nav .nav-item .active{
   color: #fff;
   background-image: linear-gradient(-225deg, #A445B2 0%, #D41872 52%, #FF0066 100%);
+}
+
+.main-label{
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important;
+  border: 1px solid #dee2e6!important;
+  border-radius: 20px;
+  background-color: #fff;
 }
 
 .chosen-choices{
