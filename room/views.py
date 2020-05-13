@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from room import form
 from room import models
+from django.db.models import Q
 import json
 from django.core import serializers
 import hashlib
@@ -271,6 +272,8 @@ def dashboard(request):
             class_name=request.POST.get('class-name')
             class_description=request.POST.get('class-description')
             catagory=request.POST.get('ed_sublevel')
+            status=request.POST.get('status')
+            co_id=request.POST.get('co_id')
 
             def generate():
                 import random
@@ -287,25 +290,41 @@ def dashboard(request):
 
                     i = i+1
 
-            uid = generate()
+            if class_name:
+                uid = generate()
 
-            add_class=models.EdCourse(course_name=class_name,description=class_description,catagory_id=catagory,uid=uid,teacher_id=member.id)
-            add_class.save()
+                add_class=models.EdCourse(course_name=class_name,description=class_description,catagory_id=catagory,uid=uid,teacher_id=member.id)
+                add_class.save()
 
-            c=models.EdCourse.objects.latest('id')
-            enrolment=len(models.EdEnrolment.objects.filter(course_id=c.id))
+                c=models.EdCourse.objects.latest('id')
+                enrolment=len(models.EdEnrolment.objects.filter(course_id=c.id))
 
 
-            data={
-                'status':1,
-                'latest_course':{'id':c.id,'course_name':c.course_name,'cover_pic':c.cover_pic,'description':c.description,'enrolment':enrolment,'firstname':c.teacher.firstname,'lastname':c.teacher.lastname}
-            }
-            return JsonResponse(data)
+                data={
+                    'status':1,
+                    'latest_course':{'id':c.id,'course_name':c.course_name,'cover_pic':c.cover_pic,'description':c.description,'enrolment':enrolment,'firstname':c.teacher.firstname,'lastname':c.teacher.lastname}
+                }
+                return JsonResponse(data)
+            elif status:
+                co=models.EdCoTeacher.objects.get(id=co_id)
+                co.status=status
+                co.save()
+
+                if co.status == 'DELETE':
+                    status=0
+                else:
+                    status=1
+
+                data={
+                    'status':status,
+                    'course_id':co.course_id
+                }
+                return JsonResponse(data)
         
         #query course
         c=models.EdCourse.objects.filter(status="ACTIVE").filter(teacher_id=member.id).select_related('teacher').order_by('-id')
 
-        co_teacher=models.EdCoTeacher.objects.filter(member_id=member.id).filter(status="ACTIVE")
+        co_teacher=models.EdCoTeacher.objects.filter(Q(member_id=member.id),Q(status="ACTIVE")|Q(status="PENDING"))
 
         course=[]
         for x in c:
@@ -313,6 +332,7 @@ def dashboard(request):
 
         for x in co_teacher:
             c=models.EdCourse.objects.get(id=x.course_id)
+            c.co=x
             course.append(c)
 
         course=sorted(course, key= lambda t: t.id, reverse=True)
@@ -2018,7 +2038,7 @@ def coaching(request,classroom_id,task_id):
 
 def check_owner(classroom_id,member_id):
     owner=len(models.EdCourse.objects.filter(id=classroom_id).filter(teacher_id=member_id))
-    co_teacher=len(models.EdCoTeacher.objects.filter(course_id=classroom_id).filter(member_id=member_id))
+    co_teacher=len(models.EdCoTeacher.objects.filter(course_id=classroom_id).filter(member_id=member_id).filter(status="ACTIVE"))
     if owner == 0 and co_teacher == 0:
         return 1
     else:

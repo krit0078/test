@@ -80,7 +80,7 @@ class EdCoTeacher(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     course = models.ForeignKey(EdCourse, models.DO_NOTHING)
     member = models.ForeignKey(EdMember, models.DO_NOTHING)
-    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    status = models.CharField(max_length=45,default='PENDING', blank=True, null=True)
 
     class Meta:
         managed = True

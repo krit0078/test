@@ -12,7 +12,37 @@
             </div>
 
             {% for i in course %}
-            <div class="col-md-4 col-xl-3 align-items-center">
+            <div class="col-6 col-md-4 col-xl-3 align-items-center">
+                {% if i.co.status == 'PENDING' %}
+                <a href="#" class="pending">
+                    <div class="shadow mb-2 border card">
+                        <div class="card-img">
+                            <img src="{{i.cover_pic}}">
+                        </div>
+                        <div class="card-detail">
+                            <h4>{{i.course_name | truncatechars:50}}</h4>
+                            <span><i class="bx bxs-user-rectangle"></i> {{i.teacher.firstname}} {{i.teacher.lastname}} |
+                                <i class='bx bxs-user'></i> จำนวนผู้เรียน : {{i.enrolment}}</span>
+                        </div>
+                    </div>
+                    <div class="pending-detail">
+                        <form method="POST" action="/dashboard/" enctype="multipart/form-data" class="co_teacher">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="ACTIVE">
+                            <input type="hidden" name="co_id" value="{{i.co.id}}">
+                            <button type="submit" class="btn btn-primary">เข้าร่วม</button>
+                        </form>
+                        <form method="POST" action="/dashboard/" enctype="multipart/form-data" class="co_teacher">
+                            {% csrf_token %}
+                            <input type="hidden" name="co_id" value="{{i.co.id}}">
+                            <input type="hidden" name="status" value="DELETE">
+                            <button type="submit" class="btn btn-danger">ปฎิเสธ</button>
+                        </form>
+                        
+
+                    </div>
+                </a>
+                {% else %}
                 <a href="/classroom/{{i.id}}">
                     <div class="shadow mb-2 border card">
                         <div class="card-img">
@@ -20,10 +50,12 @@
                         </div>
                         <div class="card-detail">
                             <h4>{{i.course_name | truncatechars:50}}</h4>
-                            <span><i class="bx bxs-user-rectangle"></i> {{i.teacher.firstname}} {{i.teacher.lastname}} | <i class='bx bxs-user' ></i> จำนวนผู้เรียน : {{i.enrolment}}</span>
+                            <span><i class="bx bxs-user-rectangle"></i> {{i.teacher.firstname}} {{i.teacher.lastname}} |
+                                <i class='bx bxs-user'></i> จำนวนผู้เรียน : {{i.enrolment}}</span>
                         </div>
                     </div>
                 </a>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
@@ -149,7 +181,7 @@
             let method = $(this).attr('method');
 
 
-            function create_card(id, course_name, description, cover_pic, enrolment,firstname, lastname) {
+            function create_card(id, course_name, description, cover_pic, enrolment, firstname, lastname) {
                 if (course_name.length > 50) {
                     course_name = course_name.substr(0, 50);
                     course_name += "...";
@@ -161,7 +193,7 @@
                 html += "<img src='" + cover_pic + "'></div>";
                 html += "<div class='card-detail'>";
                 html += "<h4>" + course_name + "</h4>";
-                html += "<span><i class='bx bxs-user-rectangle'></i> "+firstname+" "+lastname+" | จำนวนผู้เรียน : " + enrolment + "</span></div></div></a></div>";
+                html += "<span><i class='bx bxs-user-rectangle'></i> " + firstname + " " + lastname + " | จำนวนผู้เรียน : " + enrolment + "</span></div></div></a></div>";
                 return html;
             }
 
@@ -176,9 +208,9 @@
                         this_form.find("input, textarea").val('');
                         $('#exampleModal').modal('toggle');
                         $('#exampleModal').hide();
-                        let txt="";
-                        let source=data.latest_course;
-                        txt=create_card(source.id,source.course_name,source.description,source.cover_pic,source.enrolment,source.firstname,source.lastname);
+                        let txt = "";
+                        let source = data.latest_course;
+                        txt = create_card(source.id, source.course_name, source.description, source.cover_pic, source.enrolment, source.firstname, source.lastname);
                         $('#add-card').after(txt);
                     } else {
                         this_form.find('.loading').slideUp();
@@ -189,6 +221,29 @@
 
             return false;
         });
+
+        $(".co_teacher").submit(function () {
+            let this_form = $(this);
+
+            $.ajax({
+                type: this_form.attr("method"),
+                url: this_form.attr("action"),
+                data: this_form.serialize(),
+                success: function (data) {
+                    console.log(data);
+                    if (data.status == 1) {
+                        window.location.replace('/classroom/'+data.course_id);
+                        
+                    } else {
+                        window.location.replace('/dashboard/');
+                    }
+                }
+            });
+
+
+            return false;
+        });
+
     });
 
 </script>
