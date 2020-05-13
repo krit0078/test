@@ -1866,6 +1866,87 @@ def social(request,classroom_id,task_id):
         }
         return render(request,'teacher/main_social.html',context)
 
+def add_group(request,classroom_id,task_id):
+       #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    if request.session['type'] == 'STUDENT':
+        txt="/classroom/{0}/task/{1}/main"
+        txt=txt.format(classroom_id,task_id)
+        return HttpResponseRedirect(txt)
+
+    else:
+        #check owner
+        if check_owner(classroom_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #check owner task
+        if check_owner_task(classroom_id,task_id):
+            return HttpResponseRedirect("/dashboard")
+
+        if request.method == 'POST':
+            name=request.POST.getlist('name[]')
+            title=request.POST.get('title')
+
+            if title:
+                group=models.EdGroup(title=title,task_id=task_id)
+                group.save()
+
+                group=models.EdGroup.objects.latest('id')
+
+                for i in name:
+                    group_member=models.EdGroupMember(group_id=group.id,member_id=i)
+                    group_member.save()
+                
+                data={
+                    'status':1
+                }
+                return JsonResponse(data)
+      
+
+        #query course
+        course=models.EdCourse.objects.get(id=classroom_id)
+
+        #query task
+        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
+
+        #query enrolment
+        enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id).select_related('member')
+
+        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
+
+        c=0
+        for i in group:
+            group_member=models.EdGroupMember.objects.filter(group_id=i.id).select_related('member')
+            group[c].member=group_member
+
+            for j in group_member:
+                enrolment=enrolment.exclude(member_id=j.member_id)
+            c=c+1
+
+
+        is_active=['']*5
+        is_active[3]="active"
+
+        add_col="active"
+
+        context={
+            'title':'ปรึกษาผู้เชียวชาญ',
+            'member':member,
+            'course':course,
+            'task':task,
+            'task_id':task_id,
+            'enrolment':enrolment,
+            'group':group,
+            'is_active':is_active,
+            'ad_col':add_col
+        }
+        return render(request,'teacher/main_add_collaboration.html',context)
+
 def coaching(request,classroom_id,task_id):
     #check session
     if 'email'not in request.session:

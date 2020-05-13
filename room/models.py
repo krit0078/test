@@ -166,6 +166,25 @@ class EdTurnedIn(models.Model):
         managed = True
         db_table = 'ed_turnedin'
 
+class EdGroup(models.Model):
+    title = models.CharField(max_length=512, blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_group'
+
+class EdGroupMember(models.Model):
+    timestamp = models.DateTimeField(default=timezone.now)
+    group = models.ForeignKey(EdGroup,models.DO_NOTHING)
+    member = models.ForeignKey(EdMember, models.DO_NOTHING)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_group_member'
+
 class EdTurnedinFile(models.Model):
     file_name=models.CharField(max_length=250)
     file_link=models.TextField(blank=True, null=True)
