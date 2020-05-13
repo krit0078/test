@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 13, 2020 at 12:46 PM
+-- Generation Time: May 13, 2020 at 01:13 PM
 -- Server version: 10.4.11-MariaDB
 -- PHP Version: 7.4.3
 
@@ -40,6 +40,20 @@ INSERT INTO `ed_coach_file` (`id`, `file_name`, `file_link`, `file_type`, `statu
 (2, 'coach.jpg', '/uploads/course_id_2/coach/files/2020-04-28/coach_m1G9QEg.jpg', 'image/png', 'ACTIVE', '2020-04-28 17:21:42.158990', 2);
 
 --
+-- Dumping data for table `ed_colla`
+--
+
+INSERT INTO `ed_colla` (`id`, `description`, `status`, `timestamp`, `task_id`, `teacher_id`) VALUES
+(1, 'asdasd', 'DELETE', '2020-04-27 11:41:37.019551', 6, 32),
+(2, 'aaaaa', 'DELETE', '2020-04-27 11:45:15.647640', 6, 32),
+(3, '', 'ACTIVE', '2020-04-27 11:45:58.822854', 6, 32),
+(4, '', 'ACTIVE', '2020-04-27 11:46:38.751696', 6, 32),
+(5, 'asasd', 'DELETE', '2020-04-27 12:02:24.797206', 6, 32),
+(6, 'asdasdasd', 'DELETE', '2020-04-27 12:02:27.521769', 6, 32),
+(7, '', 'DELETE', '2020-04-27 13:31:15.711423', 6, 32),
+(8, '', 'DELETE', '2020-04-27 13:31:33.848635', 6, 32);
+
+--
 -- Dumping data for table `ed_course`
 --
 
@@ -61,14 +75,16 @@ INSERT INTO `ed_enrolment` (`id`, `timestamp`, `course_id`, `member_id`) VALUES
 --
 
 INSERT INTO `ed_group` (`id`, `title`, `timestamp`, `status`, `task_id`) VALUES
-(1, 'กลุ่มที่ 1', '2020-05-13 17:46:12.377162', 'ACTIVE', 6);
+(1, 'กลุ่มที่ 1', '2020-05-13 17:46:12.377162', 'ACTIVE', 6),
+(2, 'กลุ่มที่ 2', '2020-05-13 17:47:43.255640', 'DELETE', 6);
 
 --
 -- Dumping data for table `ed_group_member`
 --
 
 INSERT INTO `ed_group_member` (`id`, `timestamp`, `group_id`, `member_id`) VALUES
-(1, '2020-05-13 17:46:12.380106', 1, 30);
+(1, '2020-05-13 17:46:12.380106', 1, 30),
+(2, '2020-05-13 17:47:43.258174', 2, 31);
 
 --
 -- Dumping data for table `ed_level`
@@ -190,36 +206,6 @@ INSERT INTO `ed_scaffolding` (`id`, `description`, `status`, `timestamp`, `scaff
 INSERT INTO `ed_scaffolding_type` (`id`, `prefix`, `title`) VALUES
 (1, 'conceptual', 'ฐานความช่วยเหลือด้านความคิดรวบยอด'),
 (2, 'strategy', 'ฐานความช่วยเหลือด้านกลยุทธ์');
-
---
--- Dumping data for table `ed_social`
---
-
-INSERT INTO `ed_social` (`id`, `description`, `status`, `timestamp`, `task_id`, `teacher_id`) VALUES
-(1, 'asdasd', 'DELETE', '2020-04-27 11:41:37.019551', 6, 32),
-(2, 'aaaaa', 'DELETE', '2020-04-27 11:45:15.647640', 6, 32),
-(3, '', 'ACTIVE', '2020-04-27 11:45:58.822854', 6, 32),
-(4, '', 'ACTIVE', '2020-04-27 11:46:38.751696', 6, 32),
-(5, 'asasd', 'DELETE', '2020-04-27 12:02:24.797206', 6, 32),
-(6, 'asdasdasd', 'DELETE', '2020-04-27 12:02:27.521769', 6, 32),
-(7, '', 'DELETE', '2020-04-27 13:31:15.711423', 6, 32),
-(8, '', 'DELETE', '2020-04-27 13:31:33.848635', 6, 32);
-
---
--- Dumping data for table `ed_social_file`
---
-
-INSERT INTO `ed_social_file` (`id`, `file_name`, `file_link`, `file_type`, `status`, `timestamp`, `social_id`) VALUES
-(2, '67354581_1613922928740181_4657308926277058560_n.jpg', '/uploads/course_id_2/social/files/2020-04-27/67354581_1613922928740181_4657308926277058560_n.jpg', 'image/jpeg', 'ACTIVE', '2020-04-27 11:46:34.558586', 4),
-(3, '74525054_956602731377047_8648344128590970880_n.jpg', '/uploads/course_id_2/social/files/2020-04-27/74525054_956602731377047_8648344128590970880_n.jpg', 'image/jpeg', 'ACTIVE', '2020-04-27 11:46:37.270055', 4);
-
---
--- Dumping data for table `ed_social_opengraph`
---
-
-INSERT INTO `ed_social_opengraph` (`id`, `title`, `description`, `url`, `image`, `social_id`) VALUES
-(2, 'Boxicons : Premium web friendly icons for free', 'Boxicons is a free collection of carefully crafted open source icons. Each icon is designed on a 24px grid with the material guidelines', 'https://boxicons.com/', 'http://boxicons.com/static/img/og-image.png', 3),
-(3, 'Boxicons : Premium web friendly icons for free', 'Boxicons is a free collection of carefully crafted open source icons. Each icon is designed on a 24px grid with the material guidelines', 'https://boxicons.com/', 'http://boxicons.com/static/img/og-image.png', NULL);
 
 --
 -- Dumping data for table `ed_sub_level`
