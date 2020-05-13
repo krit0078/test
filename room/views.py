@@ -47,7 +47,6 @@ def login(request):
                 send_mail(subject, link, email_from,
                         recipient_list, html_message=link)
 
-
                 status=1
             else:
                 status=0
@@ -61,7 +60,7 @@ def login(request):
             password=request.POST.get('password')
             password=hashlib.md5(password.encode("utf-8")).hexdigest()
 
-            member=len(models.EdMember.objects.filter(email=email,password=password).filter(status="ACTIVE"))
+            member=len(models.EdMember.objects.filter(email=email).filter(password=password).filter(status="ACTIVE"))
             if member==1:
 
                 member=models.EdMember.objects.get(email=email)
@@ -1964,6 +1963,84 @@ def add_group(request,classroom_id,task_id):
             'group':group,
             'is_active':is_active,
             'ad_col':add_col
+        }
+        return render(request,'teacher/main_add_collaboration.html',context)
+
+def view_group(request,classroom_id,task_id,group_id):
+       #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    if request.session['type'] == 'STUDENT':
+        txt="/classroom/{0}/task/{1}/main"
+        txt=txt.format(classroom_id,task_id)
+        return HttpResponseRedirect(txt)
+
+    else:
+        #check owner
+        if check_owner(classroom_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #check owner task
+        if check_owner_task(classroom_id,task_id):
+            return HttpResponseRedirect("/dashboard")
+
+        if request.method == 'POST':
+            name=request.POST.getlist('name[]')
+            title=request.POST.get('title')
+
+            if title:
+                group=models.EdGroup(title=title,task_id=task_id)
+                group.save()
+
+                group=models.EdGroup.objects.latest('id')
+
+                for i in name:
+                    group_member=models.EdGroupMember(group_id=group.id,member_id=i)
+                    group_member.save()
+                
+                data={
+                    'status':1
+                }
+                return JsonResponse(data)
+      
+
+        #query course
+        course=models.EdCourse.objects.get(id=classroom_id)
+
+        #query task
+        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
+
+ 
+
+        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
+
+        c=0
+        for i in group:
+            group_member=models.EdGroupMember.objects.filter(group_id=i.id).select_related('member')
+            group[c].member=group_member
+            if i.id == group_id:
+                group[c].active="active"
+            c=c+1
+
+
+        is_active=['']*5
+        is_active[3]="active"
+
+
+
+        context={
+            'title':'ปรึกษาผู้เชียวชาญ',
+            'member':member,
+            'course':course,
+            'task':task,
+            'task_id':task_id,
+            'group':group,
+            'is_active':is_active,
+   
         }
         return render(request,'teacher/main_add_collaboration.html',context)
 

@@ -40,7 +40,7 @@
                             {% if group %}
                             {% for i in group %}
                             <li class="nav-item">
-                                <a class="nav-link" href="/classroom/{{course.id}}/task/{{task.0.id}}/group/{{i.id}}"><i class='bx bxs-chat'></i> {{i.title}}</a>
+                                <a class="nav-link {{i.active}}" href="/classroom/{{course.id}}/task/{{task.0.id}}/group/{{i.id}}"><i class='bx bxs-chat'></i> {{i.title}}</a>
                             </li>
                             {% endfor %}
                             {% endif %}

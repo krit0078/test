@@ -26,7 +26,7 @@ urlpatterns = [
     path('classroom/<int:classroom_id>/task/<int:task_id>/social/<int:social_id>/delete',views.delete_social),
     path('classroom/<int:classroom_id>/task/<int:task_id>/scaffolding',views.scaffolding),
     path('classroom/<int:classroom_id>/task/<int:task_id>/addgroup/',views.add_group),
-    path('classroom/<int:classroom_id>/task/<int:task_id>/group/<int:group_id>',views.add_group),
+    path('classroom/<int:classroom_id>/task/<int:task_id>/group/<int:group_id>',views.view_group),
     path('classroom/<int:classroom_id>/task/<int:task_id>/group/<int:group_id>/delete',views.delete_group),
     path('classroom/<int:classroom_id>/task/<int:task_id>/coach/',views.coaching),
     path('classroom/<int:classroom_id>/task/<int:task_id>/coach/<int:coach_id>/delete',views.delete_coach),
