@@ -255,7 +255,7 @@ class EdResourceOpengraph(models.Model):
         managed = True
         db_table = 'ed_resource_opengraph'
 
-class EdSocial(models.Model):
+class EdColla(models.Model):
     description = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
@@ -264,30 +264,30 @@ class EdSocial(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'ed_social'
+        db_table = 'ed_colla'
 
-class EdSocialFile(models.Model):
+class EdCollaFile(models.Model):
     file_name=models.CharField(max_length=250)
     file_link=models.TextField(blank=True, null=True)
     file_type=models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
-    social=models.ForeignKey(EdSocial, models.DO_NOTHING, blank=True, null=True,related_name='social')
+    colla=models.ForeignKey(EdColla, models.DO_NOTHING, blank=True, null=True,related_name='colla')
 
     class Meta:
         managed = True
-        db_table = 'ed_social_file'
+        db_table = 'ed_colla_file'
 
-class EdSocialOpengraph(models.Model):
+class EdCollaOpengraph(models.Model):
     title = models.CharField(max_length=512, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     url=models.TextField(blank=True, null=True)
     image=models.TextField(blank=True, null=True)
-    social=models.ForeignKey(EdSocial, models.DO_NOTHING, blank=True, null=True)
+    colla=models.ForeignKey(EdColla, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = True
-        db_table = 'ed_social_opengraph'
+        db_table = 'ed_colla_opengraph'
 
 class EdScaffoldingType(models.Model):
     prefix=models.CharField(max_length=95,blank=True,null=True)

@@ -1711,179 +1711,179 @@ def scaffolding(request,classroom_id,task_id):
         }
         return render(request,'teacher/main_scaff.html',context)
 
-def social(request,classroom_id,task_id):
-    #check session
-    if 'email'not in request.session:
-        return HttpResponseRedirect("/login")
+# def social(request,classroom_id,task_id):
+#     #check session
+#     if 'email'not in request.session:
+#         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+#     email=request.session['email']
+#     member=models.EdMember.objects.get(email=email)
 
-    if request.session['type'] == 'STUDENT':
-        #check enrolment
-        if check_enrolment(classroom_id,member.id):
-            return HttpResponseRedirect("/dashboard")
+#     if request.session['type'] == 'STUDENT':
+#         #check enrolment
+#         if check_enrolment(classroom_id,member.id):
+#             return HttpResponseRedirect("/dashboard")
 
-        #check task_enrolment
-        if check_enrolment_task(classroom_id,task_id,member.id):
-            return HttpResponseRedirect("/dashboard")
+#         #check task_enrolment
+#         if check_enrolment_task(classroom_id,task_id,member.id):
+#             return HttpResponseRedirect("/dashboard")
 
-        #query course
-        course=models.EdCourse.objects.get(id=classroom_id)
+#         #query course
+#         course=models.EdCourse.objects.get(id=classroom_id)
 
-        #query task
-        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
+#         #query task
+#         task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
 
-        #query resource
-        social=models.EdSocial.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
-        i=0
-        for x in social:
-            social_file=models.EdSocialFile.objects.filter(social_id=x.id).filter(status="ACTIVE")
-            j=0
-            for y in social_file:
-                if y.file_type.find("image") != -1:
-                    social_file[j].type="image"
-                elif y.file_type.find("video") != -1:
-                    social_file[j].type="video"
-                else:
-                    social_file[j].type="app"
-                j=j+1
+#         #query resource
+#         social=models.EdSocial.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
+#         i=0
+#         for x in social:
+#             social_file=models.EdSocialFile.objects.filter(social_id=x.id).filter(status="ACTIVE")
+#             j=0
+#             for y in social_file:
+#                 if y.file_type.find("image") != -1:
+#                     social_file[j].type="image"
+#                 elif y.file_type.find("video") != -1:
+#                     social_file[j].type="video"
+#                 else:
+#                     social_file[j].type="app"
+#                 j=j+1
 
-            social_og=models.EdSocialOpengraph.objects.filter(social_id=x.id)
-            social[i].social_file=social_file
-            social[i].og=social_og  
+#             social_og=models.EdSocialOpengraph.objects.filter(social_id=x.id)
+#             social[i].social_file=social_file
+#             social[i].og=social_og  
     
-            i=i+1          
+#             i=i+1          
 
-        is_active=['']*5
-        is_active[3]="active"
+#         is_active=['']*5
+#         is_active[3]="active"
 
-        context={
-            'title':'ชุมชนการเรียนรู้',
-            'member':member,
-            'course':course,
-            'task':task,
-            'task_id':task_id,
-            'is_active':is_active,
-            'social':social
-        }
-        return render(request,'student/main_social.html',context)
+#         context={
+#             'title':'ชุมชนการเรียนรู้',
+#             'member':member,
+#             'course':course,
+#             'task':task,
+#             'task_id':task_id,
+#             'is_active':is_active,
+#             'social':social
+#         }
+#         return render(request,'student/main_social.html',context)
 
-    else:
-        #check owner
-        if check_owner(classroom_id,member.id):
-            return HttpResponseRedirect("/dashboard")
+#     else:
+#         #check owner
+#         if check_owner(classroom_id,member.id):
+#             return HttpResponseRedirect("/dashboard")
 
-        #check owner task
-        if check_owner_task(classroom_id,task_id):
-            return HttpResponseRedirect("/dashboard")
+#         #check owner task
+#         if check_owner_task(classroom_id,task_id):
+#             return HttpResponseRedirect("/dashboard")
 
-        if request.method == 'POST':
-            file_data=request.FILES.getlist('file')
-            file_id=request.POST.getlist('file_id[]')
-            link_id=request.POST.getlist('link_id[]')
-            steam_div=request.POST.get('steam_div')
+#         if request.method == 'POST':
+#             file_data=request.FILES.getlist('file')
+#             file_id=request.POST.getlist('file_id[]')
+#             link_id=request.POST.getlist('link_id[]')
+#             steam_div=request.POST.get('steam_div')
 
-            if steam_div or file_id or link_id:
+#             if steam_div or file_id or link_id:
 
-                post=models.EdSocial(description=steam_div,task_id=task_id,teacher_id=member.id)
-                post.save()
+#                 post=models.EdSocial(description=steam_div,task_id=task_id,teacher_id=member.id)
+#                 post.save()
 
-                p=models.EdSocial.objects.latest('id')
-                m=models.EdMember.objects.get(id=p.teacher_id)
+#                 p=models.EdSocial.objects.latest('id')
+#                 m=models.EdMember.objects.get(id=p.teacher_id)
 
-                if file_id:
-                    for i in file_id:
-                        f=models.EdSocialFile.objects.get(id=i)
-                        f.social_id=p.id
-                        f.save()
+#                 if file_id:
+#                     for i in file_id:
+#                         f=models.EdSocialFile.objects.get(id=i)
+#                         f.social_id=p.id
+#                         f.save()
                 
-                if link_id:
-                    for i in link_id:
-                        o=models.EdSocialOpengraph.objects.get(id=i)
-                        o.social_id=p.id
-                        o.save()
+#                 if link_id:
+#                     for i in link_id:
+#                         o=models.EdSocialOpengraph.objects.get(id=i)
+#                         o.social_id=p.id
+#                         o.save()
 
-                data={
-                    'status':1,
-                    'data':{'id':p.id,'description':p.description,'timestamp':p.timestamp,'firstname':m.firstname,'lastname':m.lastname,'picture':m.picture}
-                }
-                return JsonResponse(data)
+#                 data={
+#                     'status':1,
+#                     'data':{'id':p.id,'description':p.description,'timestamp':p.timestamp,'firstname':m.firstname,'lastname':m.lastname,'picture':m.picture}
+#                 }
+#                 return JsonResponse(data)
             
-            if file_data:
+#             if file_data:
 
-                list = []
-                name = []
-                file_type = []
-                for f in file_data:
-                    import datetime
-                    fs = FileSystemStorage()
+#                 list = []
+#                 name = []
+#                 file_type = []
+#                 for f in file_data:
+#                     import datetime
+#                     fs = FileSystemStorage()
 
-                    date = datetime.date.today()
-                    path = "course_id_{0}/social/files/{1}/{2}"
-                    path = path.format(
-                        classroom_id,date,f.name)
-                    filename = fs.save(path, f)
-                    list.append(fs.url(filename))
-                    name.append(f.name)
-                    file_type.append(f.content_type)
+#                     date = datetime.date.today()
+#                     path = "course_id_{0}/social/files/{1}/{2}"
+#                     path = path.format(
+#                         classroom_id,date,f.name)
+#                     filename = fs.save(path, f)
+#                     list.append(fs.url(filename))
+#                     name.append(f.name)
+#                     file_type.append(f.content_type)
 
-                social_file=models.EdSocialFile(file_name=name[0],file_type=file_type[0],file_link=list[0],social_id="")
-                social_file.save()
+#                 social_file=models.EdSocialFile(file_name=name[0],file_type=file_type[0],file_link=list[0],social_id="")
+#                 social_file.save()
 
-                p=models.EdSocialFile.objects.latest('id')
+#                 p=models.EdSocialFile.objects.latest('id')
 
-                data={
-                    'status':1,
-                    'data':{'id':p.id,'file_name':p.file_name,'file_link':p.file_link,'file_type':p.file_type}
-                }
+#                 data={
+#                     'status':1,
+#                     'data':{'id':p.id,'file_name':p.file_name,'file_link':p.file_link,'file_type':p.file_type}
+#                 }
 
-                return JsonResponse(data)
+#                 return JsonResponse(data)
 
-        #query course
-        course=models.EdCourse.objects.get(id=classroom_id)
+#         #query course
+#         course=models.EdCourse.objects.get(id=classroom_id)
 
-        #query task
-        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
+#         #query task
+#         task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
 
-        #query resource
-        social=models.EdSocial.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
-        i=0
-        for x in social:
-            social_file=models.EdSocialFile.objects.filter(social_id=x.id).filter(status="ACTIVE")
-            j=0
-            for y in social_file:
-                if y.file_type.find("image") != -1:
-                    social_file[j].type="image"
-                elif y.file_type.find("video") != -1:
-                    social_file[j].type="video"
-                else:
-                    social_file[j].type="app"
-                j=j+1
+#         #query resource
+#         social=models.EdSocial.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
+#         i=0
+#         for x in social:
+#             social_file=models.EdSocialFile.objects.filter(social_id=x.id).filter(status="ACTIVE")
+#             j=0
+#             for y in social_file:
+#                 if y.file_type.find("image") != -1:
+#                     social_file[j].type="image"
+#                 elif y.file_type.find("video") != -1:
+#                     social_file[j].type="video"
+#                 else:
+#                     social_file[j].type="app"
+#                 j=j+1
 
-            social_og=models.EdSocialOpengraph.objects.filter(social_id=x.id)
-            social[i].social_file=social_file
-            social[i].og=social_og  
+#             social_og=models.EdSocialOpengraph.objects.filter(social_id=x.id)
+#             social[i].social_file=social_file
+#             social[i].og=social_og  
     
-            i=i+1          
+#             i=i+1          
 
-        is_active=['']*5
-        is_active[3]="active"
+#         is_active=['']*5
+#         is_active[3]="active"
 
-        #query group
-        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
+#         #query group
+#         group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
 
-        context={
-            'title':'ชุมชนการเรียนรู้',
-            'member':member,
-            'course':course,
-            'task':task,
-            'task_id':task_id,
-            'is_active':is_active,
-            'social':social,
-            'group':group
-        }
-        return render(request,'teacher/main_social.html',context)
+#         context={
+#             'title':'ชุมชนการเรียนรู้',
+#             'member':member,
+#             'course':course,
+#             'task':task,
+#             'task_id':task_id,
+#             'is_active':is_active,
+#             'social':social,
+#             'group':group
+#         }
+#         return render(request,'teacher/main_social.html',context)
 
 def add_group(request,classroom_id,task_id):
        #check session
@@ -2313,29 +2313,29 @@ def delete_resource(request,classroom_id,task_id,resource_id):
     url=url.format(classroom_id,task_id)
     return HttpResponseRedirect(url)
 
-def delete_social(request,classroom_id,task_id,social_id):
-    #check session
-    if 'email'not in request.session:
-        return HttpResponseRedirect("/login")
+# def delete_social(request,classroom_id,task_id,social_id):
+#     #check session
+#     if 'email'not in request.session:
+#         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+#     email=request.session['email']
+#     member=models.EdMember.objects.get(email=email)
 
-    #check owner
-    if check_owner(classroom_id,member.id):
-        return HttpResponseRedirect("/dashboard")
+#     #check owner
+#     if check_owner(classroom_id,member.id):
+#         return HttpResponseRedirect("/dashboard")
     
-    #check owner task
-    if check_owner_task(classroom_id,task_id):
-        return HttpResponseRedirect("/dashboard")
+#     #check owner task
+#     if check_owner_task(classroom_id,task_id):
+#         return HttpResponseRedirect("/dashboard")
     
-    resource=models.EdSocial.objects.get(id=social_id)
-    resource.status="DELETE"
-    resource.save()
+#     resource=models.EdSocial.objects.get(id=social_id)
+#     resource.status="DELETE"
+#     resource.save()
 
-    url="/classroom/{0}/task/{1}/social"
-    url=url.format(classroom_id,task_id)
-    return HttpResponseRedirect(url)
+#     url="/classroom/{0}/task/{1}/social"
+#     url=url.format(classroom_id,task_id)
+#     return HttpResponseRedirect(url)
 
 def delete_coach(request,classroom_id,task_id,coach_id):
     #check session
@@ -2546,11 +2546,11 @@ def fetch_og(request):
         og.save()
 
         og = models.EdResourceOpengraph.objects.latest('id')
-    elif target == 'social':
-        og = models.EdSocialOpengraph(title='', description='', url='', image='',social_id='')
-        og.save()
+    # elif target == 'social':
+    #     og = models.EdSocialOpengraph(title='', description='', url='', image='',social_id='')
+    #     og.save()
 
-        og = models.EdSocialOpengraph.objects.latest('id')
+    #     og = models.EdSocialOpengraph.objects.latest('id')
     elif target == 'turnedin':
         og = models.EdTurnedinOpengraph(title='', description='', url='', image='',turnedin_id='')
         og.save()
