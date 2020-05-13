@@ -1711,7 +1711,7 @@ def scaffolding(request,classroom_id,task_id):
         }
         return render(request,'teacher/main_scaff.html',context)
 
-# def social(request,classroom_id,task_id):
+# def colla(request,classroom_id,task_id):
 #     #check session
 #     if 'email'not in request.session:
 #         return HttpResponseRedirect("/login")
@@ -1778,31 +1778,31 @@ def scaffolding(request,classroom_id,task_id):
 #         if check_owner_task(classroom_id,task_id):
 #             return HttpResponseRedirect("/dashboard")
 
-#         if request.method == 'POST':
-#             file_data=request.FILES.getlist('file')
-#             file_id=request.POST.getlist('file_id[]')
-#             link_id=request.POST.getlist('link_id[]')
-#             steam_div=request.POST.get('steam_div')
+        # if request.method == 'POST':
+        #     file_data=request.FILES.getlist('file')
+        #     file_id=request.POST.getlist('file_id[]')
+        #     link_id=request.POST.getlist('link_id[]')
+        #     steam_div=request.POST.get('steam_div')
 
-#             if steam_div or file_id or link_id:
+        #     if steam_div or file_id or link_id:
 
-#                 post=models.EdSocial(description=steam_div,task_id=task_id,teacher_id=member.id)
-#                 post.save()
+        #         post=models.EdSocial(description=steam_div,task_id=task_id,teacher_id=member.id)
+        #         post.save()
 
-#                 p=models.EdSocial.objects.latest('id')
-#                 m=models.EdMember.objects.get(id=p.teacher_id)
+        #         p=models.EdSocial.objects.latest('id')
+        #         m=models.EdMember.objects.get(id=p.teacher_id)
 
-#                 if file_id:
-#                     for i in file_id:
-#                         f=models.EdSocialFile.objects.get(id=i)
-#                         f.social_id=p.id
-#                         f.save()
+        #         if file_id:
+        #             for i in file_id:
+        #                 f=models.EdSocialFile.objects.get(id=i)
+        #                 f.social_id=p.id
+        #                 f.save()
                 
-#                 if link_id:
-#                     for i in link_id:
-#                         o=models.EdSocialOpengraph.objects.get(id=i)
-#                         o.social_id=p.id
-#                         o.save()
+        #         if link_id:
+        #             for i in link_id:
+        #                 o=models.EdSocialOpengraph.objects.get(id=i)
+        #                 o.social_id=p.id
+        #                 o.save()
 
 #                 data={
 #                     'status':1,
@@ -2013,8 +2013,6 @@ def view_group(request,classroom_id,task_id,group_id):
 
         #query task
         task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
-
- 
 
         group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
 
