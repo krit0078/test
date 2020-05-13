@@ -2018,6 +2018,8 @@ def view_group(request,classroom_id,task_id,group_id):
 
         group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
 
+        view_group=models.EdGroup.objects.get(id=group_id)
+
         c=0
         for i in group:
             group_member=models.EdGroupMember.objects.filter(group_id=i.id).select_related('member')
@@ -2039,10 +2041,11 @@ def view_group(request,classroom_id,task_id,group_id):
             'task':task,
             'task_id':task_id,
             'group':group,
+            'view_group':view_group,
             'is_active':is_active,
    
         }
-        return render(request,'teacher/main_add_collaboration.html',context)
+        return render(request,'teacher/main_collaboration.html',context)
 
 def coaching(request,classroom_id,task_id):
     #check session
