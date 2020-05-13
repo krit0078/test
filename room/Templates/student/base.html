@@ -26,7 +26,8 @@
   <link href="/static/assets/vendor/venobox/venobox.css" rel="stylesheet">
   <link href="/static/assets/vendor/cropper/cropper.css" rel="stylesheet">
   <link href="/static/assets/vendor/aos/aos.css" rel="stylesheet">
-
+  {% block css %}
+  {% endblock %}
   <!-- Template Main CSS File -->
   <link href="/static/assets/css/style.css" rel="stylesheet">
 
@@ -45,8 +46,10 @@
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav ml-auto align-items-center">
+          <!-- <li class="nav-item"><a class="nav-link" href="#"><i class='bx bxs-bell-ring'></i></a></li> -->
           <li class="nav-item"><a class="nav-link" href="/profile"> <img class="img-profile rounded-circle"
-                src="{{member.picture}}"> {{member.firstname|truncatechars:50}} {{member.lastname|truncatechars:50}}</a></li>
+                src="{{member.picture}}"> {{member.firstname|truncatechars:50}} {{member.lastname|truncatechars:50}}</a>
+          </li>
           <li class="nav-item"><a class="nav-link" href="/logout">ออกจากระบบ</a></li>
         </ul>
       </div>
@@ -58,7 +61,7 @@
   {% endblock %}
 
   {% block modal %}
-  
+
   {% endblock %}
 
   <a href="#" class="back-to-top"><i class="icofont-simple-up"></i></a>

@@ -1212,6 +1212,9 @@ def main(request,classroom_id,task_id):
             task[i].percent=percent
 
             i=i+1
+        
+        #query group
+        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
 
         context={
             'title':'ภารกิจ',
@@ -1219,7 +1222,8 @@ def main(request,classroom_id,task_id):
             'course':course,
             'task':task,
             'is_active':is_active,
-            'task_id':task_id
+            'task_id':task_id,
+            'group':group
         }
         return render(request,'teacher/main.html',context)
 
@@ -1346,12 +1350,16 @@ def main_score(request,classroom_id,task_id):
             enrolment[i].turnedin_status=turnedin_status
             i=i+1
 
+        #query group
+        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
+
         context={
             'title':'ให้คะแนน',
             'member':member,
             'course':course,
             'task':task,
-            'enrolment':enrolment
+            'enrolment':enrolment,
+            'group':group
         }
         return render(request,'teacher/main_score.html',context)
 
@@ -1514,6 +1522,9 @@ def resource(request,classroom_id,task_id):
         is_active=['']*5
         is_active[1]="active"
 
+        #query group
+        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
+
         context={
             'title':'แหล่งเรียนรู้',
             'member':member,
@@ -1521,7 +1532,8 @@ def resource(request,classroom_id,task_id):
             'task':task,
             'task_id':task_id,
             'is_active':is_active,
-            'resource':resource
+            'resource':resource,
+            'group':group
         }
         return render(request,'teacher/main_resource.html',context)
 
@@ -1684,6 +1696,9 @@ def scaffolding(request,classroom_id,task_id):
         is_active=['']*5
         is_active[2]="active"
 
+        #query group
+        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
+
         context={
             'title':'ฐานความช่วยเหลือ',
             'member':member,
@@ -1692,7 +1707,8 @@ def scaffolding(request,classroom_id,task_id):
             'task_id':task_id,
             'is_active':is_active,
             'scaff':scaff,
-            'scaff_type':scaff_type
+            'scaff_type':scaff_type,
+            'group':group
         }
         return render(request,'teacher/main_scaff.html',context)
 
@@ -1855,6 +1871,9 @@ def social(request,classroom_id,task_id):
         is_active=['']*5
         is_active[3]="active"
 
+        #query group
+        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
+
         context={
             'title':'ชุมชนการเรียนรู้',
             'member':member,
@@ -1862,7 +1881,8 @@ def social(request,classroom_id,task_id):
             'task':task,
             'task_id':task_id,
             'is_active':is_active,
-            'social':social
+            'social':social,
+            'group':group
         }
         return render(request,'teacher/main_social.html',context)
 
@@ -2105,6 +2125,8 @@ def coaching(request,classroom_id,task_id):
         is_active=['']*5
         is_active[4]="active"
 
+        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
+
         context={
             'title':'ปรึกษาผู้เชียวชาญ',
             'member':member,
@@ -2113,6 +2135,7 @@ def coaching(request,classroom_id,task_id):
             'task_id':task_id,
             'is_active':is_active,
             'coach':coach,
+            'group':group,
             'co_teacher':co_teacher
         }
         return render(request,'teacher/main_coach.html',context)
@@ -2302,6 +2325,28 @@ def delete_steam(request,classroom_id,steam_id):
     url=url.format(classroom_id)
     return HttpResponseRedirect(url)
 
+def delete_group(request,classroom_id,task_id,group_id):
+     #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    #check owner
+    if check_owner(classroom_id,member.id):
+        return HttpResponseRedirect("/dashboard")
+    
+    #check owner task
+    if check_owner_task(classroom_id,task_id):
+        return HttpResponseRedirect("/dashboard")
+    group=models.EdGroup.objects.get(id=group_id)
+    group.status="DELETE"
+    group.save()
+
+    url="/classroom/{0}/task/{1}/addgroup"
+    url=url.format(classroom_id,task_id)
+    return HttpResponseRedirect(url)
 
 def check_email(request):
     email=request.GET.get('email')
