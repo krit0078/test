@@ -19,19 +19,41 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{is_active.1}}"
-                            href="/classroom/{{course.id}}/task/{{task.0.id}}/resource"><i class='bx bx-comment-detail'></i>
-                            แลกเปลี่ยนเรียนรู้</a>
+                            href="/classroom/{{course.id}}/task/{{task.0.id}}/resource"><i class='bx bxs-book'></i>
+                            แหล่งเรียนรู้</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{is_active.2}}" href="/classroom/{{course.id}}/task/{{task.0.id}}/scaffolding"><i class='bx bx-list-check'></i>
+                        <a class="nav-link {{is_active.2}}"
+                            href="/classroom/{{course.id}}/task/{{task.0.id}}/scaffolding"><i
+                                class='bx bx-list-check'></i>
                             ฐานความช่วยเหลือ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{is_active.3}}" href="/classroom/{{course.id}}/task/{{task.0.id}}/social"><i class='bx bxs-videos'></i>
-                            ชุมชนการเรียนรู้</a>
+                        <a class="nav-link {{is_active.3}}" href="/classroom/{{course.id}}/task/{{task.0.id}}/global"><i
+                                class='bx bx-comment-detail'></i>
+                            แลกเปลี่ยนเรียนรู้</a>
+                        <ul class="nav" id="sub-nav">
+                            <li class="nav-item">
+                                <a class="nav-link cursor {{ad_col}}"
+                                    href="/classroom/{{course.id}}/task/{{task.0.id}}/addgroup"><i
+                                        class='bx bxs-group'></i> ดูกลุ่มย่อย</a>
+                            </li>
+                            {% if group_bar %}
+                            {% for i in group_bar %}
+                        
+                            <li class="nav-item">
+                                <a class="nav-link {{i.active}}"
+                                    href="/classroom/{{course.id}}/task/{{task.0.id}}/group/{{i.id}}"><i
+                                        class='bx bxs-chat'></i> {{i.title}}</a>
+                            </li>
+                    
+                            {% endfor %}
+                            {% endif %}
+                        </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{is_active.4}}" href="/classroom/{{course.id}}/task/{{task.0.id}}/coach"><i class='bx bxs-user-check'></i>
+                        <a class="nav-link {{is_active.4}}" href="/classroom/{{course.id}}/task/{{task.0.id}}/coach"><i
+                                class='bx bxs-user-check'></i>
                             ปรึกษาผู้เชี่ยวชาญ</a>
                     </li>
                 </ul>

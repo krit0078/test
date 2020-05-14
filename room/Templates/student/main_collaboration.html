@@ -1,0 +1,408 @@
+{% extends 'student/base.html' %}
+
+
+{% block content %}
+
+<!-- <section class="section-bg"> -->
+<div class="container-fluid section-bg">
+    <div class="row">
+        <div class="col-md-3 bg-white border shadow-sm d-none d-md-block sticky-top"
+            style="height: calc(100vh + 4rem);">
+            {% include 'teacher/main_nav.html' %}
+        </div>
+        <div class="col-md-3 mb-3 bg-white border shadow-sm d-block d-md-none">
+            {% include 'teacher/main_nav.html' %}
+        </div>
+        <div class="col-md-7 col-12 mb-3 mt-md-4">
+            <div class="row justify-content-center">
+                <div class="col-md-auto main-label text-center">
+                    <h3><i class='bx bxs-chat'></i> {{view_group.title}}</h3>
+                </div>
+            </div>
+            <div class="col-12 mb-2 rounded shadow-sm border p-3 bg-white">
+                <form id="post_form" method="POST"
+                    action="/classroom/{{course.id}}/task/{{task.0.id}}/group/{{view_group.id}}">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="col-md-12 form-group">
+                            <div class="form-control" contenteditable="" data-placeholder="คำถาม..."
+                                style="min-height: 50px;height:auto;" id="steam_div"></div>
+                        </div>
+                        <div class="col-12">
+                            <div class="loading mb-2" id="post_loading">loading</div>
+                        </div>
+                        <div class="col-12" id="show_file">
+
+                        </div>
+                        <div class="col-12">
+                            <div class="progress" style="display: none;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="get_file_progress_bar">
+                                    0%</div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mt-1 form-group text-right">
+                            <div class="btn-group d-none">
+                                <button type="button" class="btn btn-light" data-toggle="dropdown" data-display="static"
+                                    aria-haspopup="true" aria-expanded="false">
+                                    <i class='bx bx-link-alt'></i> แทรกลิงก์
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left p-2">
+                                    <input type="text" placeholder="แทรกลิงก์" class="form-control"
+                                        style="min-width: 300px;" id="insert_link">
+                                </div>
+                            </div>
+
+                            <span class="btn btn-light" style="position: relative;overflow: hidden;">
+                                <i class='bx bxs-file-plus'></i> เพิ่มไฟล์ <input type="file" id="get_file" style="position: absolute;
+                                top: 0;
+                                right: 0;
+                                min-width: 100%;
+                                min-height: 100%;
+                                font-size: 100px;
+                                text-align: right;
+                                filter: alpha(opacity=0);
+                                opacity: 0;
+                                outline: none;   
+                                cursor: inherit;
+                                display: block;">
+                            </span>
+
+                            <input type="file" class="sr-only"><button type="submit"
+                                class="btn btn-primary ml-auto">โพสต์</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="post" class="mt-3"></div>
+            {% for i in colla %}
+            <div class="col-12 mb-3 rounded shadow-sm border p-3 bg-white">
+                <div class="row">
+                    <div class="col-12">
+                        <img src="{{i.member.picture}}" class="rounded-circle" style="width: 50px; height:50px;">
+                        {{i.member.firstname | truncatechars:55}} {{i.member.lastname | truncatechars:55}} <small
+                            class="text-muted">{{i.timestamp|date:'d b Y, H:i'}}</small>
+                        <div class="dropdown" style="position: absolute;top: 10px;right: 25px;">
+                            <a class="btn btn-light" type="button" data-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false"><i class='bx bx-dots-vertical-rounded'></i>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="/classroom/{{course.id}}/task/{{task.0.id}}/group/{{view_group.id}}/colla/{{i.id}}/delete">ลบ</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-100"></div>
+                    {% if i.description %}
+                    <div class="col-12 steam" style="min-height: 90px;">
+                        <hr>
+                        {{i.description | safe}}
+                    </div>
+                    {% endif %}
+                    {% if i.post_file %}
+                    <div class="col-12" style="min-height: 90px;">
+                        <hr>
+
+                        {% for f in i.post_file %}
+                        {% if f.type == 'image' %}
+                        <a href='{{f.file_link}}' style='text-decoration: none;color: #000;' target='_blank'>
+                            <div class='row no-gutters rounded opengraph mb-2'>
+                                <div class='col-3'><img src="{{f.file_link}}" style="width: 100%;"></div>
+                                <div class='col-9 p-3 bg-light'>
+                                    <h5>{{f.file_name| truncatechars:35 }}</h5>
+                                </div>
+                            </div>
+                        </a>
+                        {% elif f.type == 'video' %}
+                        <a class="cursor" style='text-decoration: none;color: #000;' target='_blank' data-toggle="modal"
+                            data-target="#f{{f.id}}">
+                            <div class='row no-gutters rounded opengraph mb-2'>
+                                <div class='col-3'><img src="/uploads/0/thumbnail/video.png" style="width: 100%;">
+                                </div>
+                                <div class='col-9 p-3 bg-light'>
+                                    <h5>{{f.file_name| truncatechars:35 }}</h5>
+                                </div>
+                            </div>
+                        </a>
+                        <!-- Modal -->
+                        <div class="modal fade" id="f{{f.id}}" data-backdrop="static" tabindex="-1" role="dialog"
+                            aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="staticBackdropLabel">
+                                            {{f.file_name| truncatechars:55 }}</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="embed-responsive embed-responsive-16by9">
+                                            <video class="embed-responsive embed-responsive-21by9" controls>
+                                                <source src="{{f.file_link}}" type="{{f.file_type}}">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% else %}
+                        <a href='{{f.file_link}}' style='text-decoration: none;color: #000;' target='_blank'>
+                            <div class='row no-gutters rounded opengraph mb-2'>
+                                <div class='col-3'><img src="/uploads/0/thumbnail/app.png" style="width: 100%;">
+                                </div>
+                                <div class='col-9 p-3 bg-light'>
+                                    <h5>{{f.file_name| truncatechars:35 }}</h5>
+                                </div>
+                            </div>
+                        </a>
+                        {% endif %}
+                        {% endfor %}
+
+                    </div>
+                    {% endif %}
+                    <div class="col-12">
+                        <hr>
+                        {% for j in i.reply %}
+                        <div class="comment">
+                            <div class="row no-gutters">
+                                <div class="col-2 text-right"><img class="comment-img" src="{{j.member.picture}}">
+                                </div>
+                                <div class="col-10">
+                                    <div class="comment-text">{{j.description | safe}}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="comment mt-3">
+                            <form action="/classroom/{{course.id}}/task/{{task.0.id}}/group/{{view_group.id}}" method="POST" class="reply_form">
+                                {% csrf_token %}
+                                <div class="row no-gutters form-group">
+                                    <div class="col-2 text-right">
+                                        <img class="comment-img" src="{{member.picture}}">
+                                    </div>
+                                    <div class="col-10">
+                                        <input type="hidden" name="colla_id" value="{{i.id}}">
+                                        <div contenteditable="" class="form-control reply_div"
+                                            style="border-radius: 10px;" data-placeholder="แสดงความคิดเห็น"></div>
+                                        <button type="submit" class="d-none">ส่ง</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="col-md-2 mb-3 mt-md-5">
+            {% include 'teacher/main_right.html' %}
+        </div>
+    </div>
+</div>
+</div>
+<!-- </section> -->
+{% endblock %}
+
+
+{% block js %}
+<script>
+
+    $(document).ready(function () {
+        $('#get_file').change(function (e) {
+            let files = e.target.files[0]
+            let csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+            let loading = $('#post_loading');
+            var $progress = $('.progress');
+            var $progressBar = $('#get_file_progress_bar');
+            let show_file = $('#show_file');
+            let file_data = new FormData();
+            file_data.append('file', files);
+            file_data.append('csrfmiddlewaretoken', csrfToken);
+            loading.slideDown();
+            $progress.show();
+
+            $.ajax('/classroom/{{course.id}}/task/{{task.0.id}}/group/{{view_group.id}}', {
+                method: 'POST',
+                data: file_data,
+                processData: false,
+                contentType: false,
+                xhr: function () {
+                    var xhr = new XMLHttpRequest();
+
+                    xhr.upload.onprogress = function (e) {
+                        var percent = '0';
+                        var percentage = '0%';
+
+                        if (e.lengthComputable) {
+                            percent = Math.round((e.loaded / e.total) * 100);
+                            percentage = percent + '%';
+                            $progressBar.width(percentage).attr('aria-valuenow', percent).text(percentage);
+                        }
+                    };
+                    return xhr;
+                },
+                success: function (data) {
+                    let d = data.data;
+                    let txt = "";
+                    if (d.file_name.length >= 35) {
+                        d.file_name = d.file_name.substr(0, 30);
+                        d.file_name += "...";
+                    }
+                    if (d.file_type.search('image') != -1) {
+                        txt += "<a href='" + d.file_link + "' style='text-decoration: none;color: #000;' target='_blank'><div class='row no-gutters rounded opengraph mb-2'><div class='col-3'><img src='" + d.file_link + "' style='width: 100%;'></div>";
+                        txt += "<div class='col-9 p-3 bg-light'><h5>" + d.file_name + "</h5></div></div></a>";
+                    } else if (d.file_type.search('video') != -1) {
+                        txt += "<a class='cursor' style='text-decoration: none;color: #000;' target='_blank'";
+                        txt += "data-toggle='modal' data-target='#f" + d.id + "'>";
+                        txt += "<div class='row no-gutters rounded opengraph mb-2'>";
+                        txt += "<div class='col-3'><img src='/uploads/0/thumbnail/video.png' style='width: 100%;'>";
+                        txt += "</div><div class='col-9 p-3 bg-light'><h5>" + d.file_name + "</h5></div></div></a>";
+                    } else {
+                        txt += "<a href='" + d.file_link + "' style='text-decoration: none;color: #000;' target='_blank'>";
+                        txt += "<div class='row no-gutters rounded opengraph mb-2'><div class='col-3'><img src='/uploads/0/thumbnail/app.png' style='width: 100%;'>";
+                        txt += "</div><div class='col-9 p-3 bg-light'><h5>" + d.file_name + "</h5></div></div></a>";
+                    }
+                    txt += "<input type='hidden' name='file_id[]' value='" + d.id + "'>";
+                    if (data.status == 1) {
+                        loading.slideUp();
+                        show_file.append(txt);
+                    }
+                },
+                complete: function () {
+                    $progress.hide();
+                },
+            });
+        });
+
+        $('.reply_form').submit(function () {
+            let this_form = $(this);
+            let data = this_form.serializeArray();
+            let action = this_form.attr('action');
+            let method = this_form.attr('method');
+            let loading = this_form.find('.loading');
+            let content=this_form.find('.reply_div')
+            loading.slideDown();
+            let steam_div = $('#steam_div');
+            data.push({ name: 'reply_div', value: content.html() });
+
+            $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    loading.slideUp();
+                    this_form.trigger('reset');
+                    let d = data.data;
+                    if(data.status==1){
+                        window.location.replace(action);
+                    }                    
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    loading.slideUp();
+                    errorFunction();
+
+                }
+            });
+
+            return false;
+        }).on('paste', function (e) {
+            let paste = (event.clipboardData || window.clipboardData).getData('text');
+
+            let expression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+            let regex = new RegExp(expression);
+
+            const selection = window.getSelection();
+            if (paste.match(expression)) {
+                let url=""
+                if(paste.search("http://")==-1 && paste.search("https://")==-1){
+                    url+="http://"+paste;
+                }else{
+                    url+=paste;
+                }
+                if (!selection.rangeCount) return false;
+                selection.deleteFromDocument;
+                let a = document.createElement("a");
+                a.href = url;
+                a.text = paste;
+                a.target = "_blank";
+                selection.getRangeAt(0).insertNode(a);
+            } 
+            else {
+                selection.getRangeAt(0).insertNode(document.createTextNode(paste));
+            }
+            selection.collapseToEnd();
+            event.preventDefault();
+        }).keydown(function(e){
+            if(e.keyCode==13 && !e.shiftKey){
+                $(this).submit();
+                $(this).find('.reply_div').attr('contenteditable','disabled');
+            }
+        });
+
+
+        $('#post_form').submit(function () {
+            let this_form = $(this);
+            let data = this_form.serializeArray();
+            let action = this_form.attr('action');
+            let method = this_form.attr('method');
+            let loading = this_form.find('.loading');
+            let post = $('#post');
+            loading.slideDown();
+            let steam_div = $('#steam_div');
+            data.push({ name: 'steam_div', value: steam_div.html() });
+
+
+            $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    loading.slideUp();
+                    this_form.trigger('reset');
+                    let d = data.data;
+
+                    window.location.replace(action);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    loading.slideUp();
+                    errorFunction();
+                }
+            });
+
+            return false;
+        }).on('paste', function (e) {
+            let paste = (event.clipboardData || window.clipboardData).getData('text');
+
+            let expression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+            let regex = new RegExp(expression);
+
+            const selection = window.getSelection();
+            if (paste.match(expression)) {
+                if(paste.search("http://")==-1 && paste.search("https://")==-1){
+                    url+="http://"+paste;
+                }else{
+                    url+=paste;
+                }
+                if (!selection.rangeCount) return false;
+                selection.deleteFromDocument;
+                let a = document.createElement("a");
+                a.href = url;
+                a.text = paste;
+                a.target = "_blank";
+                selection.getRangeAt(0).insertNode(a);
+            } 
+            else {
+                selection.getRangeAt(0).insertNode(document.createTextNode(paste));
+            }
+            selection.collapseToEnd();
+            event.preventDefault();
+        });
+
+    });
+</script>
+{% endblock %}

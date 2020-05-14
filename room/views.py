@@ -1711,180 +1711,6 @@ def scaffolding(request,classroom_id,task_id):
         }
         return render(request,'teacher/main_scaff.html',context)
 
-# def colla(request,classroom_id,task_id):
-#     #check session
-#     if 'email'not in request.session:
-#         return HttpResponseRedirect("/login")
-
-#     email=request.session['email']
-#     member=models.EdMember.objects.get(email=email)
-
-#     if request.session['type'] == 'STUDENT':
-#         #check enrolment
-#         if check_enrolment(classroom_id,member.id):
-#             return HttpResponseRedirect("/dashboard")
-
-#         #check task_enrolment
-#         if check_enrolment_task(classroom_id,task_id,member.id):
-#             return HttpResponseRedirect("/dashboard")
-
-#         #query course
-#         course=models.EdCourse.objects.get(id=classroom_id)
-
-#         #query task
-#         task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
-
-#         #query resource
-#         social=models.EdSocial.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
-#         i=0
-#         for x in social:
-#             social_file=models.EdSocialFile.objects.filter(social_id=x.id).filter(status="ACTIVE")
-#             j=0
-#             for y in social_file:
-#                 if y.file_type.find("image") != -1:
-#                     social_file[j].type="image"
-#                 elif y.file_type.find("video") != -1:
-#                     social_file[j].type="video"
-#                 else:
-#                     social_file[j].type="app"
-#                 j=j+1
-
-#             social_og=models.EdSocialOpengraph.objects.filter(social_id=x.id)
-#             social[i].social_file=social_file
-#             social[i].og=social_og  
-    
-#             i=i+1          
-
-#         is_active=['']*5
-#         is_active[3]="active"
-
-#         context={
-#             'title':'ชุมชนการเรียนรู้',
-#             'member':member,
-#             'course':course,
-#             'task':task,
-#             'task_id':task_id,
-#             'is_active':is_active,
-#             'social':social
-#         }
-#         return render(request,'student/main_social.html',context)
-
-#     else:
-#         #check owner
-#         if check_owner(classroom_id,member.id):
-#             return HttpResponseRedirect("/dashboard")
-
-#         #check owner task
-#         if check_owner_task(classroom_id,task_id):
-#             return HttpResponseRedirect("/dashboard")
-
-        # if request.method == 'POST':
-        #     file_data=request.FILES.getlist('file')
-        #     file_id=request.POST.getlist('file_id[]')
-        #     link_id=request.POST.getlist('link_id[]')
-        #     steam_div=request.POST.get('steam_div')
-
-        #     if steam_div or file_id or link_id:
-
-        #         post=models.EdSocial(description=steam_div,task_id=task_id,teacher_id=member.id)
-        #         post.save()
-
-        #         p=models.EdSocial.objects.latest('id')
-        #         m=models.EdMember.objects.get(id=p.teacher_id)
-
-        #         if file_id:
-        #             for i in file_id:
-        #                 f=models.EdSocialFile.objects.get(id=i)
-        #                 f.social_id=p.id
-        #                 f.save()
-                
-        #         if link_id:
-        #             for i in link_id:
-        #                 o=models.EdSocialOpengraph.objects.get(id=i)
-        #                 o.social_id=p.id
-        #                 o.save()
-
-#                 data={
-#                     'status':1,
-#                     'data':{'id':p.id,'description':p.description,'timestamp':p.timestamp,'firstname':m.firstname,'lastname':m.lastname,'picture':m.picture}
-#                 }
-#                 return JsonResponse(data)
-            
-#             if file_data:
-
-#                 list = []
-#                 name = []
-#                 file_type = []
-#                 for f in file_data:
-#                     import datetime
-#                     fs = FileSystemStorage()
-
-#                     date = datetime.date.today()
-#                     path = "course_id_{0}/social/files/{1}/{2}"
-#                     path = path.format(
-#                         classroom_id,date,f.name)
-#                     filename = fs.save(path, f)
-#                     list.append(fs.url(filename))
-#                     name.append(f.name)
-#                     file_type.append(f.content_type)
-
-#                 social_file=models.EdSocialFile(file_name=name[0],file_type=file_type[0],file_link=list[0],social_id="")
-#                 social_file.save()
-
-#                 p=models.EdSocialFile.objects.latest('id')
-
-#                 data={
-#                     'status':1,
-#                     'data':{'id':p.id,'file_name':p.file_name,'file_link':p.file_link,'file_type':p.file_type}
-#                 }
-
-#                 return JsonResponse(data)
-
-#         #query course
-#         course=models.EdCourse.objects.get(id=classroom_id)
-
-#         #query task
-#         task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
-
-#         #query resource
-#         social=models.EdSocial.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
-#         i=0
-#         for x in social:
-#             social_file=models.EdSocialFile.objects.filter(social_id=x.id).filter(status="ACTIVE")
-#             j=0
-#             for y in social_file:
-#                 if y.file_type.find("image") != -1:
-#                     social_file[j].type="image"
-#                 elif y.file_type.find("video") != -1:
-#                     social_file[j].type="video"
-#                 else:
-#                     social_file[j].type="app"
-#                 j=j+1
-
-#             social_og=models.EdSocialOpengraph.objects.filter(social_id=x.id)
-#             social[i].social_file=social_file
-#             social[i].og=social_og  
-    
-#             i=i+1          
-
-#         is_active=['']*5
-#         is_active[3]="active"
-
-#         #query group
-#         group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
-
-#         context={
-#             'title':'ชุมชนการเรียนรู้',
-#             'member':member,
-#             'course':course,
-#             'task':task,
-#             'task_id':task_id,
-#             'is_active':is_active,
-#             'social':social,
-#             'group':group
-#         }
-#         return render(request,'teacher/main_social.html',context)
-
 def add_group(request,classroom_id,task_id):
        #check session
     if 'email'not in request.session:
@@ -1894,9 +1720,58 @@ def add_group(request,classroom_id,task_id):
     member=models.EdMember.objects.get(email=email)
 
     if request.session['type'] == 'STUDENT':
-        txt="/classroom/{0}/task/{1}/main"
-        txt=txt.format(classroom_id,task_id)
-        return HttpResponseRedirect(txt)
+        #check enrolment
+        if check_enrolment(classroom_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #check task_enrolment
+        if check_enrolment_task(classroom_id,task_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+         #query course
+        course=models.EdCourse.objects.get(id=classroom_id)
+
+        #query task
+        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
+
+        #query enrolment
+        enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id).select_related('member')
+
+        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
+
+        c=0
+        group_bar=[]
+        for i in group:
+            group_member=models.EdGroupMember.objects.filter(group_id=i.id).select_related('member')
+            group[c].member=group_member
+
+            for j in group_member:
+                enrolment=enrolment.exclude(member_id=j.member_id)
+
+                if j.member_id == member.id:
+                    group_bar.append(i)
+            c=c+1
+
+
+        is_active=['']*5
+        is_active[3]="active"
+
+        add_col="active"
+
+        context={
+            'title':'เพิ่มกลุ่มย่อย',
+            'member':member,
+            'course':course,
+            'task':task,
+            'task_id':task_id,
+            'enrolment':enrolment,
+            'group':group,
+            'group_bar':group_bar,
+            'is_active':is_active,
+            'ad_col':add_col
+        }
+        return render(request,'student/main_add_collaboration.html',context)
+
 
     else:
         #check owner
