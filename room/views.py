@@ -1954,7 +1954,7 @@ def add_group(request,classroom_id,task_id):
         add_col="active"
 
         context={
-            'title':'ปรึกษาผู้เชียวชาญ',
+            'title':'เพิ่มกลุ่มย่อย',
             'member':member,
             'course':course,
             'task':task,
@@ -1965,6 +1965,148 @@ def add_group(request,classroom_id,task_id):
             'ad_col':add_col
         }
         return render(request,'teacher/main_add_collaboration.html',context)
+
+def global_group(request,classroom_id,task_id):
+    group_id=None
+       #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    if request.session['type'] == 'STUDENT':
+        txt="/classroom/{0}/task/{1}/main"
+        txt=txt.format(classroom_id,task_id)
+        return HttpResponseRedirect(txt)
+
+    else:
+        #check owner
+        if check_owner(classroom_id,member.id):
+            return HttpResponseRedirect("/dashboard")
+
+        #check owner task
+        if check_owner_task(classroom_id,task_id):
+            return HttpResponseRedirect("/dashboard")
+
+        if request.method == 'POST':
+            # name=request.POST.getlist('steam_div')
+            steam_div=request.POST.get('steam_div')
+            file_id=request.POST.getlist('file_id[]')
+            file_data=request.FILES.getlist('file')
+            reply_div=request.POST.get('reply_div')
+            colla_id=request.POST.get('colla_id')
+
+            if steam_div or file_id:
+                colla=models.EdColla(description=steam_div,member_id=member.id,task_id=task_id,group_id=group_id)
+                colla.save()
+
+                colla=models.EdColla.objects.latest('id')
+
+                for i in file_id:
+                    f=models.EdCollaFile.objects.get(id=i)
+                    f.colla_id=colla.id
+                    f.save()
+
+                data={
+                    'status':1
+                }
+                return JsonResponse(data)
+            elif reply_div:
+                colla_reply=models.EdCollaReply(description=reply_div,member_id=member.id,colla_id=colla_id)
+                colla_reply.save()
+
+                data={
+                    'status':1
+                }
+                return JsonResponse(data)
+            
+            if file_data:
+
+                list = []
+                name = []
+                file_type = []
+                for f in file_data:
+                    import datetime
+                    fs = FileSystemStorage()
+
+                    date = datetime.date.today()
+                    path = "course_id_{0}/collaborations/files/{1}/{2}"
+                    path = path.format(
+                        classroom_id,date,f.name)
+                    filename = fs.save(path, f)
+                    list.append(fs.url(filename))
+                    name.append(f.name)
+                    file_type.append(f.content_type)
+
+                colla_file=models.EdCollaFile(file_name=name[0],file_type=file_type[0],file_link=list[0],colla_id="")
+                colla_file.save()
+
+                p=models.EdCollaFile.objects.latest('id')
+
+                data={
+                    'status':1,
+                    'data':{'id':p.id,'file_name':p.file_name,'file_link':p.file_link,'file_type':p.file_type}
+                }
+
+                return JsonResponse(data)
+      
+
+        #query course
+        course=models.EdCourse.objects.get(id=classroom_id)
+
+        #query task
+        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
+
+        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
+
+        c=0
+        for i in group:
+            group_member=models.EdGroupMember.objects.filter(group_id=i.id).select_related('member')
+            group[c].member=group_member
+            if i.id == group_id:
+                group[c].active="active"
+            c=c+1
+
+
+        colla=models.EdColla.objects.filter(task_id=task_id).filter(group_id=group_id).filter(status="ACTIVE").select_related('member').order_by('-id')
+
+        i=0
+        for x in colla:
+            colla_reply=models.EdCollaReply.objects.filter(colla_id=x.id).filter(status="ACTIVE").select_related('member')
+            colla_file=models.EdCollaFile.objects.filter(colla_id=x.id).filter(status="ACTIVE")
+            j=0
+            for y in colla_file:
+                if y.file_type.find("image") != -1:
+                    colla_file[j].type="image"
+                    
+                elif y.file_type.find("video") != -1:
+                    colla_file[j].type="video"
+                else:
+                    colla_file[j].type="app"
+                j=j+1
+
+            colla[i].reply=colla_reply
+            colla[i].post_file=colla_file
+            i=i+1
+
+
+        is_active=['']*5
+        is_active[3]="active"
+
+
+        context={
+            'title':'แลกเปลี่ยนเรียนรู้',
+            'member':member,
+            'course':course,
+            'task':task,
+            'task_id':task_id,
+            'group':group,
+            'is_active':is_active,
+            'colla':colla
+   
+        }
+        return render(request,'teacher/main_global_collaboration.html',context)
 
 def view_group(request,classroom_id,task_id,group_id):
        #check session
@@ -1993,6 +2135,8 @@ def view_group(request,classroom_id,task_id,group_id):
             steam_div=request.POST.get('steam_div')
             file_id=request.POST.getlist('file_id[]')
             file_data=request.FILES.getlist('file')
+            reply_div=request.POST.get('reply_div')
+            colla_id=request.POST.get('colla_id')
 
             if steam_div or file_id:
                 colla=models.EdColla(description=steam_div,member_id=member.id,task_id=task_id,group_id=group_id)
@@ -2004,6 +2148,14 @@ def view_group(request,classroom_id,task_id,group_id):
                     f=models.EdCollaFile.objects.get(id=i)
                     f.colla_id=colla.id
                     f.save()
+
+                data={
+                    'status':1
+                }
+                return JsonResponse(data)
+            elif reply_div:
+                colla_reply=models.EdCollaReply(description=reply_div,member_id=member.id,colla_id=colla_id)
+                colla_reply.save()
 
                 data={
                     'status':1
@@ -2060,25 +2212,25 @@ def view_group(request,classroom_id,task_id,group_id):
             c=c+1
 
 
-        
+        colla=models.EdColla.objects.filter(task_id=task_id).filter(group_id=group_id).filter(status="ACTIVE").select_related('member').order_by('-id')
 
         i=0
-        for x in post:
-            colla_reply=models.EdReply.objects.filter(post_id=x.id).filter(status="ACTIVE").select_related('member')
-            post_file=models.EdPostFile.objects.filter(post_id=x.id).filter(status="ACTIVE")
+        for x in colla:
+            colla_reply=models.EdCollaReply.objects.filter(colla_id=x.id).filter(status="ACTIVE").select_related('member')
+            colla_file=models.EdCollaFile.objects.filter(colla_id=x.id).filter(status="ACTIVE")
             j=0
-            for y in post_file:
+            for y in colla_file:
                 if y.file_type.find("image") != -1:
-                    post_file[j].type="image"
+                    colla_file[j].type="image"
                     
                 elif y.file_type.find("video") != -1:
-                    post_file[j].type="video"
+                    colla_file[j].type="video"
                 else:
-                    post_file[j].type="app"
+                    colla_file[j].type="app"
                 j=j+1
 
-            post[i].reply=reply
-            post[i].post_file=post_file
+            colla[i].reply=colla_reply
+            colla[i].post_file=colla_file
             i=i+1
 
 
@@ -2088,7 +2240,7 @@ def view_group(request,classroom_id,task_id,group_id):
 
 
         context={
-            'title':'ปรึกษาผู้เชียวชาญ',
+            'title':view_group.title,
             'member':member,
             'course':course,
             'task':task,
@@ -2096,6 +2248,7 @@ def view_group(request,classroom_id,task_id,group_id):
             'group':group,
             'view_group':view_group,
             'is_active':is_active,
+            'colla':colla
    
         }
         return render(request,'teacher/main_collaboration.html',context)
@@ -2366,29 +2519,33 @@ def delete_resource(request,classroom_id,task_id,resource_id):
     url=url.format(classroom_id,task_id)
     return HttpResponseRedirect(url)
 
-# def delete_social(request,classroom_id,task_id,social_id):
-#     #check session
-#     if 'email'not in request.session:
-#         return HttpResponseRedirect("/login")
+def delete_colla_teacher(request,classroom_id,task_id,group_id,colla_id):
+    #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
 
-#     email=request.session['email']
-#     member=models.EdMember.objects.get(email=email)
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
 
-#     #check owner
-#     if check_owner(classroom_id,member.id):
-#         return HttpResponseRedirect("/dashboard")
+    #check owner
+    if check_owner(classroom_id,member.id):
+        return HttpResponseRedirect("/dashboard")
     
-#     #check owner task
-#     if check_owner_task(classroom_id,task_id):
-#         return HttpResponseRedirect("/dashboard")
+    #check owner task
+    if check_owner_task(classroom_id,task_id):
+        return HttpResponseRedirect("/dashboard")
     
-#     resource=models.EdSocial.objects.get(id=social_id)
-#     resource.status="DELETE"
-#     resource.save()
+    colla=models.EdColla.objects.get(id=colla_id)
+    colla.status="DELETE"
+    colla.save()
 
-#     url="/classroom/{0}/task/{1}/social"
-#     url=url.format(classroom_id,task_id)
-#     return HttpResponseRedirect(url)
+    url=""
+    if group_id==0:
+        url="/classroom/{0}/task/{1}/global"
+    else:
+        url="/classroom/{0}/task/{1}/group/{2}"
+    url=url.format(classroom_id,task_id,group_id)
+    return HttpResponseRedirect(url)
 
 def delete_coach(request,classroom_id,task_id,coach_id):
     #check session

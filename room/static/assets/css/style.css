@@ -1501,11 +1501,18 @@ section {
   color:gray
 }
 
-#steam_div a{
+.reply_div{
+  content:attr(data-placeholder);
+  padding: 5px 20px;
+  min-height: 35px;
+  height: auto;
+}
+
+#steam_div a, .reply_div a,.comment-text a{
   color: #007bff;
 }
 
-#steam_div a:hover{
+#steam_div a:hover, .reply_div a:hover, .comment-text a:hover{
   color: #0056b3;
 }
 
