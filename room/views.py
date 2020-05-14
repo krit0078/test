@@ -1989,22 +1989,55 @@ def view_group(request,classroom_id,task_id,group_id):
             return HttpResponseRedirect("/dashboard")
 
         if request.method == 'POST':
-            name=request.POST.getlist('name[]')
-            title=request.POST.get('title')
+            # name=request.POST.getlist('steam_div')
+            steam_div=request.POST.get('steam_div')
+            file_id=request.POST.getlist('file_id[]')
+            file_data=request.FILES.getlist('file')
 
-            if title:
-                group=models.EdGroup(title=title,task_id=task_id)
-                group.save()
+            if steam_div or file_id:
+                colla=models.EdColla(description=steam_div,member_id=member.id,task_id=task_id,group_id=group_id)
+                colla.save()
 
-                group=models.EdGroup.objects.latest('id')
+                colla=models.EdColla.objects.latest('id')
 
-                for i in name:
-                    group_member=models.EdGroupMember(group_id=group.id,member_id=i)
-                    group_member.save()
-                
+                for i in file_id:
+                    f=models.EdCollaFile.objects.get(id=i)
+                    f.colla_id=colla.id
+                    f.save()
+
                 data={
                     'status':1
                 }
+                return JsonResponse(data)
+            
+            if file_data:
+
+                list = []
+                name = []
+                file_type = []
+                for f in file_data:
+                    import datetime
+                    fs = FileSystemStorage()
+
+                    date = datetime.date.today()
+                    path = "course_id_{0}/collaborations/files/{1}/{2}"
+                    path = path.format(
+                        classroom_id,date,f.name)
+                    filename = fs.save(path, f)
+                    list.append(fs.url(filename))
+                    name.append(f.name)
+                    file_type.append(f.content_type)
+
+                colla_file=models.EdCollaFile(file_name=name[0],file_type=file_type[0],file_link=list[0],colla_id="")
+                colla_file.save()
+
+                p=models.EdCollaFile.objects.latest('id')
+
+                data={
+                    'status':1,
+                    'data':{'id':p.id,'file_name':p.file_name,'file_link':p.file_link,'file_type':p.file_type}
+                }
+
                 return JsonResponse(data)
       
 
@@ -2025,6 +2058,28 @@ def view_group(request,classroom_id,task_id,group_id):
             if i.id == group_id:
                 group[c].active="active"
             c=c+1
+
+
+        
+
+        i=0
+        for x in post:
+            colla_reply=models.EdReply.objects.filter(post_id=x.id).filter(status="ACTIVE").select_related('member')
+            post_file=models.EdPostFile.objects.filter(post_id=x.id).filter(status="ACTIVE")
+            j=0
+            for y in post_file:
+                if y.file_type.find("image") != -1:
+                    post_file[j].type="image"
+                    
+                elif y.file_type.find("video") != -1:
+                    post_file[j].type="video"
+                else:
+                    post_file[j].type="app"
+                j=j+1
+
+            post[i].reply=reply
+            post[i].post_file=post_file
+            i=i+1
 
 
         is_active=['']*5

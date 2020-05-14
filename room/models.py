@@ -258,9 +258,10 @@ class EdResourceOpengraph(models.Model):
 class EdColla(models.Model):
     description = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
-    teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
+    member = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
     task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
+    group=models.ForeignKey(EdGroup, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = True
@@ -288,6 +289,17 @@ class EdCollaOpengraph(models.Model):
     class Meta:
         managed = True
         db_table = 'ed_colla_opengraph'
+
+class EdCollaReply(models.Model):
+    description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    member = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    colla=models.ForeignKey(EdColla, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_colla_reply'
 
 class EdScaffoldingType(models.Model):
     prefix=models.CharField(max_length=95,blank=True,null=True)
