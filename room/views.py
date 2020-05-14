@@ -1132,6 +1132,7 @@ def main(request,classroom_id,task_id):
 
             i=i+1
 
+
         #query turnedin
         turnedin=models.EdTurnedIn.objects.filter(status="TURNEDIN").filter(task_id=task_id).filter(member_id=member.id)
         #query turnedin file
@@ -1152,6 +1153,19 @@ def main(request,classroom_id,task_id):
             turnedin[i].og=turnedin_og
             i=i+1
 
+        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
+        c=0
+        group_bar=[]
+        for i in group:
+            group_member=models.EdGroupMember.objects.filter(group_id=i.id).select_related('member')
+            group[c].member=group_member
+
+            for j in group_member:
+    
+                if j.member_id == member.id:
+                    group_bar.append(i)
+            c=c+1
+
         context={
             'title':'ภารกิจ',
             'member':member,
@@ -1159,7 +1173,8 @@ def main(request,classroom_id,task_id):
             'task':task,
             'turnedin':turnedin,
             'is_active':is_active,
-            'task_id':task_id
+            'task_id':task_id,
+            'group_bar':group_bar
         }
         return render(request,'student/main.html',context)
 
@@ -1281,12 +1296,26 @@ def main_score(request,classroom_id,task_id):
             enrolment[i].turnedin_status=turnedin_status
             i=i+1
 
+        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
+        c=0
+        group_bar=[]
+        for i in group:
+            group_member=models.EdGroupMember.objects.filter(group_id=i.id).select_related('member')
+            group[c].member=group_member
+
+            for j in group_member:
+    
+                if j.member_id == member.id:
+                    group_bar.append(i)
+            c=c+1
+
         context={
             'title':'ให้คะแนน',
             'member':member,
             'course':course,
             'task':task,
-            'enrolment':enrolment
+            'enrolment':enrolment,
+            'group_bar':group_bar
         }
         return render(request,'student/main_score.html',context)
     else:
@@ -1409,6 +1438,19 @@ def resource(request,classroom_id,task_id):
         is_active=['']*5
         is_active[1]="active"
 
+        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
+        c=0
+        group_bar=[]
+        for i in group:
+            group_member=models.EdGroupMember.objects.filter(group_id=i.id).select_related('member')
+            group[c].member=group_member
+
+            for j in group_member:
+    
+                if j.member_id == member.id:
+                    group_bar.append(i)
+            c=c+1
+
         context={
             'title':'แหล่งเรียนรู้',
             'member':member,
@@ -1416,7 +1458,8 @@ def resource(request,classroom_id,task_id):
             'task':task,
             'task_id':task_id,
             'is_active':is_active,
-            'resource':resource
+            'resource':resource,
+            'group_bar':group_bar
         }
         return render(request,'student/main_resource.html',context)
 
@@ -1582,6 +1625,19 @@ def scaffolding(request,classroom_id,task_id):
         is_active=['']*5
         is_active[2]="active"
 
+        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
+        c=0
+        group_bar=[]
+        for i in group:
+            group_member=models.EdGroupMember.objects.filter(group_id=i.id).select_related('member')
+            group[c].member=group_member
+
+            for j in group_member:
+    
+                if j.member_id == member.id:
+                    group_bar.append(i)
+            c=c+1
+
         context={
             'title':'ฐานความช่วยเหลือ',
             'member':member,
@@ -1590,7 +1646,8 @@ def scaffolding(request,classroom_id,task_id):
             'task_id':task_id,
             'is_active':is_active,
             'scaff':scaff,
-            'scaff_type':scaff_type
+            'scaff_type':scaff_type,
+            'group_bar':group_bar
         }
         return render(request,'student/main_scaff.html',context)
 
@@ -2176,6 +2233,19 @@ def coaching(request,classroom_id,task_id):
         is_active=['']*5
         is_active[4]="active"
 
+        group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
+        c=0
+        group_bar=[]
+        for i in group:
+            group_member=models.EdGroupMember.objects.filter(group_id=i.id).select_related('member')
+            group[c].member=group_member
+
+            for j in group_member:
+    
+                if j.member_id == member.id:
+                    group_bar.append(i)
+            c=c+1
+
         context={
             'title':'ปรึกษาผู้เชียวชาญ',
             'member':member,
@@ -2183,6 +2253,7 @@ def coaching(request,classroom_id,task_id):
             'task':task,
             'task_id':task_id,
             'is_active':is_active,
+            'group_bar':group_bar,
             'coach':coach,
             'co_teacher':co_teacher
         }
