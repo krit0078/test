@@ -83,6 +83,7 @@
                         <img src="{{i.member.picture}}" class="rounded-circle" style="width: 50px; height:50px;">
                         {{i.member.firstname | truncatechars:55}} {{i.member.lastname | truncatechars:55}} <small
                             class="text-muted">{{i.timestamp|date:'d b Y, H:i'}}</small>
+                        
                         <div class="dropdown" style="position: absolute;top: 10px;right: 25px;">
                             <a class="btn btn-light" type="button" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false"><i class='bx bx-dots-vertical-rounded'></i>
@@ -91,6 +92,7 @@
                                 <a class="dropdown-item" href="/classroom/{{course.id}}/task/{{task.0.id}}/group/{{view_group.id}}/colla/{{i.id}}/delete">ลบ</a>
                             </div>
                         </div>
+                  
                     </div>
                     <div class="w-100"></div>
                     {% if i.description %}

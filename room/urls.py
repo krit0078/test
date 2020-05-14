@@ -27,7 +27,7 @@ urlpatterns = [
     path('classroom/<int:classroom_id>/task/<int:task_id>/addgroup/',views.add_group),
     path('classroom/<int:classroom_id>/task/<int:task_id>/group/<int:group_id>',views.view_group),
     path('classroom/<int:classroom_id>/task/<int:task_id>/group/<int:group_id>/delete',views.delete_group),
-    path('classroom/<int:classroom_id>/task/<int:task_id>/group/<int:group_id>/colla/<int:colla_id>/delete',views.delete_colla_teacher),
+    path('classroom/<int:classroom_id>/task/<int:task_id>/group/<int:group_id>/colla/<int:colla_id>/delete',views.delete_colla),
     path('classroom/<int:classroom_id>/task/<int:task_id>/coach/',views.coaching),
     path('classroom/<int:classroom_id>/task/<int:task_id>/coach/<int:coach_id>/delete',views.delete_coach),
     path('classroom/<int:classroom_id>/task/<int:task_id>/turnedin/<int:turnedin_id>/delete',views.delete_turnin),
