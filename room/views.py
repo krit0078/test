@@ -1132,6 +1132,23 @@ def main(request,classroom_id,task_id):
 
             i=i+1
 
+        sub_task=models.EdSubTask.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').select_related('task')
+
+        i=0
+        for x in sub_task:
+            sub_task_file=models.EdSubTaskFile.objects.filter(sub_task_id=x.id).filter(status="ACTIVE")
+            k=0
+            for y in sub_task_file:
+                if y.file_type.find("image") != -1:
+                    sub_task_file[k].type="image"
+                elif y.file_type.find("video") != -1:
+                    sub_task_file[k].type="video"
+                else:
+                    sub_task_file[k].type="app"
+                k=k+1
+            sub_task[i].sub_task_file=sub_task_file
+            i=i+1
+
 
         #query turnedin
         turnedin=models.EdTurnedIn.objects.filter(status="TURNEDIN").filter(task_id=task_id).filter(member_id=member.id)
@@ -1174,7 +1191,8 @@ def main(request,classroom_id,task_id):
             'turnedin':turnedin,
             'is_active':is_active,
             'task_id':task_id,
-            'group_bar':group_bar
+            'group_bar':group_bar,
+            'sub_task':sub_task
         }
         return render(request,'student/main.html',context)
 
@@ -1187,10 +1205,72 @@ def main(request,classroom_id,task_id):
         if check_owner_task(classroom_id,task_id):
             return HttpResponseRedirect("/dashboard")
 
+        if request.method=='POST':
+            file_data=request.FILES.getlist('file')
+            file_id=request.POST.getlist('file_id[]')
+            link_id=request.POST.getlist('link_id[]')
+            steam_div=request.POST.get('steam_div')
+
+            if steam_div or file_id or link_id:
+
+                sub_task=models.EdSubTask(description=steam_div,task_id=task_id,teacher_id=member.id)
+                sub_task.save()
+
+                p=models.EdSubTask.objects.latest('id')
+                m=models.EdMember.objects.get(id=p.teacher_id)
+
+                if file_id:
+                    for i in file_id:
+                        f=models.EdSubTaskFile.objects.get(id=i)
+                        f.sub_task_id=p.id
+                        f.save()
+                
+                # if link_id:
+                #     for i in link_id:
+                #         o=models.EdTaskOpengraph.objects.get(id=i)
+                #         o.task_id=p.id
+                #         o.save()
+
+                data={
+                    'status':1,
+                    'data':{'id':p.id,'description':p.description,'timestamp':p.timestamp,'firstname':m.firstname,'lastname':m.lastname,'picture':m.picture}
+                }
+                return JsonResponse(data)
+            
+            if file_data:
+
+                list = []
+                name = []
+                file_type = []
+                for f in file_data:
+                    import datetime
+                    fs = FileSystemStorage()
+
+                    date = datetime.date.today()
+                    path = "course_id_{0}/task/files/{1}/{2}"
+                    path = path.format(
+                        classroom_id,date,f.name)
+                    filename = fs.save(path, f)
+                    list.append(fs.url(filename))
+                    name.append(f.name)
+                    file_type.append(f.content_type)
+
+                sub_task_file=models.EdSubTaskFile(file_name=name[0],file_type=file_type[0],file_link=list[0],sub_task_id="")
+                sub_task_file.save()
+
+                p=models.EdSubTaskFile.objects.latest('id')
+
+                data={
+                    'status':1,
+                    'data':{'id':p.id,'file_name':p.file_name,'file_link':p.file_link,'file_type':p.file_type}
+                }
+
+                return JsonResponse(data)
+
         #query course
         course=models.EdCourse.objects.get(id=classroom_id)
 
-        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher').select_related('course')
+        task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher').select_related('course').order_by('-id')
         
         is_active=['']*5
         is_active[0]="active"
@@ -1226,6 +1306,24 @@ def main(request,classroom_id,task_id):
             task[i].percent=percent
 
             i=i+1
+
+        sub_task=models.EdSubTask.objects.filter(task_id=task_id).filter(status="ACTIVE").select_related('teacher').select_related('task')
+
+        i=0
+        for x in sub_task:
+            sub_task_file=models.EdSubTaskFile.objects.filter(sub_task_id=x.id).filter(status="ACTIVE")
+            k=0
+            for y in sub_task_file:
+                if y.file_type.find("image") != -1:
+                    sub_task_file[k].type="image"
+                elif y.file_type.find("video") != -1:
+                    sub_task_file[k].type="video"
+                else:
+                    sub_task_file[k].type="app"
+                k=k+1
+            sub_task[i].sub_task_file=sub_task_file
+            i=i+1
+
         
         #query group
         group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
@@ -1237,7 +1335,8 @@ def main(request,classroom_id,task_id):
             'task':task,
             'is_active':is_active,
             'task_id':task_id,
-            'group':group
+            'group':group,
+            'sub_task':sub_task
         }
         return render(request,'teacher/main.html',context)
 
@@ -2731,6 +2830,30 @@ def delete_task(request,classroom_id,task_id):
 
     url="/classroom/{0}/task"
     url=url.format(classroom_id)
+    return HttpResponseRedirect(url)
+
+def delete_sub_task(request,classroom_id,task_id,sub_task_id):
+    #check session
+    if 'email'not in request.session:
+        return HttpResponseRedirect("/login")
+
+    email=request.session['email']
+    member=models.EdMember.objects.get(email=email)
+
+    #check owner
+    if check_owner(classroom_id,member.id):
+        return HttpResponseRedirect("/dashboard")
+    
+    #check owner task
+    if check_owner_task(classroom_id,task_id):
+        return HttpResponseRedirect("/dashboard")
+    
+    sub_task=models.EdSubTask.objects.get(id=sub_task_id)
+    sub_task.status="DELETE"
+    sub_task.save()
+
+    url="/classroom/{0}/task/{1}/main"
+    url=url.format(classroom_id,task_id)
     return HttpResponseRedirect(url)
 
 def delete_resource(request,classroom_id,task_id,resource_id):

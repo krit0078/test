@@ -15,6 +15,7 @@ urlpatterns = [
     path('classroom/<int:classroom_id>/steam/<int:steam_id>',views.delete_steam),
     path('classroom/<int:classroom_id>/task/',views.classroom_task),
     path('classroom/<int:classroom_id>/task/<int:task_id>/delete',views.delete_task),
+    path('classroom/<int:classroom_id>/task/<int:task_id>/sub_task/<int:sub_task_id>/delete',views.delete_sub_task),
     path('classroom/<int:classroom_id>/score/',views.classroom_score),
     path('classroom/<int:classroom_id>/live/',views.classroom_live),
     path('classroom/<int:classroom_id>/live/<int:live_id>',views.delete_live),
