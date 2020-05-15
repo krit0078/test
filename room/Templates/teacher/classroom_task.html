@@ -40,16 +40,7 @@
                                 </div>
                             </div>
                             <div class="col-md-12 mt-1 form-group text-right">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-light" data-toggle="dropdown"
-                                        data-display="static" aria-haspopup="true" aria-expanded="false">
-                                        <i class='bx bx-link-alt'></i> แทรกลิงก์
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left p-2">
-                                        <input type="text" placeholder="แทรกลิงก์" class="form-control"
-                                            style="min-width: 300px;" id="insert_video">
-                                    </div>
-                                </div>
+        
 
                                 <div class="btn-group d-none">
                                     <button type="button" class="btn btn-light" data-toggle="dropdown"
@@ -336,6 +327,31 @@
             });
 
             return false;
+        }).on('paste', function (e) {
+            let paste = (event.clipboardData || window.clipboardData).getData('text');
+
+            let expression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+            let regex = new RegExp(expression);
+
+            const selection = window.getSelection();
+            if (paste.match(expression)) {
+                let url=""
+                if(paste.search("http://")==-1 || paste.search("https://")==-1){
+                    url+="http://"+paste;
+                }
+                if (!selection.rangeCount) return false;
+                selection.deleteFromDocument;
+                let a = document.createElement("a");
+                a.href = url;
+                a.text = paste;
+                a.target = "_blank";
+                selection.getRangeAt(0).insertNode(a);
+            } 
+            else {
+                selection.getRangeAt(0).insertNode(document.createTextNode(paste));
+            }
+            selection.collapseToEnd();
+            event.preventDefault();
         });
 
         $('#insert_video').keypress(function (e) {

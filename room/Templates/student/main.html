@@ -116,8 +116,7 @@
                 </div>
                 {% endfor %}
             </div>
-
-
+            <hr>
             {% if task.0.total_turnedin == 0 %}
             <div class="col-12 mb-2 rounded shadow-sm border p-3 bg-white steam">
                 <form id="post_form" method="POST" action="/classroom/{{course.id}}/task/{{task.0.id}}/main">
