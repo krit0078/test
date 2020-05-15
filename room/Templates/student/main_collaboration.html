@@ -8,10 +8,10 @@
     <div class="row">
         <div class="col-md-3 bg-white border shadow-sm d-none d-md-block sticky-top"
             style="height: calc(100vh + 4rem);">
-            {% include 'teacher/main_nav.html' %}
+            {% include 'student/main_nav.html' %}
         </div>
         <div class="col-md-3 mb-3 bg-white border shadow-sm d-block d-md-none">
-            {% include 'teacher/main_nav.html' %}
+            {% include 'student/main_nav.html' %}
         </div>
         <div class="col-md-7 col-12 mb-3 mt-md-4">
             <div class="row justify-content-center">
@@ -83,7 +83,7 @@
                         <img src="{{i.member.picture}}" class="rounded-circle" style="width: 50px; height:50px;">
                         {{i.member.firstname | truncatechars:55}} {{i.member.lastname | truncatechars:55}} <small
                             class="text-muted">{{i.timestamp|date:'d b Y, H:i'}}</small>
-                        
+                        {% if i.member.id == member.id %}
                         <div class="dropdown" style="position: absolute;top: 10px;right: 25px;">
                             <a class="btn btn-light" type="button" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false"><i class='bx bx-dots-vertical-rounded'></i>
@@ -92,6 +92,7 @@
                                 <a class="dropdown-item" href="/classroom/{{course.id}}/task/{{task.0.id}}/group/{{view_group.id}}/colla/{{i.id}}/delete">ลบ</a>
                             </div>
                         </div>
+                        {% endif %}
                   
                     </div>
                     <div class="w-100"></div>
