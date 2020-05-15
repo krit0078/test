@@ -1501,11 +1501,18 @@ section {
   color:gray
 }
 
-#steam_div a{
+.reply_div{
+  content:attr(data-placeholder);
+  padding: 5px 20px;
+  min-height: 35px;
+  height: auto;
+}
+
+#steam_div a, .reply_div a,.comment-text a{
   color: #007bff;
 }
 
-#steam_div a:hover{
+#steam_div a:hover, .reply_div a:hover, .comment-text a:hover{
   color: #0056b3;
 }
 
@@ -1546,7 +1553,7 @@ section {
 }
 
 .main-label{
-  padding: 0.6rem 0.75rem;
+  padding: 0.7rem 1.4rem;
   margin-bottom: 1rem;
   box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important;
   border: 1px solid #dee2e6!important;
