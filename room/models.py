@@ -154,6 +154,30 @@ class EdTaskOpengraph(models.Model):
         managed = True
         db_table = 'ed_task_opengraph'
 
+class EdSubTask(models.Model):
+    description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
+
+
+    class Meta:
+        managed = True
+        db_table = 'ed_sub_task'
+
+class EdSubTaskFile(models.Model):
+    file_name=models.CharField(max_length=250)
+    file_link=models.TextField(blank=True, null=True)
+    file_type=models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    sub_task=models.ForeignKey(EdSubTask, models.DO_NOTHING, blank=True, null=True,related_name="sub_task")
+
+    class Meta:
+        managed = True
+        db_table = 'ed_sub_task_file'
+
 class EdTurnedIn(models.Model):
     description = models.TextField(blank=True, null=True)
     score = models.IntegerField(blank=True, default=0)
