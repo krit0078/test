@@ -1184,7 +1184,7 @@ def main(request,classroom_id,task_id):
             c=c+1
 
         context={
-            'title':'ภารกิจ',
+            'title':'ปัญหา/ภารกิจ',
             'member':member,
             'course':course,
             'task':task,
@@ -1329,7 +1329,7 @@ def main(request,classroom_id,task_id):
         group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
 
         context={
-            'title':'ภารกิจ',
+            'title':'ปัญหา/ภารกิจ',
             'member':member,
             'course':course,
             'task':task,
