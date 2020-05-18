@@ -121,7 +121,7 @@
                         <div class="row">
                        
                             {% if i.description %}
-                            <div class="col-12" style="min-height: 90px;">
+                            <div class="col-12 steam" style="min-height: 90px;">
 
                                 {{i.description | safe}}
                             </div>
@@ -235,7 +235,7 @@
                             </div>
                         </div>
                         <div class="col-md-12 mt-1 form-group text-right">
-                            <div class="btn-group">
+                            <div class="btn-group d-none">
                                 <button type="button" class="btn btn-light" data-toggle="dropdown" data-display="static"
                                     aria-haspopup="true" aria-expanded="false">
                                     <i class='bx bx-link-alt'></i> แทรกลิงก์
@@ -530,6 +530,9 @@
             });
 
             return false;
+        }).on('paste', function (e) {
+            let url=check_http(e);
+            load_og(url,'turnedin');
         });
 
         $('#insert_video').keypress(function (e) {

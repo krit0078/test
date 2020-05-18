@@ -17,7 +17,7 @@
                         <div class="form-row">
                             <div class="col-md-12 form-group">
                                 <input type="email" name="email" id="id_email" class="form-control"
-                                    placeholder="อีเมลล์" />
+                                    placeholder="อีเมล" />
                             </div>
                             <div class="col-md-12 form-group">
                                 <input type="password" class="form-control" name="password" id="id_password"
@@ -40,13 +40,13 @@
                         {% csrf_token %}
                         <div class="form-row">
                             <div class="col-md-12 form-group">
-                                <input type="email" name="email" class="form-control" placeholder="อีเมลล์" />
+                                <input type="email" name="email" class="form-control" placeholder="อีเมล" />
                                 <input type="hidden" name="target" value="forget">
                             </div>
                         </div>
                         <div class="loading mb-2">loading</div>
                         <div class="error-message mb-2"></div>
-                        <div class="status sent-message mb-2">ส่งอีเมลล์เรียบร้อย</div>
+                        <div class="status sent-message mb-2">ส่งอีเมลเรียบร้อย</div>
                         <div class="text-center">
                             <button class="btn btn-danger ml-2" type="submit">ลืมรหัสผ่าน</button>
                         </div>
@@ -131,7 +131,7 @@
 
                 } else {
                     this_form.find('.loading').slideUp();
-                    this_form.find('.error-message').slideDown().html("อีเมลล์หรือรหัสผ่านไม่ถูกต้อง");
+                    this_form.find('.error-message').slideDown().html("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
                 }
             }
         });

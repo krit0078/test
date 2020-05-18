@@ -348,31 +348,11 @@
 
             return false;
         }).on('paste', function (e) {
-            let paste = (event.clipboardData || window.clipboardData).getData('text');
-
-            let expression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
-            let regex = new RegExp(expression);
-
-            const selection = window.getSelection();
-            if (paste.match(expression)) {
-                let url=""
-                if(paste.search("http://")==-1 || paste.search("https://")==-1){
-                    url+="http://"+paste;
-                }
-                if (!selection.rangeCount) return false;
-                selection.deleteFromDocument;
-                let a = document.createElement("a");
-                a.href = url;
-                a.text = paste;
-                a.target = "_blank";
-                selection.getRangeAt(0).insertNode(a);
-            } 
-            else {
-                selection.getRangeAt(0).insertNode(document.createTextNode(paste));
-            }
-            selection.collapseToEnd();
-            event.preventDefault();
+            let url=check_http(e);
+            load_og(url,'resource');
         });
+
+    });
 
         $('#insert_video').keypress(function (e) {
 
@@ -403,6 +383,5 @@
             }
         });
 
-    });
 </script>
 {% endblock %}

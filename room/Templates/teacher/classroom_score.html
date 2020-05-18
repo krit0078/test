@@ -18,7 +18,10 @@
                                 <tr class="text-center">
                                     <th scope="col" style="width: 70px;">ลำดับ</th>
                                     <th scope="col">ชื่อ</th>
-                                    <th scope="col">คะแนน</th>
+                                    {% for i in task %}
+                                    <th>task {{forloop.counter}}</th>
+                                    {% endfor %}
+                                    <th scope="col">คะแนนรวม</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -40,10 +43,19 @@
                                             class="rounded-circle">{{i.member.firstname | truncatechars:50}}
                                         {{i.member.lastname | truncatechars:50}}
                                     </td>
+
+                                    {% for j in task %}
                                     <td>
-                                        {% if i.sum_score %}
-                                        {{i.sum_score}}
+                                        {% for k,v in i.score.items %}
+                                        {% if k == j.id %}
+                                        {{v}}
                                         {% endif %}
+                                        {% endfor %}                             
+                                    </td>
+                                    {% endfor %}
+
+                                    <td>
+                                        {{i.sumscore}}
                                     </td>
                                 </tr>
                                 {% endfor %}

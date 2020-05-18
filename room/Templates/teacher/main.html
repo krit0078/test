@@ -132,7 +132,7 @@
                                 </div>
                             </div>
                             {% if i.description %}
-                            <div class="col-12" style="min-height: 90px;">
+                            <div class="col-12 steam" style="min-height: 90px;">
 
                                 {{i.description | safe}}
                             </div>
@@ -442,11 +442,14 @@
             let regex = new RegExp(expression);
 
             const selection = window.getSelection();
-            if (paste.match(expression)) {
-                let url = ""
-                if (paste.search("http://") == -1 || paste.search("https://") == -1) {
-                    url += "http://" + paste;
+            if (paste.match(regex)) {
+                let url=paste;
+                let pattern = /^((http|https|ftp):\/\/)/;
+
+                if(!pattern.test(url)) {
+                    url="http://"+paste;
                 }
+    
                 if (!selection.rangeCount) return false;
                 selection.deleteFromDocument;
                 let a = document.createElement("a");
@@ -454,7 +457,8 @@
                 a.text = paste;
                 a.target = "_blank";
                 selection.getRangeAt(0).insertNode(a);
-            }
+                let og=load_og(url);
+            } 
             else {
                 selection.getRangeAt(0).insertNode(document.createTextNode(paste));
             }
