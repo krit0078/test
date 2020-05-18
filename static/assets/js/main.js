@@ -128,3 +128,58 @@
   });
 
 })(jQuery);
+
+function check_http(e) {
+  let paste = (event.clipboardData || window.clipboardData).getData('text');
+
+  let expression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+  let regex = new RegExp(expression);
+
+  const selection = window.getSelection();
+  let url=""
+  if (paste.match(regex)) {
+    url = paste;
+    let pattern = /^((http|https|ftp):\/\/)/;
+
+    if (!pattern.test(url)) {
+      url = "http://" + paste;
+    }
+
+    if (!selection.rangeCount) return false;
+    selection.deleteFromDocument;
+    let a = document.createElement("a");
+    a.href = url;
+    a.text = paste;
+    a.target = "_blank";
+    selection.getRangeAt(0).insertNode(a);
+  }
+  else {
+    selection.getRangeAt(0).insertNode(document.createTextNode(paste));
+  }
+  selection.collapseToEnd();
+  event.preventDefault();
+
+  return url;
+}
+
+function load_og(url,target){
+  let show_file = $('#show_file');
+  $.ajax('/ajax/fetch_og', {
+          method: 'GET',
+          data: { 'url': url, 'target': target },
+          dataType: 'json',
+          success: function (data) {
+              let d = data.og;
+              let txt = "<a href='" + d.url + "' style='text-decoration: none;color: #000;' target='_blank'><div class='row no-gutters rounded opengraph mb-2'>";
+              txt += "<div class='col-3'><img src='" + d.image + "' style='width: 100%;'></div>";
+              txt += "<div class='col-9 p-3 bg-light'><h5>" + d.title + "</h5><p>" + d.description + "</p></div></div>";
+              txt += "<input type='hidden' name='link_id[]' value='" + d.id + "'></a>";
+              console.log(data);
+              show_file.append(txt);
+          },
+          error: function () {
+              // alert("ไม่สามารถโหลดข้อมูลได้");
+          }
+      });
+
+}

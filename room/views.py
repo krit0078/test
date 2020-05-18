@@ -864,20 +864,39 @@ def classroom_score(request,classroom_id):
 
         enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id)
 
+        #query task
+        task=models.EdTask.objects.filter(course_id=classroom_id).filter(status="ACTIVE")
+
         i=0
         for x in enrolment:
             from django.db.models import Sum
             from collections import OrderedDict
-            sum_score=models.EdTurnedIn.objects.filter(member_id=x.member_id).filter(status="TURNEDIN").aggregate(Sum('score'))
-            if sum_score['score__sum']!=0 and sum_score['score__sum']:
-                enrolment[i].sum_score=sum_score['score__sum']
-            else:
-                enrolment[i].sum_score=0
+            list={}
+            sumscore=0
+            for y in task:
+                s=len(models.EdTurnedIn.objects.filter(task_id=y.id).filter(status="TURNEDIN").filter(member_id=x.member_id))
+                if s==0:
+                    score=0
+                else:
+                    s=models.EdTurnedIn.objects.filter(task_id=y.id).filter(status="TURNEDIN").filter(member_id=x.member_id)
+                    score=s[0].score
+
+                list[y.id]=score
+                sumscore=sumscore+score
+
+            enrolment[i].score=list
+            enrolment[i].sumscore=sumscore
+            
+            # sum_score=models.EdTurnedIn.objects.filter(member_id=x.member_id).filter(status="TURNEDIN").aggregate(Sum('score'))
+            # if sum_score['score__sum']!=0 and sum_score['score__sum']:
+            #     enrolment[i].sum_score=sum_score['score__sum']
+            # else:
+            #     enrolment[i].sum_score=0
             i=i+1
 
         #sort array
         try:
-            enrolment=sorted(enrolment, key= lambda t: t.sum_score, reverse=True)
+            enrolment=sorted(enrolment, key= lambda t: t.sumscore, reverse=True)
         except:
             enrolment=enrolment
 
@@ -890,7 +909,8 @@ def classroom_score(request,classroom_id):
             'member':member,
             'active_nav':active_nav,
             'course':course,
-            'enrolment':enrolment
+            'enrolment':enrolment,
+            'task':task
         }
 
         return render(request,'student/classroom_score.html',context)
@@ -1395,6 +1415,7 @@ def main_score(request,classroom_id,task_id):
             else:
                 turnedin_status='wait'
             j=0
+
             for f in turnedin:
                 turnedin_file=models.EdTurnedinFile.objects.filter(turnedin_id=f.id).filter(status="ACTIVE")
                 k=0
