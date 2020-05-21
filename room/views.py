@@ -63,10 +63,11 @@ def login(request):
             member=len(models.EdMember.objects.filter(email=email).filter(password=password).filter(status="ACTIVE"))
             if member==1:
 
-                member=models.EdMember.objects.get(email=email)
+                member=models.EdMember.objects.filter(email=email).filter(status="ACTIVE").latest('id')
                 user_type=models.EdUserType.objects.get(id=member.user_type_id)
 
                 request.session['email']=email
+                request.session['member_id']=member.id
                 request.session['type']=user_type.prefix
 
 
@@ -140,6 +141,8 @@ def logout(request):
         del request.session['email']
     if 'type' in request.session:
         del request.session['type']
+    if 'member_id' in request.session:
+        del request.session['member_id']
     return HttpResponseRedirect("/index")
 
 def register(request):
@@ -208,14 +211,18 @@ def viewcourse(request):
         'ed_level':ed_level
     }
     return render(request,'viewcourse.html',context)
+def get_member(member_id):
+    member=models.EdMember.objects.get(id=member_id)
+    return member
 
 def dashboard(request):
     #check session
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
+    # member=models.EdMember.objects.get(email=email)
 
     if request.session['type'] == 'STUDENT':
 
@@ -356,8 +363,8 @@ def profile(request):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     if request.method == 'POST':
         file_data=request.FILES.getlist('profile')
@@ -427,8 +434,8 @@ def classroom(request,classroom_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
        
     if request.session['type'] == 'STUDENT':
         #check enrolment
@@ -654,8 +661,8 @@ def classroom_task(request,classroom_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     if request.session['type'] == 'STUDENT':
         #check enrolment
@@ -851,8 +858,8 @@ def classroom_score(request,classroom_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     if request.session['type'] == 'STUDENT':
         #check enrolment
@@ -982,8 +989,8 @@ def classroom_live(request,classroom_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     if request.session['type'] == 'STUDENT':
         #check enrolment
@@ -1055,8 +1062,8 @@ def main(request,classroom_id,task_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     if request.session['type'] == 'STUDENT':
         #check enrolment
@@ -1385,8 +1392,8 @@ def main_score(request,classroom_id,task_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     if request.session['type'] == 'STUDENT':
         #check enrolment
@@ -1536,8 +1543,8 @@ def resource(request,classroom_id,task_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     if request.session['type'] == 'STUDENT':
         #check enrolment
@@ -1724,8 +1731,8 @@ def scaffolding(request,classroom_id,task_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     if request.session['type'] == 'STUDENT':
         #check enrolment
@@ -1913,8 +1920,8 @@ def add_group(request,classroom_id,task_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     if request.session['type'] == 'STUDENT':
         #check enrolment
@@ -2044,8 +2051,8 @@ def global_group(request,classroom_id,task_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     if request.session['type'] == 'STUDENT':
         #check enrolment
@@ -2311,8 +2318,8 @@ def view_group(request,classroom_id,task_id,group_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     if request.session['type'] == 'STUDENT':
 
@@ -2604,8 +2611,8 @@ def coaching(request,classroom_id,task_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     if request.session['type'] == 'STUDENT':
         #check enrolment
@@ -2838,8 +2845,8 @@ def delete_live(request,classroom_id,live_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     #check owner
     if check_owner(classroom_id,member.id):
@@ -2858,8 +2865,8 @@ def delete_task(request,classroom_id,task_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     #check owner
     if check_owner(classroom_id,member.id):
@@ -2878,8 +2885,8 @@ def delete_sub_task(request,classroom_id,task_id,sub_task_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     #check owner
     if check_owner(classroom_id,member.id):
@@ -2902,8 +2909,8 @@ def delete_resource(request,classroom_id,task_id,resource_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     #check owner
     if check_owner(classroom_id,member.id):
@@ -2926,8 +2933,8 @@ def delete_colla(request,classroom_id,task_id,group_id,colla_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     if request.session['type'] == 'STUDENT':
         #check enrolment
@@ -2975,8 +2982,8 @@ def delete_coach(request,classroom_id,task_id,coach_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     #check owner
     if check_owner(classroom_id,member.id):
@@ -2999,8 +3006,8 @@ def delete_turnin(request,classroom_id,task_id,turnedin_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     #check enrolment
     if check_enrolment(classroom_id,member.id):
@@ -3023,8 +3030,8 @@ def delete_steam(request,classroom_id,steam_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     #check owner
     if check_owner(classroom_id,member.id):
@@ -3044,8 +3051,8 @@ def delete_group(request,classroom_id,task_id,group_id):
     if 'email'not in request.session:
         return HttpResponseRedirect("/login")
 
-    email=request.session['email']
-    member=models.EdMember.objects.get(email=email)
+    member_id=request.session['member_id']
+    member=get_member(member_id)
 
     #check owner
     if check_owner(classroom_id,member.id):
@@ -3065,7 +3072,7 @@ def delete_group(request,classroom_id,task_id,group_id):
 
 def check_email(request):
     email=request.GET.get('email')
-    row=len(models.EdMember.objects.filter(email=email))
+    row=len(models.EdMember.objects.filter(email=email).filter(status="ACTIVE"))
 
     if row >= 1:
         status=0
