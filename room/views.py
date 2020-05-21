@@ -9,6 +9,7 @@ from django.core import serializers
 import hashlib
 from django.core.files.storage import FileSystemStorage
 
+
 # Create your views here.
 def index(request):
     if 'email' in request.session:
@@ -1499,7 +1500,7 @@ def main_score(request,classroom_id,task_id):
         #query turnedin
         i=0
         for e in enrolment:
-            turnedin=models.EdTurnedIn.objects.filter(member_id=e.member_id).filter(status="TURNEDIN")
+            turnedin=models.EdTurnedIn.objects.filter(member_id=e.member_id).filter(status="TURNEDIN").filter(task_id=task_id)
             if len(turnedin)>0:
                 turnedin_status='turnedin'
             else:
