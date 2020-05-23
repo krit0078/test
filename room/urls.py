@@ -37,4 +37,5 @@ urlpatterns = [
     path('ajax/get_ed_sublevel',views.get_ed_sublevel),
     path('ajax/update_cover',views.update_cover),
     path('ajax/fetch_og',views.fetch_og),
+    path('ajax/update_user',views.update_user),
 ]

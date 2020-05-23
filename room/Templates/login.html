@@ -129,7 +129,10 @@
                     this_form.find("input:not(input[type=submit]), textarea").val('');
                     setTimeout(window.location.replace("/dashboard/"), 4000);
 
-                } else {
+                } else if(data.status == 2){
+                    this_form.find('.loading').slideUp();
+                    this_form.find('.error-message').slideDown().html("รอการอนุมัติจากผู้ดูแลระบบ");
+                }else {
                     this_form.find('.loading').slideUp();
                     this_form.find('.error-message').slideDown().html("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
                 }

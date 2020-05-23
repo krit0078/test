@@ -1,0 +1,195 @@
+{% extends 'admins/base.html' %}
+
+{% block content %}
+<section class="section-bg">
+    <div class="container">
+        <div class="row mb-3">
+            <form>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <input type="text" class="form-control" id="search" placeholder="ค้นหา">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <select class="custom-select my-1 mr-sm-2">
+                            <option value="NONE" selected>ตัวกรอง</option>
+                            <option value="email">อีเมลล์</option>
+                            <option value="firstname">ชื่อ</option>
+                            <option value="status">สถานะ</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">อีเมลล์</th>
+                            <th scope="col">ชื่อ</th>
+                            <th scope="col">สกุล</th>
+                            <th scope="col">ประเภทผู้ใช้</th>
+                            <th scope="col" class="text-center">สถานะ</th>
+                            <th scope="col" class="text-center">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data">
+                        {% for i in search_member %}
+                        <tr>
+                            <th scope="row">{{forloop.counter}}<span class="d-none id">{{i.id}}</span></th>
+                            <td>{{i.email}}</td>
+                            <td>{{i.firstname}}</td>
+                            <td>{{i.lastname}}</td>
+                            <td>{{i.user_type.title}}</td>
+                            {% if i.status == 'PENDING' %}
+                            <td class="status text-warning">รอการอนุมัติ</td>
+                            {% elif i.status == "ACTIVE" %}
+                            <td class="status text-success">ปกติ</td>
+                            {% elif i.status == "DELETE" %}
+                            <td class="status text-danger">ลบ</td>
+                            {% endif %}
+                            <td>
+                                <form>
+                                    <div class="col-md-12 form-group">
+                                        <select class="custom-select my-1 mr-sm-2">
+                                            <option value="NONE" selected>จัดการ</option>
+                                            <option value="ACTIVE">ยืนยัน</option>
+                                            <option value="PENDING">รอการอนุมัติ</option>
+                                            <option value="DELETE">ลบ</option>
+                                        </select>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+
+
+{% block js %}
+<script>
+    jQuery(document).ready(function ($) {
+        "use strict";
+        const csrfmiddlewaretoken = "{{ csrf_token }}";
+        const action = "/ajax/update_user";
+        const method = "POST";
+
+        $('tr').change(function () {
+            const this_tr = $(this);
+            const s = this_tr.find("select");
+            let select = this_tr.find("select").val();
+            let id = this_tr.find('.id').text();
+
+            if (select == "ACTIVE") {
+                $.ajax({
+                    type: method,
+                    url: action,
+                    data: { 'csrfmiddlewaretoken': csrfmiddlewaretoken, 'member_id': id, 'status': select },
+                    success: function (data) {
+                        if (data.status == 1) {
+                            this_tr.find('.status').replaceWith("<td class='text-success status'>ปกติ</td>");
+                        } else {
+                            alert("ไม่สามารถแก้ไขข้อมูลได้");
+                        }
+                    }
+                });
+            } else if (select == "DELETE") {
+                let c = confirm("คุณแน่ใจว่าจะลบบัญชีนี้หรือไม่");
+                if (c) {
+                    $.ajax({
+                        type: method,
+                        url: action,
+                        data: { 'csrfmiddlewaretoken': csrfmiddlewaretoken, 'member_id': id, 'status': select },
+                        success: function (data) {
+                            if (data.status == 1) {
+                                this_tr.find('.status').replaceWith("<td class='status text-danger'>ลบ</td>");
+                            } else {
+                                alert("ไม่สามารถแก้ไขข้อมูลได้");
+                            }
+                        }
+                    });
+                }
+
+            } else if (select == "PENDING") {
+                $.ajax({
+                    type: method,
+                    url: action,
+                    data: { 'csrfmiddlewaretoken': csrfmiddlewaretoken, 'member_id': id, 'status': select },
+                    success: function (data) {
+                        if (data.status == 1) {
+                            this_tr.find('.status').replaceWith("<td class='status text-warning'>รอการอนุมัติ</td>");
+                        } else {
+                            alert("ไม่สามารถแก้ไขข้อมูลได้");
+                        }
+                    }
+                });
+            }
+
+            s.prop('selectedIndex', 0);
+            return false;
+
+        });
+
+        function show_data(counter,id,email,firstname,lastname,user_type,status) {
+            let txt = "";
+            txt += "<tr><th scope='row'>"+counter+"<span class='d-none id'>"+id+"</span></th>";
+            txt += "<td>"+email+"</td>";
+            txt += "<td>"+firstname+"</td>";
+            txt += "<td>"+lastname+"</td>";
+            txt += "<td>"+user_type+"</td>";
+            if(status == 'PENDING'){
+                txt+="<td class='status text-warning'>รอการอนุมัติ</td>";
+            }else if(status == 'ACTIVE'){
+                txt+="<td class='status text-success'>ปกติ</td>";
+            }else if(status == 'DELETE'){
+                txt+="<td class='status text-danger'>ลบ</td>";
+            }
+            txt+="<td> <form><div class='col-md-12 form-group'><select class='custom-select my-1 mr-sm-2'>";
+            txt+="<option value='NONE' selected>จัดการ</option><option value='ACTIVE'>ยืนยัน</option><option value='PENDING'>รอการอนุมัติ</option>";
+            txt+="<option value='DELETE'>ลบ</option>";
+            txt+="</select></div></form></td></tr>";
+            return txt;
+        }
+
+        $('#search').keyup(function () {
+            const search = $(this);
+            const show = $('#data');
+
+
+            $.ajax({
+                type: method,
+                url: action,
+                data: { 'csrfmiddlewaretoken': csrfmiddlewaretoken, 'search': search.val() },
+                success: function (data) {
+                    if (data.status == 1) {
+                        let member = data.member;
+                        let html = "";
+                        let counter=1;
+
+                        if (member.length == 0) {
+                            show.html("<tr><td>ไม่พบข้อมูล<td></tr>");
+                        }else{
+                            member.forEach(element => {
+                                html+=show_data(counter,element['id'],element['email'],element['firstname'],element['lastname'],element['user_type'],element['status']);
+                                counter=counter+1;
+                            });
+                            show.html(html);
+                        }
+
+                    } else {
+                        show.html("<tr><td>ไม่พบข้อมูล<td></tr>");
+                    }
+                }
+            });
+        })
+    });
+
+</script>
+{% endblock %}

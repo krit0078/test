@@ -86,7 +86,11 @@ def login(request):
 
                 status=1
             else:
-                status=0
+                member=models.EdMember.objects.filter(email=email).latest('id')
+                if member.status == "PENDING":
+                    status=2
+                else:
+                    status=0
 
             data={
                 'status':status
@@ -136,7 +140,6 @@ def changepass(request,token):
     }
     return render(request, 'changepass.html', context)
 
-
 def logout(request):
     if 'email' in request.session:
         del request.session['email']
@@ -165,19 +168,25 @@ def register(request):
         if len(user_type) == 0 or len(edlevel) == 0 or len(ed_sublevel)== 0:
             status=0
         else:
-            member=models.EdMember(email=email,firstname=firstname,lastname=lastname,catagory_id=ed_sublevel,user_type_id=user_type,password=password)
+            if user_type == '3':
+                data={'status':0}
+                return JsonResponse(data)
+            if user_type == '2':
+                member=models.EdMember(email=email,firstname=firstname,lastname=lastname,catagory_id=ed_sublevel,user_type_id=user_type,password=password,status="PENDING")
+            else:
+                member=models.EdMember(email=email,firstname=firstname,lastname=lastname,catagory_id=ed_sublevel,user_type_id=user_type,password=password)
             member.save()
             status=1
         
         data={
-            'status':status
+            'status':status,
             }
         return JsonResponse(data)
     else:
         register=form.RegisterForm()
 
     edlevel=models.EdLevel.objects.all()
-    user_type=models.EdUserType.objects.all()
+    user_type=models.EdUserType.objects.all().exclude(id=3)
 
     context={
         'title':'สมัครสมาชิก | EduLearn',
@@ -271,7 +280,7 @@ def dashboard(request):
             'enrolment':enrolment
         }
         return render(request,'student/dashboard.html',context)
-    else:
+    elif request.session['type'] == 'TEACHER':
         edlevel=models.EdLevel.objects.all()
         user_type=models.EdUserType.objects.all()
 
@@ -358,6 +367,73 @@ def dashboard(request):
             'course':course
         }
         return render(request,'teacher/dashboard.html',context)
+    elif request.session['type'] == 'ADMIN':
+        edlevel=models.EdLevel.objects.all()
+        user_type=models.EdUserType.objects.all()
+
+        if request.method == 'POST':
+            class_name=request.POST.get('class-name')
+            class_description=request.POST.get('class-description')
+            catagory=request.POST.get('ed_sublevel')
+            status=request.POST.get('status')
+            co_id=request.POST.get('co_id')
+
+            def generate():
+                import random
+                chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
+                i = 5
+                while True:
+                    value = "".join(random.choice(chars)
+                                    for _ in range(i))
+                    row = len(
+                        models.EdCourse.objects.filter(uid=value))
+
+                    if row == 0:
+                        return value
+
+                    i = i+1
+
+            if class_name:
+                uid = generate()
+
+                add_class=models.EdCourse(course_name=class_name,description=class_description,catagory_id=catagory,uid=uid,teacher_id=member.id)
+                add_class.save()
+
+                c=models.EdCourse.objects.latest('id')
+                enrolment=len(models.EdEnrolment.objects.filter(course_id=c.id))
+
+
+                data={
+                    'status':1,
+                    'latest_course':{'id':c.id,'course_name':c.course_name,'cover_pic':c.cover_pic,'description':c.description,'enrolment':enrolment,'firstname':c.teacher.firstname,'lastname':c.teacher.lastname}
+                }
+                return JsonResponse(data)
+            elif status:
+                co=models.EdCoTeacher.objects.get(id=co_id)
+                co.status=status
+                co.save()
+
+                if co.status == 'DELETE':
+                    status=0
+                else:
+                    status=1
+
+                data={
+                    'status':status,
+                    'course_id':co.course_id
+                }
+                return JsonResponse(data)
+        
+        search_member=models.EdMember.objects.all().select_related('user_type').order_by('-status')
+
+        context={
+            'title':'หน้าหลักผู้ดูแลระบบ',
+            'member':member,
+            'edlevel':edlevel,
+            'user_type':user_type,
+            'search_member':search_member
+        }
+        return render(request,'admins/dashboard.html',context)
 
 def profile(request):
     #check session
@@ -501,7 +577,7 @@ def classroom(request,classroom_id):
         }
         return render(request,'student/classroom.html',context)
 
-    else:
+    elif request.session['type'] == 'TEACHER':
         #check owner
         if check_owner(classroom_id,member.id):
             return HttpResponseRedirect("/dashboard")
@@ -730,7 +806,7 @@ def classroom_task(request,classroom_id):
         }
 
 
-    else:
+    elif request.session['type'] == 'TEACHER':
         #check enrolment
         if check_owner(classroom_id,member.id):
             return HttpResponseRedirect("/dashboard")
@@ -923,7 +999,7 @@ def classroom_score(request,classroom_id):
 
         return render(request,'student/classroom_score.html',context)
 
-    else:
+    elif request.session['type'] == 'TEACHER':
 
         #check owner
         if check_owner(classroom_id,member.id):
@@ -1018,7 +1094,7 @@ def classroom_live(request,classroom_id):
 
         return render(request,'student/classroom_live.html',context)
     
-    else:
+    elif request.session['type'] == 'TEACHER':
         #check owner
         if check_owner(classroom_id,member.id):
             return HttpResponseRedirect("/dashboard")
@@ -1244,7 +1320,7 @@ def main(request,classroom_id,task_id):
         }
         return render(request,'student/main.html',context)
 
-    else:
+    elif request.session['type'] == 'TEACHER':
         #check owner
         if check_owner(classroom_id,member.id):
             return HttpResponseRedirect("/dashboard")
@@ -1466,7 +1542,7 @@ def main_score(request,classroom_id,task_id):
             'group_bar':group_bar
         }
         return render(request,'student/main_score.html',context)
-    else:
+    elif request.session['type'] == 'TEACHER':
         #check owner
         if check_owner(classroom_id,member.id):
             return HttpResponseRedirect("/dashboard")
@@ -1611,7 +1687,7 @@ def resource(request,classroom_id,task_id):
         }
         return render(request,'student/main_resource.html',context)
 
-    else:
+    elif request.session['type'] == 'TEACHER':
         #check owner
         if check_owner(classroom_id,member.id):
             return HttpResponseRedirect("/dashboard")
@@ -1799,7 +1875,7 @@ def scaffolding(request,classroom_id,task_id):
         }
         return render(request,'student/main_scaff.html',context)
 
-    else:
+    elif request.session['type'] == 'TEACHER':
         #check owner
         if check_owner(classroom_id,member.id):
             return HttpResponseRedirect("/dashboard")
@@ -1978,7 +2054,7 @@ def add_group(request,classroom_id,task_id):
         return render(request,'student/main_add_collaboration.html',context)
 
 
-    else:
+    elif request.session['type'] == 'TEACHER':
         #check owner
         if check_owner(classroom_id,member.id):
             return HttpResponseRedirect("/dashboard")
@@ -2186,7 +2262,7 @@ def global_group(request,classroom_id,task_id):
         }
         return render(request,'student/main_global_collaboration.html',context)
 
-    else:
+    elif request.session['type'] == 'TEACHER':
         #check owner
         if check_owner(classroom_id,member.id):
             return HttpResponseRedirect("/dashboard")
@@ -2475,7 +2551,7 @@ def view_group(request,classroom_id,task_id,group_id):
         }
         return render(request,'student/main_collaboration.html',context)
 
-    else:
+    elif request.session['type'] == 'TEACHER':
         #check owner
         if check_owner(classroom_id,member.id):
             return HttpResponseRedirect("/dashboard")
@@ -2681,7 +2757,7 @@ def coaching(request,classroom_id,task_id):
         }
         return render(request,'student/main_coach.html',context)
 
-    else:
+    elif request.session['type'] == 'TEACHER':
         #check owner
         if check_owner(classroom_id,member.id):
             return HttpResponseRedirect("/dashboard")
@@ -2956,7 +3032,7 @@ def delete_colla(request,classroom_id,task_id,group_id,colla_id):
             url=url.format(classroom_id,task_id,group_id)
             return HttpResponseRedirect(url)
 
-    else:
+    elif request.session['type'] == 'TEACHER':
 
         #check owner
         if check_owner(classroom_id,member.id):
@@ -3161,6 +3237,57 @@ def update_cover(request):
         }
         return JsonResponse(data)
 
+def update_user(request):
+    #check session
+    if 'member_id'not in request.session:
+        data={
+            'status':0
+        }
+        return JsonResponse(data)
+
+    if request.session['type'] != 'ADMIN':
+        data={
+            'status':0
+        }
+        return JsonResponse(data)
+
+    member_id=request.POST.get('member_id')
+    status=request.POST.get('status')
+    search=request.POST.get('search')
+
+    if member_id:
+        member=models.EdMember.objects.get(id=member_id)
+        member.status=status
+        member.save()
+
+        data={
+                'status':1
+            }
+        return JsonResponse(data)
+    elif search:
+        member=models.EdMember.objects.filter(Q(email__contains=search) | Q(firstname__contains=search)).select_related('user_type').order_by('-status')
+        list=[]
+        for i in member:
+            list.append({'id':i.id,'email':i.email,'firstname':i.firstname,'lastname':i.lastname,'user_type':i.user_type.title,'status':i.status})
+        data={
+                'status':1,
+                'member':list
+            }
+        return JsonResponse(data)
+    else:
+        member=models.EdMember.objects.all().select_related('user_type').order_by('-status')
+        list=[]
+        for i in member:
+            list.append({'id':i.id,'email':i.email,'firstname':i.firstname,'lastname':i.lastname,'user_type':i.user_type.title,'status':i.status})
+        data={
+                'status':1,
+                'member':list
+            }
+        return JsonResponse(data)
+    
+    
+    
+    
 import urllib.request
 from bs4 import BeautifulSoup
 import urllib.parse
