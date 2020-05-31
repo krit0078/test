@@ -425,6 +425,7 @@ def dashboard(request):
                 return JsonResponse(data)
         
         search_member=models.EdMember.objects.all().select_related('user_type').order_by('-status')
+        search_member=search_member.exclude(status="DELETE")
 
         context={
             'title':'หน้าหลักผู้ดูแลระบบ',
