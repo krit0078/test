@@ -3278,6 +3278,7 @@ def update_user(request):
         return JsonResponse(data)
     else:
         member=models.EdMember.objects.all().select_related('user_type').order_by('-status')
+        member=member.exclude(status="DELETE")
         list=[]
         for i in member:
             list.append({'id':i.id,'email':i.email,'firstname':i.firstname,'lastname':i.lastname,'user_type':i.user_type.title,'status':i.status})
