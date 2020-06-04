@@ -81,35 +81,53 @@
         const action = "/ajax/update_user";
         const method = "POST";
 
-        $('tr').change(function () {
-            const this_tr = $(this);
-            const s = this_tr.find("select");
-            let select = this_tr.find("select").val();
-            let id = this_tr.find('.id').text();
+        add_listen();
 
-            if (select == "ACTIVE") {
-                $.ajax({
-                    type: method,
-                    url: action,
-                    data: { 'csrfmiddlewaretoken': csrfmiddlewaretoken, 'member_id': id, 'status': select },
-                    success: function (data) {
-                        if (data.status == 1) {
-                            this_tr.find('.status').replaceWith("<td class='text-success status'>ปกติ</td>");
-                        } else {
-                            alert("ไม่สามารถแก้ไขข้อมูลได้");
-                        }
-                    }
-                });
-            } else if (select == "DELETE") {
-                let c = confirm("คุณแน่ใจว่าจะลบบัญชีนี้หรือไม่");
-                if (c) {
+        function add_listen() {
+            $('tr').change(function () {
+                const this_tr = $(this);
+                const s = this_tr.find("select");
+                let select = this_tr.find("select").val();
+                let id = this_tr.find('.id').text();
+
+                if (select == "ACTIVE") {
                     $.ajax({
                         type: method,
                         url: action,
                         data: { 'csrfmiddlewaretoken': csrfmiddlewaretoken, 'member_id': id, 'status': select },
                         success: function (data) {
                             if (data.status == 1) {
-                                this_tr.find('.status').replaceWith("<td class='status text-danger'>ลบ</td>");
+                                this_tr.find('.status').replaceWith("<td class='text-success status'>ปกติ</td>");
+                            } else {
+                                alert("ไม่สามารถแก้ไขข้อมูลได้");
+                            }
+                        }
+                    });
+                } else if (select == "DELETE") {
+                    let c = confirm("คุณแน่ใจว่าจะลบบัญชีนี้หรือไม่");
+                    if (c) {
+                        $.ajax({
+                            type: method,
+                            url: action,
+                            data: { 'csrfmiddlewaretoken': csrfmiddlewaretoken, 'member_id': id, 'status': select },
+                            success: function (data) {
+                                if (data.status == 1) {
+                                    this_tr.find('.status').replaceWith("<td class='status text-danger'>ลบ</td>");
+                                } else {
+                                    alert("ไม่สามารถแก้ไขข้อมูลได้");
+                                }
+                            }
+                        });
+                    }
+
+                } else if (select == "PENDING") {
+                    $.ajax({
+                        type: method,
+                        url: action,
+                        data: { 'csrfmiddlewaretoken': csrfmiddlewaretoken, 'member_id': id, 'status': select },
+                        success: function (data) {
+                            if (data.status == 1) {
+                                this_tr.find('.status').replaceWith("<td class='status text-warning'>รอการอนุมัติ</td>");
                             } else {
                                 alert("ไม่สามารถแก้ไขข้อมูลได้");
                             }
@@ -117,44 +135,30 @@
                     });
                 }
 
-            } else if (select == "PENDING") {
-                $.ajax({
-                    type: method,
-                    url: action,
-                    data: { 'csrfmiddlewaretoken': csrfmiddlewaretoken, 'member_id': id, 'status': select },
-                    success: function (data) {
-                        if (data.status == 1) {
-                            this_tr.find('.status').replaceWith("<td class='status text-warning'>รอการอนุมัติ</td>");
-                        } else {
-                            alert("ไม่สามารถแก้ไขข้อมูลได้");
-                        }
-                    }
-                });
-            }
+                s.prop('selectedIndex', 0);
+                return false;
 
-            s.prop('selectedIndex', 0);
-            return false;
+            });
+        };
 
-        });
-
-        function show_data(counter,id,email,firstname,lastname,user_type,status) {
+        function show_data(counter, id, email, firstname, lastname, user_type, status) {
             let txt = "";
-            txt += "<tr><th scope='row'>"+counter+"<span class='d-none id'>"+id+"</span></th>";
-            txt += "<td>"+email+"</td>";
-            txt += "<td>"+firstname+"</td>";
-            txt += "<td>"+lastname+"</td>";
-            txt += "<td>"+user_type+"</td>";
-            if(status == 'PENDING'){
-                txt+="<td class='status text-warning'>รอการอนุมัติ</td>";
-            }else if(status == 'ACTIVE'){
-                txt+="<td class='status text-success'>ปกติ</td>";
-            }else if(status == 'DELETE'){
-                txt+="<td class='status text-danger'>ลบ</td>";
+            txt += "<tr><th scope='row'>" + counter + "<span class='d-none id'>" + id + "</span></th>";
+            txt += "<td>" + email + "</td>";
+            txt += "<td>" + firstname + "</td>";
+            txt += "<td>" + lastname + "</td>";
+            txt += "<td>" + user_type + "</td>";
+            if (status == 'PENDING') {
+                txt += "<td class='status text-warning'>รอการอนุมัติ</td>";
+            } else if (status == 'ACTIVE') {
+                txt += "<td class='status text-success'>ปกติ</td>";
+            } else if (status == 'DELETE') {
+                txt += "<td class='status text-danger'>ลบ</td>";
             }
-            txt+="<td> <form><div class='col-md-12 form-group'><select class='custom-select my-1 mr-sm-2'>";
-            txt+="<option value='NONE' selected>จัดการ</option><option value='ACTIVE'>ยืนยัน</option><option value='PENDING'>รอการอนุมัติ</option>";
-            txt+="<option value='DELETE'>ลบ</option>";
-            txt+="</select></div></form></td></tr>";
+            txt += "<td> <form><div class='col-md-12 form-group'><select class='custom-select my-1 mr-sm-2'>";
+            txt += "<option value='NONE' selected>จัดการ</option><option value='ACTIVE'>ยืนยัน</option><option value='PENDING'>รอการอนุมัติ</option>";
+            txt += "<option value='DELETE'>ลบ</option>";
+            txt += "</select></div></form></td></tr>";
             return txt;
         }
 
@@ -171,16 +175,17 @@
                     if (data.status == 1) {
                         let member = data.member;
                         let html = "";
-                        let counter=1;
+                        let counter = 1;
 
                         if (member.length == 0) {
                             show.html("<tr><td>ไม่พบข้อมูล<td></tr>");
-                        }else{
+                        } else {
                             member.forEach(element => {
-                                html+=show_data(counter,element['id'],element['email'],element['firstname'],element['lastname'],element['user_type'],element['status']);
-                                counter=counter+1;
+                                html += show_data(counter, element['id'], element['email'], element['firstname'], element['lastname'], element['user_type'], element['status']);
+                                counter = counter + 1;
                             });
                             show.html(html);
+                            add_listen();
                         }
 
                     } else {
