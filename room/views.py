@@ -2970,7 +2970,7 @@ def delete_sub_task(request,classroom_id,task_id,sub_task_id):
     if check_owner(classroom_id,member.id):
         return HttpResponseRedirect("/dashboard")
     
-    #check owner task
+    # check owner task
     if check_owner_task(classroom_id,task_id):
         return HttpResponseRedirect("/dashboard")
     
