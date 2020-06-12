@@ -104,6 +104,7 @@ def login(request):
     return render(request,'login.html',context)
 
 import datetime 
+from django.utils import timezone
 
 def changepass(request,token):
 
@@ -116,7 +117,7 @@ def changepass(request,token):
             changepass=models.EdChangePass.objects.get(token=token)
 
             dt=changepass.timestamp
-            b=datetime.datetime.now()
+            b=timezone.now()
             dt=b-dt
             if dt.days<15:
                 member=models.EdMember.objects.get(id=changepass.member_id)
