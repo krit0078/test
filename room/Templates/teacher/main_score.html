@@ -105,7 +105,7 @@
             <div class="modal-body">
                 {% if j.description %}
                 <div class="col-12">
-                    {{j.description}}
+                    {{j.description|safe}}
                     <hr>
                 </div>
                 {% endif %}
