@@ -3151,14 +3151,16 @@ def delete_group(request,classroom_id,task_id,group_id):
 
 def check_email(request):
     email=request.GET.get('email')
-    row=len(models.EdMember.objects.filter(email=email).filter(status="ACTIVE"))
+    row=len(models.EdMember.objects.filter(email=email).filter(status="ACTIVE").exclude(email="vchuti@kku.ac.th"))
 
     if row >= 1:
         status=0
     else:
         status=1
     data={
-        'status':status
+        'status':status,
+        'row':row,
+        'email':email
     }
     return JsonResponse(data)
 
