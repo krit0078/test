@@ -108,32 +108,32 @@ from django.utils import timezone
 
 def changepass(request,token):
 
-    if request.method == 'POST':
-        password=request.POST.get('password')
-        changepass=len(models.EdChangePass.objects.filter(token=token).filter(status="ACTIVE"))
+    # if request.method == 'POST':
+    #     password=request.POST.get('password')
+    #     changepass=len(models.EdChangePass.objects.filter(token=token).filter(status="ACTIVE"))
 
-        status=0
-        if changepass > 0 :
-            changepass=models.EdChangePass.objects.get(token=token)
+    #     status=0
+    #     if changepass > 0 :
+    #         changepass=models.EdChangePass.objects.get(token=token)
 
-            dt=changepass.timestamp
-            b=timezone.now()
-            dt=b-dt
-            if dt.days<15:
-                member=models.EdMember.objects.get(id=changepass.member_id)
-                password=hashlib.md5(password.encode("utf-8")).hexdigest()
-                member.password=password
-                member.save()
+    #         dt=changepass.timestamp
+    #         b=timezone.now()
+    #         dt=b-dt
+    #         if dt.days<15:
+    #             member=models.EdMember.objects.get(id=changepass.member_id)
+    #             password=hashlib.md5(password.encode("utf-8")).hexdigest()
+    #             member.password=password
+    #             member.save()
 
-            changepass.status="DELETE"
-            changepass.save()
-            status=1
+    #         changepass.status="DELETE"
+    #         changepass.save()
+    #         status=1
           
 
-        data={
-            'status':status
-        }
-        return JsonResponse(data)
+    #     data={
+    #         'status':status
+    #     }
+    #     return JsonResponse(data)
  
     context={
         'title':'เปลี่ยนรหัสผ่าน',
@@ -166,7 +166,9 @@ def register(request):
 
         password=hashlib.md5(password.encode("utf-8")).hexdigest()
 
-        if len(user_type) == 0 or len(edlevel) == 0 or len(ed_sublevel)== 0:
+        row=len(models.EdMember.objects.filter(email=email).filter(status="ACTIVE"))
+
+        if len(user_type) == 0 or len(edlevel) == 0 or len(ed_sublevel)== 0 or row >=1:
             status=0
         else:
             if user_type == '3':
@@ -3151,16 +3153,14 @@ def delete_group(request,classroom_id,task_id,group_id):
 
 def check_email(request):
     email=request.GET.get('email')
-    row=len(models.EdMember.objects.filter(email=email).filter(status="ACTIVE").exclude(email="vchuti@kku.ac.th"))
+    row=len(models.EdMember.objects.filter(email=email).filter(status="ACTIVE"))
 
     if row >= 1:
         status=0
     else:
         status=1
     data={
-        'status':status,
-        'row':row,
-        'email':email
+        'status':status
     }
     return JsonResponse(data)
 
@@ -3173,7 +3173,7 @@ def get_email(request):
 
     member=[]
     if email:
-        member=models.EdMember.objects.filter(email__contains=email).filter(user_type_id=2).exclude(id=c.teacher_id)
+        member=models.EdMember.objects.filter(email__icontains=email).filter(user_type_id=2).exclude(id=c.teacher_id)
         for x in d:
             member=member.exclude(id=x.member_id)
         member=member[:5]
@@ -3268,9 +3268,11 @@ def update_user(request):
                 'status':1
             }
         return JsonResponse(data)
-    elif search:
-        member=models.EdMember.objects.filter(Q(email__contains=search) | Q(firstname__contains=search)).select_related('user_type').order_by('-status')
+    elif search or search=="":
+        member=models.EdMember.objects.filter(Q(email__icontains=search) | Q(firstname__icontains=search)).select_related('user_type').order_by('-status')
         member=member.exclude(status="DELETE")
+        member=member.exclude(user_type=3)
+        member=member[:50]
         list=[]
         for i in member:
             list.append({'id':i.id,'email':i.email,'firstname':i.firstname,'lastname':i.lastname,'user_type':i.user_type.title,'status':i.status})
@@ -3282,6 +3284,8 @@ def update_user(request):
     else:
         member=models.EdMember.objects.all().select_related('user_type').order_by('-status')
         member=member.exclude(status="DELETE")
+        member=member.exclude(user_type=3)
+        member=member[:50]
         list=[]
         for i in member:
             list.append({'id':i.id,'email':i.email,'firstname':i.firstname,'lastname':i.lastname,'user_type':i.user_type.title,'status':i.status})

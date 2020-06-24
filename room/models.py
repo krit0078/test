@@ -31,7 +31,7 @@ class EdMember(models.Model):
     password = models.CharField(max_length=45)
     firstname = models.CharField(max_length=100,blank=True,null=True)
     lastname = models.CharField(max_length=100,blank=True,null=True)
-    email = models.CharField(max_length=225,db_index=True)
+    email = models.CharField(max_length=225)
     picture = models.CharField(max_length=512,default='/uploads/0/img/user.png', blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
     user_type=models.ForeignKey(EdUserType, models.DO_NOTHING,blank=True,null=True, related_name='user_type')
