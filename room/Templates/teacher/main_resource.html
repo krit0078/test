@@ -25,7 +25,7 @@
                         <div class="col-md-12 form-group">
                             <div class="form-control" contenteditable="" data-placeholder="ประกาศ..."
                                 style="min-height: 50px;height:auto;" id="steam_div" aria-autocomplete="none">
-                              
+
                             </div>
                         </div>
                         <div class="col-12">
@@ -42,7 +42,7 @@
                             </div>
                         </div>
                         <div class="col-md-12 mt-1 form-group text-right">
-               
+
 
                             <div class="btn-group d-none">
                                 <button type="button" class="btn btn-light" data-toggle="dropdown" data-display="static"
@@ -97,9 +97,11 @@
                         </div>
                     </div>
                     <div class="w-100"></div>
-                    <div class="col-12"><hr></div>
+                    <div class="col-12">
+                        <hr>
+                    </div>
                     {% if i.description %}
-                    <div class="col-12 steam" style="min-height: 90px;">                        
+                    <div class="col-12 steam" style="min-height: 90px;">
                         {{i.description | safe}}
                     </div>
                     {% endif %}
@@ -344,42 +346,42 @@
 
             return false;
         }).on('paste', function (e) {
-            let url=check_http(e);
-            load_og(url,'resource');
+            let url = check_http(e);
+            load_og(url, 'resource');
         });
 
     });
 
-        $('#insert_video').keypress(function (e) {
+    $('#insert_video').keypress(function (e) {
 
-            if (e.which == 13) {
-                let show_file = $('#show_file');
-                let val = $(this).val();
-                $(this).val("");
-                // let txt = "<a class='btn-link' href='" + $(this).val() + "' target='_blank'>" + $(this).val() + "</button>";
+        if (e.which == 13) {
+            let show_file = $('#show_file');
+            let val = $(this).val();
+            $(this).val("");
+            // let txt = "<a class='btn-link' href='" + $(this).val() + "' target='_blank'>" + $(this).val() + "</button>";
 
-                $.ajax('/ajax/fetch_og', {
-                    method: 'GET',
-                    data: { 'url': val, 'target': 'resource' },
-                    dataType: 'json',
-                    success: function (data) {
-                        let d = data.og;
-                        let txt = "<a href='" + d.url + "' style='text-decoration: none;color: #000;' target='_blank'><div class='row no-gutters rounded opengraph mb-2'>";
-                        txt += "<div class='col-3'><img src='" + d.image + "' style='width: 100%;'></div>";
-                        txt += "<div class='col-9 p-3 bg-light'><h5>" + d.title + "</h5><p>" + d.description + "</p></div></div>";
-                        txt += "<input type='hidden' name='link_id[]' value='" + d.id + "'></a>";
-                        console.log(data);
-                        show_file.append(txt);
-                    },
-                    error: function () {
-                        alert("ไม่สามารถโหลดข้อมูลได้");
-                    }
-                });
-                return false;
-            }
-        });
+            $.ajax('/ajax/fetch_og', {
+                method: 'GET',
+                data: { 'url': val, 'target': 'resource' },
+                dataType: 'json',
+                success: function (data) {
+                    let d = data.og;
+                    let txt = "<a href='" + d.url + "' style='text-decoration: none;color: #000;' target='_blank'><div class='row no-gutters rounded opengraph mb-2'>";
+                    txt += "<div class='col-3'><img src='" + d.image + "' style='width: 100%;'></div>";
+                    txt += "<div class='col-9 p-3 bg-light'><h5>" + d.title + "</h5><p>" + d.description + "</p></div></div>";
+                    txt += "<input type='hidden' name='link_id[]' value='" + d.id + "'></a>";
+                    console.log(data);
+                    show_file.append(txt);
+                },
+                error: function () {
+                    alert("ไม่สามารถโหลดข้อมูลได้");
+                }
+            });
+            return false;
+        }
+    });
 
-        function load_modal(id) {
+    function load_modal(id) {
         let action = "/api/resource/classroom/{{course.id}}/task/{{task.0.id}}/id/" + id;
         let method = "GET";
         let data = JSON.stringify("");
@@ -445,27 +447,32 @@
     }
 
     function delete_model(id) {
-        let action = "/api/resource/classroom/{{course.id}}/task/{{task.0.id}}/id/" + id;
-        let method = "PUT";
-        let data = JSON.stringify({ 'status': 'DELETE' });
-        let resource = "#resource_" + id;
-        let resource_id = $(resource);
+        c = confirm("ยืนยันว่าจะลบแหล่งเรียนรู้หรือไม่");
+        if (c) {
+            let action = "/api/resource/classroom/{{course.id}}/task/{{task.0.id}}/id/" + id;
+            let method = "PUT";
+            let data = JSON.stringify({ 'status': 'DELETE' });
+            let resource = "#resource_" + id;
+            let resource_id = $(resource);
 
-        $.ajax({
-            type: method,
-            url: action,
-            data: data,
-            dataType: 'json',
-            success: function (data) {
-                resource_id.fadeOut(500, function () { $(this).remove(); });
-            },
-            conplete: function (xhr, textStatus) {
-                console.log(xhr);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR);
-            }
-        });
+            $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    resource_id.fadeOut(500, function () { $(this).remove(); });
+                },
+                conplete: function (xhr, textStatus) {
+                    console.log(xhr);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(jqXHR);
+                }
+            });
+        } else {
+            return false;
+        }
     }
 
 

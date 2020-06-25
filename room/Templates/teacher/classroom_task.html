@@ -12,7 +12,7 @@
                 <div class="col mb-2 rounded shadow-sm border p-3 bg-white">
                     <h5 class="text-center">ภารกิจทั้งหมด</h5>
                     <hr>
-                    <h5 class="text-success text-center">{{total_task}}</h5>
+                    <h5 class="text-success text-center total_task">{{total_task}}</h5>
                 </div>
             </div>
             <div class="col-md-8">
@@ -98,7 +98,9 @@
                         </div>
                         <div class="w-100"></div>
                         {% if i.description %}
-                        <div class="col-12"><hr></div>
+                        <div class="col-12">
+                            <hr>
+                        </div>
                         <div class="col-12 steam" style="min-height: 90px;">
                             {{i.description | safe}}
                         </div>
@@ -431,6 +433,7 @@
         let data = JSON.stringify({ 'description': d.html() });
         let task = "#task_" + id + " .steam";
         let task_id = $(task);
+        
 
         $.ajax({
             type: method,
@@ -451,27 +454,36 @@
     }
 
     function delete_task(id) {
-        let action = "/api/task/classroom/{{course.id}}/id/" + id;
-        let method = "PUT";
-        let data = JSON.stringify({ 'status': 'DELETE' });
-        let task = "#task_" + id;
-        let task_id = $(task);
+        c = confirm("ยืนยันว่าจะลบแหล่งเรียนรู้หรือไม่");
+        if (c) {
+            let action = "/api/task/classroom/{{course.id}}/id/" + id;
+            let method = "PUT";
+            let data = JSON.stringify({ 'status': 'DELETE' });
+            let task = "#task_" + id;
+            let task_id = $(task);
+            let total_task=$(".total_task");
+            let t=total_task.text();
 
-        $.ajax({
-            type: method,
-            url: action,
-            data: data,
-            dataType: 'json',
-            success: function (data) {
-                task_id.fadeOut(500, function () { $(this).remove(); });
-            },
-            conplete: function (xhr, textStatus) {
-                console.log(xhr);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR);
-            }
-        });
+            $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    task_id.fadeOut(500, function () { $(this).remove(); });
+                    t=t-1;
+                    total_task.text(t);
+                },
+                conplete: function (xhr, textStatus) {
+                    console.log(xhr);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(jqXHR);
+                }
+            });
+        } else {
+            return false;
+        }
     }
 
 </script>
