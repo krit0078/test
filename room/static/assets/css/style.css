@@ -1508,11 +1508,11 @@ section {
   height: auto;
 }
 
-#steam_div a, .reply_div a,.comment-text a{
+#steam_div a, .reply_div a,.comment-text a, .data a{
   color: #007bff;
 }
 
-#steam_div a:hover, .reply_div a:hover, .comment-text a:hover{
+#steam_div a:hover, .reply_div a:hover, .comment-text a:hover, .data a:hover{
   color: #0056b3;
 }
 

@@ -3368,3 +3368,83 @@ def fetch_og(request):
         'og':{'id':og.id,'title':og.title,'image':og.image,'url':og.url,'description':og.description}
     }
     return JsonResponse(data)
+
+from rest_framework.decorators import api_view
+from room import serializers
+from rest_framework.response import Response
+from rest_framework.parsers import JSONParser
+from rest_framework import status
+
+@api_view(['GET'])
+def api_task_list(request,classroom_id):
+    if request.method == 'GET':
+        task=models.EdTask.objects.filter(course_id=classroom_id)
+        task_serial=serializers.EdTaskSerializer(task,many=True)
+        return JsonResponse(task_serial.data, safe=False)
+
+@api_view(['GET', 'POST', 'PUT'])
+def api_task_detail(request,classroom_id,task_id):
+    try: 
+        task=models.EdTask.objects.get(id=task_id)
+    except models.EdTask.DoesNotExist: 
+        return JsonResponse({'message': 'The task does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+
+    #check login
+    try:
+        member_id=request.session['member_id']
+    except:
+        return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)  
+
+    #check owner
+    if check_owner(classroom_id,member_id):
+        return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)  
+
+    #check owner task
+    if check_owner_task(classroom_id,task_id):
+        return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)
+
+    if request.method == "GET":
+        task_serial=serializers.EdTaskSerializer(task)
+        return JsonResponse(task_serial.data)
+
+    elif request.method == 'PUT':
+
+        task_data = JSONParser().parse(request)
+        task_serial=serializers.EdTaskSerializer(task,data=task_data)
+        if task_serial.is_valid():
+            task_serial.save()
+            return JsonResponse(task_serial.data)
+        return JsonResponse(task_serial.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST', 'PUT'])
+def api_resource_detail(request,classroom_id,task_id,resource_id):
+    try: 
+        resource=models.EdResource.objects.get(id=resource_id)
+    except models.EdResource.DoesNotExist: 
+        return JsonResponse({'message': 'The resource does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+    
+    #check login
+    try:
+        member_id=request.session['member_id']
+    except:
+        return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)  
+
+    #check owner
+    if check_owner(classroom_id,member_id):
+        return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)  
+
+    #check owner task
+    if check_owner_task(classroom_id,task_id):
+        return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)
+
+    if request.method == "GET":
+        resource_serial=serializers.EdResourceSerializer(resource)
+        return JsonResponse(resource_serial.data)
+
+    elif request.method == "PUT":
+        resource_data = JSONParser().parse(request)
+        resource_serial=serializers.EdResourceSerializer(resource,data=resource_data)
+        if resource_serial.is_valid():
+            resource_serial.save()
+            return JsonResponse(resource_serial.data)
+        return JsonResponse(resource_serial.errors, status=status.HTTP_400_BAD_REQUEST)
