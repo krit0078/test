@@ -11,6 +11,7 @@ urlpatterns = [
     path('viewcourse/',views.viewcourse),
     path('profile/',views.profile),
     path('dashboard/',views.dashboard),
+    path('overview/',views.overview),
     path('classroom/<int:classroom_id>/',views.classroom),
     path('classroom/<int:classroom_id>/steam/<int:steam_id>',views.delete_steam),
     path('classroom/<int:classroom_id>/task/',views.classroom_task),
@@ -38,7 +39,7 @@ urlpatterns = [
     path('ajax/update_cover',views.update_cover),
     path('ajax/fetch_og',views.fetch_og),
     path('ajax/update_user',views.update_user),
-    # path('api/task/classroom/<int:classroom_id>',views.api_task_list),
     path('api/task/classroom/<int:classroom_id>/id/<int:task_id>',views.api_task_detail),
     path('api/resource/classroom/<int:classroom_id>/task/<int:task_id>/id/<int:resource_id>',views.api_resource_detail),
+    path('api/member/<str:command>',views.api_member_detail)
 ]

@@ -1,0 +1,310 @@
+{% extends 'admins/base.html' %}
+
+{% block content %}
+<section class="bg-white">
+    <div class="container">
+        <div class="row mb-4">
+            {% include 'admins/nav.html' %}
+        </div>
+    </div>
+</section>
+<section style="padding-top: 30px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-7 bg-white" style="min-height: 400px;">
+                <img src="/static/assets/img/users-01.png" class="img-fluid">
+            </div>
+            <div class="col-md-5">
+                <h4 class="text-center">จำนวนผู้ใช้งานทั้งหมด</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">รายการ</th>
+                                <th scope="col" class="text-center">จำนวน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="total_member">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section-bg" style="padding-top: 30px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5">
+                <h4 class="text-center">จำนวนผู้สมัครสมาชิกแต่ละเดือน</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">รายการ</th>
+                                <th scope="col" class="text-center">จำนวน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="register_member">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-7" style="min-height: 400px;">
+                <canvas id="register_chart_div"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+<section style="padding-top: 30px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-7" style="min-height: 400px;">
+                <canvas id="type_chart_div"></canvas>
+            </div>
+            <div class="col-md-5">
+                <h4 class="text-center">ผู้ใช้งานแยกตามประเภทผู้ใช้งาน</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">รายการ</th>
+                                <th scope="col" class="text-center">จำนวน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="member_type">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section style="padding-top: 30px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-7" style="min-height: 400px;">
+                <canvas id="catagory_chart_div"></canvas>
+            </div>
+            <div class="col-md-5">
+                <h4 class="text-center">ผู้ใช้งานแยกตามระดับ</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">รายการ</th>
+                                <th scope="col" class="text-center">จำนวน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="member_catagory">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section-bg" style="padding-top: 30px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5">
+                <h4 class="text-center">จำนวนผู้สมัครสมาชิกแต่ละเดือน</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">รายการ</th>
+                                <th scope="col" class="text-center">จำนวน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="register_classroom">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-7" style="min-height: 400px;">
+                <canvas id="register_room_chart"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        member_list();
+        register_list();
+        member_type();
+        member_catagory();
+    });
+
+    function member_list() {
+        action = "/api/member/total";
+        method = "GET";
+        data = JSON.stringify({ "asd": "asd" });
+
+        $.ajax({
+            type: method,
+            url: action,
+            data: data,
+            success: function (data) {
+                let html = "";
+                html += "<tr><th scope='row'>1</th><td>จำนวนผู้ใช้งานทั้งหมด</td><td class='text-center'>" + data.total + "</td></tr>";
+                $("#total_member").html(html);
+            }
+        });
+
+
+    }
+    function register_list() {
+        action = "/api/member/register";
+        method = "GET";
+        data = JSON.stringify({ "asd": "asd" });
+
+        $.ajax({
+            type: method,
+            url: action,
+            data: data,
+            success: function (data) {
+                let html = "";
+                let i = 1;
+                let m = [];
+                let a = [];
+                for (let x in data) {
+                    let d = new Date(data[x].month);
+                    html += "<tr><th scope='row'>" + i + "</th><td>" + months_th[d.getMonth()] + "</td><td class='text-center'>" + data[x].c + "</td></tr>";
+                    i = i + 1;
+                    m.push(months_th[d.getMonth()]);
+                    a.push(data[x].c);
+                }
+                $("#register_member").html(html);
+                create_total_member(m, a);
+            }
+        });
+    }
+
+    function member_catagory() {
+        action = "/api/member/member_catagory";
+        method = "GET";
+        data = JSON.stringify({ "asd": "asd" });
+
+        $.ajax({
+            type: method,
+            url: action,
+            data: data,
+            success: function (data) {
+                let html = "";
+                let i = 1;
+                let m = [];
+                let a = [];
+                for (let x in data) {
+                    html += "<tr><th scope='row'>" + i + "</th><td>" + data[x].catagory + "</td><td class='text-center'>" + data[x].total + "</td></tr>";
+                    i = i + 1;
+                    m.push(data[x].catagory);
+                    a.push(data[x].total);
+                }
+                $("#member_catagory").html(html);
+                create_member_type(m, a);
+            }
+        });
+
+    }
+
+    function member_type() {
+        action = "/api/member/member_type";
+        method = "GET";
+        data = JSON.stringify({ "asd": "asd" });
+
+        $.ajax({
+            type: method,
+            url: action,
+            data: data,
+            success: function (data) {
+                let html = "";
+                let i = 1;
+                let m = [];
+                let a = [];
+                for (let x in data) {
+                    html += "<tr><th scope='row'>" + i + "</th><td>" + data[x].user_type + "</td><td class='text-center'>" + data[x].total + "</td></tr>";
+                    i = i + 1;
+                    m.push(data[x].user_type);
+                    a.push(data[x].total);
+                }
+                $("#member_type").html(html);
+                const member_type = document.getElementById('type_chart_div').getContext('2d');
+                var myPieChart = new Chart(member_type, {
+                    type: 'pie',
+                    data: data = {
+                        datasets: [{
+                            data: a,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'],
+                        }],
+
+                        // These labels appear in the legend and in the tooltips when hovering different arcs
+                        labels: m
+                    },
+                    options: {}
+                });
+            }
+        });
+    }
+
+    function create_total_member(month, data) {
+        var ctx = document.getElementById('register_chart_div').getContext('2d');
+        var chart = new Chart(ctx, {
+            // The type of chart we want to create
+            type: 'bar',
+
+            // The data for our dataset
+            data: {
+                labels: month,
+                datasets: [{
+                    label: 'จำนวนผู้สมัครสมาชิกแต่ละเดือน',
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    data: data
+                }]
+            },
+
+            // Configuration options go here
+            options: {}
+        });
+    }
+
+    function create_member_type(cat, data) {
+        const member_type = document.getElementById('catagory_chart_div').getContext('2d');
+        var myPieChart = new Chart(member_type, {
+            type: 'pie',
+            data: data = {
+                datasets: [{
+                    data: data,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'],
+                }],
+
+                // These labels appear in the legend and in the tooltips when hovering different arcs
+                labels: cat
+            },
+            options: {}
+        });
+    }
+</script>
+{% endblock %}

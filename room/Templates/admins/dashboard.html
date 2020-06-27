@@ -4,23 +4,15 @@
 <section class="section-bg">
     <div class="container">
         <div class="row mb-3">
-            <form>
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <input type="text" class="form-control" id="search" placeholder="ค้นหา">
-                    </div>
-                    <div class="col-md-6 form-group">
-                        <select class="custom-select my-1 mr-sm-2">
-                            <option value="NONE" selected>ตัวกรอง</option>
-                            <option value="email">อีเมลล์</option>
-                            <option value="firstname">ชื่อ</option>
-                            <option value="status">สถานะ</option>
-                        </select>
-                    </div>
-                </div>
-            </form>
+            {% include 'admins/nav.html' %}
+        </div>
+        <div class="form-row mb-4">
+            <div class="col-md-3">
+                <input type="text" class="form-control mr-2" id="search" placeholder="ค้นหา">
+            </div>
         </div>
         <div class="row">
+
             <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>
@@ -35,7 +27,7 @@
                         </tr>
                     </thead>
                     <tbody id="data">
-                        
+
                     </tbody>
                 </table>
             </div>
@@ -143,7 +135,7 @@
 
         get_email();
 
-        function get_email(search=""){
+        function get_email(search = "") {
             const show = $('#data');
             $.ajax({
                 type: method,

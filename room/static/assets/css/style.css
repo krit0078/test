@@ -12,11 +12,20 @@
   font-family: kanit;
   src: url("../kanit/Kanit-Regular.ttf");
 }
+html{
+  overflow: hidden;
+  height: 100%;
+}
 
 body {
   font-family: "kanit", sans-serif;
   color: #444444;
+  overflow: auto;
+  height: 100%;
 }
+.modal-open {
+  overflow: auto; 
+ }
 
 a {
   color: #ff4d94;

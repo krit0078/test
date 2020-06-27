@@ -439,6 +439,14 @@ def dashboard(request):
         }
         return render(request,'admins/dashboard.html',context)
 
+def overview(request):
+    if request.session['type'] == 'ADMIN':
+        title="ข้อมูลภาพรวม"
+        context={
+            'title':title,
+        }
+        return render(request,'admins/overview.html',context)
+
 def profile(request):
     #check session
     if 'email'not in request.session:
@@ -3448,3 +3456,49 @@ def api_resource_detail(request,classroom_id,task_id,resource_id):
             resource_serial.save()
             return JsonResponse(resource_serial.data)
         return JsonResponse(resource_serial.errors, status=status.HTTP_400_BAD_REQUEST)
+
+from django.db.models.functions import TruncMonth
+from django.db.models import Count
+@api_view(['GET', 'POST', 'PUT'])
+def api_member_detail(request,command):
+    
+    if request.method == "GET":
+        try:
+            admin=request.session['type']
+        except:
+            return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)
+
+        if admin == 'ADMIN':
+            if command == 'register':
+                total_member=models.EdMember.objects.annotate(month=TruncMonth('timestamp')).values('month').annotate(c=Count('id')).values('month', 'c')[:12]
+                dict={}
+                i=0
+                for x in total_member:
+                    dict.update({i:x})
+                    i=i+1
+                return JsonResponse(dict)
+            elif command=="total":
+                row=len(models.EdMember.objects.all())
+                return JsonResponse({"total":row})
+            elif command == 'member_catagory':
+                type_m=models.EdMember.objects.values('catagory').annotate(total=Count('id'))
+                dict={}
+                i=0
+                for x in type_m:
+                    cat=models.EdSubLevel.objects.get(id=x['catagory'])
+                    dict.update({i:{'catagory':cat.title,'total':x['total']}})
+                    i=i+1
+                return JsonResponse(dict)
+            elif command == "member_type":
+                type_m=models.EdMember.objects.values('user_type').annotate(total=Count('id'))
+                dict={}
+                i=0
+                for x in type_m:
+                    t=models.EdUserType.objects.get(id=x['user_type'])
+                    dict.update({i:{'user_type':t.title,'total':x['total']}})
+                    i=i+1
+                return JsonResponse(dict)
+            else:
+                return JsonResponse({'message':'Bad request'},status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)

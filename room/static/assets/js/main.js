@@ -129,6 +129,10 @@
 
 })(jQuery);
 
+var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+var months_th = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม",];
+var months_th_mini = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค.",];
+
 function check_http(e) {
   let paste = (event.clipboardData || window.clipboardData).getData('text');
 
@@ -136,7 +140,7 @@ function check_http(e) {
   let regex = new RegExp(expression);
 
   const selection = window.getSelection();
-  let url=""
+  let url = ""
   if (paste.match(regex)) {
     url = paste;
     let pattern = /^((http|https|ftp):\/\/)/;
@@ -162,24 +166,24 @@ function check_http(e) {
   return url;
 }
 
-function load_og(url,target){
+function load_og(url, target) {
   let show_file = $('#show_file');
   $.ajax('/ajax/fetch_og', {
-          method: 'GET',
-          data: { 'url': url, 'target': target },
-          dataType: 'json',
-          success: function (data) {
-              let d = data.og;
-              let txt = "<a href='" + d.url + "' style='text-decoration: none;color: #000;' target='_blank'><div class='row no-gutters rounded opengraph mb-2'>";
-              txt += "<div class='col-3'><img src='" + d.image + "' style='width: 100%;'></div>";
-              txt += "<div class='col-9 p-3 bg-light'><h5>" + d.title + "</h5><p>" + d.description + "</p></div></div>";
-              txt += "<input type='hidden' name='link_id[]' value='" + d.id + "'></a>";
-              console.log(data);
-              show_file.append(txt);
-          },
-          error: function () {
-              // alert("ไม่สามารถโหลดข้อมูลได้");
-          }
-      });
+    method: 'GET',
+    data: { 'url': url, 'target': target },
+    dataType: 'json',
+    success: function (data) {
+      let d = data.og;
+      let txt = "<a href='" + d.url + "' style='text-decoration: none;color: #000;' target='_blank'><div class='row no-gutters rounded opengraph mb-2'>";
+      txt += "<div class='col-3'><img src='" + d.image + "' style='width: 100%;'></div>";
+      txt += "<div class='col-9 p-3 bg-light'><h5>" + d.title + "</h5><p>" + d.description + "</p></div></div>";
+      txt += "<input type='hidden' name='link_id[]' value='" + d.id + "'></a>";
+      console.log(data);
+      show_file.append(txt);
+    },
+    error: function () {
+      // alert("ไม่สามารถโหลดข้อมูลได้");
+    }
+  });
 
 }
