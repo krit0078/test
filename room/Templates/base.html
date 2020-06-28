@@ -9,7 +9,7 @@
   <title>{{title}}</title>
   <meta content="" name="descriptison">
   <meta content="Edulearn" name="keywords">
-  <meta property="og:title" content="Edulearn"/>
+  <meta property="og:title" content="Edulearn" />
   <meta property="og:type" content="web" />
   <meta property="og:url" content="http://edulearn.ednopark.com/" />
   <meta property="og:image" content="http://edulearn.ednopark.com/static/assets/img/online.png" />
@@ -38,22 +38,22 @@
 
 <body>
 
-  <!-- ======= Header ======= -->
-  <header id="header">
-    <div class="container d-flex align-items-center">
-
-      <div class="logo mr-auto col-md-5 col-9">
-        <a href="/index/"><img src="/static/assets/img/logo2.png"></a>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark" id="header">
+    <div class="container">
+      <a class="navbar-brand" href="/index/"><img src="/static/assets/img/logo2.png" class="d-md-block d-none"
+          style="width: 400px;"><span class="d-block d-md-none pl-2">Edulearn</span></a>
+      <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav ml-auto align-items-center">
+          <a class="nav-item nav-link pl-2" href="/register">สมัครสมาชิก</a>
+          <a class="nav-item btn-get-started" href="/login">เข้าสู่ระบบ</a>
+        </div>
       </div>
-      <nav class="nav-menu d-none d-lg-block">
-        <ul>
-          <li class="pt-1"><a href="/register">สมัครสมาชิก</a></li>
-          <li class="get-started"><a href="/login">เข้าสู่ระบบ</a></li>
-        </ul>
-      </nav><!-- .nav-menu -->
-
     </div>
-  </header><!-- End Header -->
+  </nav>
 
   {% block content %}
 
@@ -69,7 +69,8 @@
         <div class="row  justify-content-center">
           <div class="col-lg-6">
             <h3>EduLearn</h3>
-            <p>เปลี่ยนชั้นเรียนของคุณให้เป็นสิ่งแวดล้อมการเรียนรู้สำหรับการศึกษาดิจิทัล ด้วยระบบบริหารจัดการชั้นเรียนแบบสมาร์ทของเรา</p>
+            <p>เปลี่ยนชั้นเรียนของคุณให้เป็นสิ่งแวดล้อมการเรียนรู้สำหรับการศึกษาดิจิทัล
+              ด้วยระบบบริหารจัดการชั้นเรียนแบบสมาร์ทของเรา</p>
           </div>
         </div>
 

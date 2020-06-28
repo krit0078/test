@@ -75,7 +75,7 @@ h1, h2, h3, h4, h5, h6 {
 # Header
 --------------------------------------------------------------*/
 #header {
-  height: 80px;
+  height: auto;
   transition: all 0.5s;
   z-index: 997;
   transition: all 0.5s;
@@ -94,6 +94,13 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: 3px;
   text-transform: uppercase;
   font-family: "kanit", sans-serif;
+}
+
+#header a{
+  color: #efefef;;
+}
+#header a:hover{
+  color: #fff;;
 }
 
 #dashboard{
@@ -270,6 +277,22 @@ nav-menu, .nav-menu * {
 .nav-menu .get-started a:hover {
   background: #fff;
   color: #213b52;
+
+}
+
+.btn-get-started{
+  background: #fb4c44;
+  color: #fff;
+  border-radius: 50px;
+  margin: 2px 0 0 15px;
+  padding: 10px 25px 10px 25px;
+  border: 2px solid #ffffff;
+  padding: 10px 25px;
+}
+
+.btn-get-started:hover{
+  background: #fff;
+  color: #213b52 !important;
 
 }
 

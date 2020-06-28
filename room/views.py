@@ -310,6 +310,9 @@ def dashboard(request):
                     i = i+1
 
             if class_name:
+                if catagory == None:
+                    return JsonResponse({"message":"please select catagory"})
+
                 uid = generate()
 
                 add_class=models.EdCourse(course_name=class_name,description=class_description,catagory_id=catagory,uid=uid,teacher_id=member.id)
@@ -3517,3 +3520,10 @@ def api_member_detail(request,command):
                 return JsonResponse({'message':'Bad request'},status=status.HTTP_400_BAD_REQUEST)
         else:
             return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)
+
+@api_view(['GET'])
+def api_level(request):
+    if request.method == "GET":
+        level=models.EdLevel.objects.all()
+        serial_level=serializers.EdLevelSerializer(level,many=True)
+        return JsonResponse(serial_level.data,safe=False)

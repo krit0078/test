@@ -34,24 +34,20 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light" id="dashboard">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark" id="header">
     <div class="container">
-      <div class="logo mr-auto col-md-5 col-9">
-        <a href="/index/"><img src="/static/assets/img/logo2.png"></a>
-      </div>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <a class="navbar-brand" href="/index/"><img src="/static/assets/img/logo2.png" class="d-md-block d-none"
+          style="width: 400px;"><span class="d-block d-md-none pl-2">Edulearn</span></a>
+      <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto align-items-center">
-          <!-- <li class="nav-item"><a class="nav-link" href="#"><i class='bx bxs-bell-ring'></i></a></li> -->
-          <li class="nav-item"><a class="nav-link" href="/profile"> <img class="img-profile rounded-circle"
-                src="{{member.picture}}"> {{member.firstname|truncatechars:50}} {{member.lastname|truncatechars:50}}</a>
-          </li>
-          <li class="nav-item"><a class="nav-link" href="/logout">ออกจากระบบ</a></li>
-        </ul>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav ml-auto align-items-center">
+          <a class="nav-item nav-link pl-2" href="/profile"><img class="img-profile rounded-circle"
+              src="{{member.picture}}"> {{member.firstname|truncatechars:50}} {{member.lastname|truncatechars:50}}</a>
+          <a class="nav-item nav-link pl-2" href="/logout">ออกจากระบบ</a>
+        </div>
       </div>
     </div>
   </nav>

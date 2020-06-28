@@ -10,3 +10,8 @@ class EdResourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.EdResource
         fields = ('id','description','timestamp','status')
+
+class EdLevelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.EdLevel
+        fields = ('id','prefix','title')
