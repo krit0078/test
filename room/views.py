@@ -440,10 +440,13 @@ def dashboard(request):
         return render(request,'admins/dashboard.html',context)
 
 def overview(request):
+    member_id=request.session['member_id']
+    member=get_member(member_id)
     if request.session['type'] == 'ADMIN':
         title="ข้อมูลภาพรวม"
         context={
             'title':title,
+            'member':member,
         }
         return render(request,'admins/overview.html',context)
 
@@ -3496,6 +3499,18 @@ def api_member_detail(request,command):
                 for x in type_m:
                     t=models.EdUserType.objects.get(id=x['user_type'])
                     dict.update({i:{'user_type':t.title,'total':x['total']}})
+                    i=i+1
+                return JsonResponse(dict)
+            elif command == "total_room":
+                total_room=len(models.EdCourse.objects.all().exclude(status="DELETE"))
+                return JsonResponse({'total':total_room})
+            elif command == "catagory_room":
+                catagory_room=models.EdCourse.objects.exclude(catagory=None).exclude(status="DELETE").values('catagory').annotate(total=Count('id'))
+                dict={}
+                i=0
+                for x in catagory_room:
+                    cat=models.EdSubLevel.objects.get(id=x['catagory'])
+                    dict.update({i:{'catagory':cat.title,'total':x['total']}})
                     i=i+1
                 return JsonResponse(dict)
             else:

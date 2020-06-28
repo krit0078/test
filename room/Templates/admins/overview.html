@@ -11,10 +11,10 @@
 <section style="padding-top: 30px;">
     <div class="container">
         <div class="row">
-            <div class="col-md-7 bg-white" style="min-height: 400px;">
+            <div class="col-md-7 order-2 order-md-1 bg-white" style="min-height: 400px;">
                 <img src="/static/assets/img/users-01.png" class="img-fluid">
             </div>
-            <div class="col-md-5">
+            <div class="col-md-5 order-1 order-md-2">
                 <h4 class="text-center">จำนวนผู้ใช้งานทั้งหมด</h4>
                 <div class="table-responsive">
                     <table class="table table-striped">
@@ -61,10 +61,10 @@
 <section style="padding-top: 30px;">
     <div class="container">
         <div class="row">
-            <div class="col-md-7" style="min-height: 400px;">
+            <div class="col-md-7 order-2 order-md-1" style="min-height: 400px;">
                 <canvas id="type_chart_div"></canvas>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-5 order-1 order-md-2">
                 <h4 class="text-center">ผู้ใช้งานแยกตามประเภทผู้ใช้งาน</h4>
                 <div class="table-responsive">
                     <table class="table table-striped">
@@ -86,10 +86,10 @@
 <section style="padding-top: 30px;">
     <div class="container">
         <div class="row">
-            <div class="col-md-7" style="min-height: 400px;">
+            <div class="col-md-7 order-2 order-md-1" style="min-height: 400px;">
                 <canvas id="catagory_chart_div"></canvas>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-5 order-1 order-md-2">
                 <h4 class="text-center">ผู้ใช้งานแยกตามระดับ</h4>
                 <div class="table-responsive">
                     <table class="table table-striped">
@@ -111,8 +111,8 @@
 <section class="section-bg" style="padding-top: 30px;">
     <div class="container">
         <div class="row">
-            <div class="col-md-5">
-                <h4 class="text-center">จำนวนผู้สมัครสมาชิกแต่ละเดือน</h4>
+            <div class="col-md-6">
+                <h4 class="text-center">จำนวนห้องเรียนทั้งหมด</h4>
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
@@ -122,13 +122,38 @@
                                 <th scope="col" class="text-center">จำนวน</th>
                             </tr>
                         </thead>
-                        <tbody id="register_classroom">
+                        <tbody id="total_room">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-6" style="min-height: 400px;">
+                <img class="img-fluid" src="/static/assets/img/classroom-01.png">
+            </div>
+        </div>
+    </div>
+</section>
+<section style="padding-top: 30px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5">
+                <h4 class="text-center">จำนวนห้องเรียนแยกตามระดับ</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">รายการ</th>
+                                <th scope="col" class="text-center">จำนวน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="catagory_room">
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="col-md-7" style="min-height: 400px;">
-                <canvas id="register_room_chart"></canvas>
+                <canvas id="catagory_room_chart"></canvas>
             </div>
         </div>
     </div>
@@ -143,6 +168,8 @@
         register_list();
         member_type();
         member_catagory();
+        total_room();
+        catagory_room();
     });
 
     function member_list() {
@@ -262,6 +289,51 @@
         });
     }
 
+    function total_room() {
+        action = "/api/member/total_room";
+        method = "GET";
+        data = JSON.stringify({ "asd": "asd" });
+
+        $.ajax({
+            type: method,
+            url: action,
+            data: data,
+            success: function (data) {
+                let html = "";
+                html += "<tr><th scope='row'>1</th><td>จำนวนห้องเรียนทั้งหมด</td><td class='text-center'>" + data.total + "</td></tr>";
+                $("#total_room").html(html);
+            }
+        });
+
+    }
+
+    function catagory_room() {
+        action = "/api/member/catagory_room";
+        method = "GET";
+        data = JSON.stringify({ "asd": "asd" });
+
+        $.ajax({
+            type: method,
+            url: action,
+            data: data,
+            success: function (data) {
+                let html = "";
+                let i = 1;
+                let m = [];
+                let a = [];
+                for (let x in data) {
+                    html += "<tr><th scope='row'>" + i + "</th><td>" + data[x].catagory + "</td><td class='text-center'>" + data[x].total + "</td></tr>";
+                    i = i + 1;
+                    m.push(data[x].catagory);
+                    a.push(data[x].total);
+                }
+                $("#catagory_room").html(html);
+                create_catagory_room(m,a);
+            }
+        });
+
+    }
+
     function create_total_member(month, data) {
         var ctx = document.getElementById('register_chart_div').getContext('2d');
         var chart = new Chart(ctx, {
@@ -306,5 +378,30 @@
             options: {}
         });
     }
+
+    function create_catagory_room(cat, data) {
+        const member_type = document.getElementById('catagory_room_chart').getContext('2d');
+        var myPieChart = new Chart(member_type, {
+            type: 'pie',
+            data: data = {
+                datasets: [{
+                    data: data,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'],
+                }],
+
+                // These labels appear in the legend and in the tooltips when hovering different arcs
+                labels: cat
+            },
+            options: {}
+        });
+    }
+
+
 </script>
 {% endblock %}
