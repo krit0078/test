@@ -150,7 +150,7 @@ h1, h2, h3, h4, h5, h6 {
  
 }
 .add-classroom:hover{
-  background-image: linear-gradient(-60deg, #ff5858 0%, #f09819 100%);
+  background-image: linear-gradient(-225deg, #A445B2 0%, #D41872 52%, #FF0066 100%);
 }
 
 .add-classroom:hover>h3{

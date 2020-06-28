@@ -3484,7 +3484,7 @@ def api_member_detail(request,command):
                 row=len(models.EdMember.objects.all())
                 return JsonResponse({"total":row})
             elif command == 'member_catagory':
-                type_m=models.EdMember.objects.values('catagory').annotate(total=Count('id'))
+                type_m=models.EdMember.objects.exclude(status="DELETE").values('catagory').annotate(total=Count('id'))
                 dict={}
                 i=0
                 for x in type_m:
