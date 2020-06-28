@@ -22,3 +22,8 @@ class EdCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.EdCourse
         fields = ('id','course_name','description','catagory','catagory_name','cover_pic','uid','timestamp','status')
+
+class EdEnrolmentSerialiezer(serializers.ModelSerializer):
+    class Meta:
+        model = models.EdEnrolment
+        fields = ('id','status')

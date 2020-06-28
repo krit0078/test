@@ -13,7 +13,7 @@
 
             {% for k in enrolment %}
             {% for i in k.c %}
-            <div class="col-md-4 col-xl-3 align-items-center" id="course_{{i.id}}">
+            <div class="col-md-4 col-xl-3 align-items-center" id="enrol_{{k.id}}">
                 <a href="/classroom/{{i.id}}">
                     <div class="shadow mb-2 border card">
                         <div class="card-img">
@@ -32,7 +32,7 @@
                         aria-expanded="false"><i class='bx bx-dots-vertical-rounded'></i>
                     </a>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item cursor" onclick="delete_enrollment({{i.id}})">ลบห้องเรียน</a>
+                        <a class="dropdown-item cursor" onclick="delete_enrollment({{k.id}})">ยกเลิกการลงทะเบียน</a>
                     </div>
                 </div>
             </div>
@@ -150,5 +150,28 @@
         });
     });
 
+    function delete_enrollment(enrol_id) {
+        let url = '/api/enrolment/' + enrol_id;
+        let data = JSON.stringify({ 'status': "DELETE" });
+        let id = "#enrol_" + enrol_id;
+
+        result = confirm("คุณยืนยันว่าจะยกเลิกการลงทะเบียนหรือไม่");
+        if (result) {
+            $.ajax({
+                type: "PUT",
+                url: url,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    $(id).fadeOut(500, function () { $(this).remove(); });
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+
+                }
+            });
+        }
+
+        return false;
+    }
 </script>
 {% endblock %}

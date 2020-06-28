@@ -268,7 +268,7 @@ def dashboard(request):
                 }
             return JsonResponse(data)
         
-        enrolment=models.EdEnrolment.objects.filter(member_id=member.id).order_by("-course_id")
+        enrolment=models.EdEnrolment.objects.filter(member_id=member.id).filter(status="ACTIVE").order_by("-course_id")
         i=0
         for x in enrolment:
             course=models.EdCourse.objects.filter(id=x.course_id).filter(status="ACTIVE").select_related("teacher").order_by('-id')
@@ -3565,3 +3565,29 @@ def api_course(request,classroom_id):
         else:
             return JsonResponse(serial.errors, status=status.HTTP_400_BAD_REQUEST)
         return JsonResponse({"message":"Please enter valid value"}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST', 'PUT'])
+def api_enrolment(request,enrol_id):
+
+    #check login
+    try:
+        member_id=request.session['member_id']
+    except:
+        return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN) 
+
+    try:
+        enrolment=models.EdEnrolment.objects.get(id=enrol_id)
+    except models.EdEnrolment.DoesNotExist:
+        return JsonResponse({'message': 'The Enrolment does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+
+    #check enrolment
+    if check_enrolment(enrolment.course_id,member_id):
+        return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN) 
+    
+    if request.method=='PUT':
+        data=JSONParser().parse(request)
+        serial=serializers.EdEnrolmentSerialiezer(enrolment,data=data)
+        if serial.is_valid():
+            serial.save()
+            return JsonResponse(serial.data)
+        return JsonResponse({"asd":"ASD"})
