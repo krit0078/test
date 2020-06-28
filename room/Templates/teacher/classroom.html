@@ -58,9 +58,9 @@
                     </p>
                 </div> -->
                 <div class="col rounded shadow-sm border mb-2 p-3 d-none d-md-block bg-white">
-                    <h5 class="text-center" id="course_catagory">ระดับห้องเรียน</h5>
+                    <h5 class="text-center">ระดับห้องเรียน</h5>
                     <hr>
-                    <p class="text-center">
+                    <p class="text-center" id="course_catagory">
                         {{course.catagory.title | safe}}
                     </p>
                 </div>
@@ -416,7 +416,6 @@
                                         },
 
                                         success: function (data) {
-                                            console.log(data);
                                             if (data.status == 0) {
                                                 $alert.show().addClass('alert-success').text('You have no permission to update');
                                             }
@@ -431,7 +430,6 @@
                                         },
 
                                         error: function (data) {
-                                            console.log(data);
                                             $alert.show().addClass('alert-warning').text('Upload error');
                                         },
 
@@ -562,7 +560,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form onclick="update_catagory({{course.id}})">
+                <form onsubmit="return update_catagory({{course.id}})">
                     <div class="form-row">
                         <div class="col-md-6 form-group">
                             <select class="custom-select my-1 mr-sm-2" name="edlevel" id="id_edlevel">
@@ -582,6 +580,9 @@
                             <div class="invalid-feedback">
                                 กรุณาเลือกระดับชั้น
                             </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="loading mb-2" id="level_loading">loading</div>
                         </div>
                         <div class="col-12 text-right">
                             <button type="submit" class="btn btn-warning"><i class='bx bxs-edit'></i></i> ส่ง</button>
@@ -750,7 +751,6 @@
                 data: data,
                 dataType: 'json',
                 success: function (data) {
-                    console.log(data);
                     if (data.status == 1) {
                         window.location.replace("/classroom/{{course.id}}");
                     }
@@ -963,10 +963,10 @@
             url: '/api/level',
             dataType: 'json',
             success: function (data) {
-                html="";
-                html+="<option value='0' selected>ระดับการศึกษา</option>";
-                for(let x in data){
-                    html+="<option value="+data[x].id+">"+data[x].title+"</option>";
+                html = "";
+                html += "<option value='0' selected>ระดับการศึกษา</option>";
+                for (let x in data) {
+                    html += "<option value=" + data[x].id + ">" + data[x].title + "</option>";
                 }
                 $('#id_edlevel').html(html);
             },
@@ -974,7 +974,44 @@
         });
     }
 
-    
+    function update_catagory(course_id) {
+        let url = '/api/course/' + course_id;
+        let cat = $('#id_ed_sublevel');
+        let cat_value = cat.val();
+        let data = JSON.stringify({ 'course_name': "{{course.course_name}}", 'catagory': cat.val() });
+        let loading = $('#level_loading');
+        loading.slideDown();
+        if (cat_value != 0 && cat_value != null) {
+
+            $.ajax({
+                type: "PUT",
+                url: url,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    loading.slideUp();
+                    if ($('#id_ed_sublevel').hasClass('is-invalid')) {
+                        $('#id_ed_sublevel').removeClass('is-invalid');
+                    }
+                    $('#course_catagory').text(data.catagory_name);
+                    $('#CatagoryModal').modal('hide');
+                    $('#CatagoryModal').modal('toggle');
+
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    loading.slideUp();
+                    $('#id_ed_sublevel').addClass('is-invalid');
+                }
+            });
+        } else {
+            loading.slideUp();
+            $('#id_ed_sublevel').addClass('is-invalid');
+        }
+        return false;
+    }
+
+
 
 
 </script>

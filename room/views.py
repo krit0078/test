@@ -3527,3 +3527,35 @@ def api_level(request):
         level=models.EdLevel.objects.all()
         serial_level=serializers.EdLevelSerializer(level,many=True)
         return JsonResponse(serial_level.data,safe=False)
+
+@api_view(['GET', 'POST', 'PUT'])
+def api_course(request,classroom_id):
+
+    #check login
+    try:
+        member_id=request.session['member_id']
+    except:
+        return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)  
+
+    #check owner
+    if check_owner(classroom_id,member_id):
+        return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN) 
+
+    try: 
+        course=models.EdCourse.objects.get(id=classroom_id)
+    except models.EdCourse.DoesNotExist:
+        return JsonResponse({'message': 'The Course does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+
+    if request.method=="GET":
+        serial=serializers.EdCourseSerializer(course)
+        return JsonResponse(serial.data)
+    elif request.method == "PUT":
+        course_serial = JSONParser().parse(request)
+        if course_serial['catagory']!=0 and course_serial['catagory']!=None:
+            serial=serializers.EdCourseSerializer(course,data=course_serial)
+            if serial.is_valid():
+                serial.save()
+                return JsonResponse(serial.data)
+            return JsonResponse(serial.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return JsonResponse({"message":"Please enter catagory"}, status=status.HTTP_400_BAD_REQUEST)

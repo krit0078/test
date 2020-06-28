@@ -15,3 +15,10 @@ class EdLevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.EdLevel
         fields = ('id','prefix','title')
+
+class EdCourseSerializer(serializers.ModelSerializer):
+    catagory_name = serializers.CharField(source='catagory.title', read_only=True)
+
+    class Meta:
+        model = models.EdCourse
+        fields = ('id','course_name','description','catagory','catagory_name','cover_pic','uid','timestamp')

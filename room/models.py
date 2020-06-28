@@ -60,7 +60,6 @@ class EdCourse(models.Model):
     cover_pic = models.TextField(blank=True, null=True, default='/uploads/0/cover/cover1.png')
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     uid = models.CharField(max_length=45, blank=True, null=True,unique=True)  # Field name made lowercase.
-    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
 
     class Meta:
