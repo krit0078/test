@@ -38,12 +38,12 @@
                             <input type="hidden" name="status" value="DELETE">
                             <button type="submit" class="btn btn-danger">ปฎิเสธ</button>
                         </form>
-                        
+
 
                     </div>
                 </a>
                 {% else %}
-                <a href="/classroom/{{i.id}}">
+                <a href="/classroom/{{i.id}}" id="course_{{i.id}}">
                     <div class="shadow mb-2 border card">
                         <div class="card-img">
                             <img src="{{i.cover_pic}}">
@@ -52,6 +52,14 @@
                             <h4>{{i.course_name | truncatechars:50}}</h4>
                             <span><i class="bx bxs-user-rectangle"></i> {{i.teacher.firstname}} {{i.teacher.lastname}} |
                                 <i class='bx bxs-user'></i> จำนวนผู้เรียน : {{i.enrolment}}</span>
+                        </div>
+                    </div>
+                    <div class="dropdown" style="position: absolute;top: 10px;right: 25px;">
+                        <a class="btn btn-light" type="button" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false"><i class='bx bx-dots-vertical-rounded'></i>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item cursor" onclick="delete_course({{i.id}})">ลบห้องเรียน</a>
                         </div>
                     </div>
                 </a>
@@ -123,7 +131,6 @@
                     <div class="text-right"><button type="submit" class="btn btn-primary">สร้างห้องเรียน</button>
                 </form>
 
-                </form>
             </div>
         </div>
     </div>
@@ -132,25 +139,6 @@
 
 {% block js %}
 <script>
-    $('select#id_edlevel').change(function () {
-        const ed_sublevel = $('#id_ed_sublevel')
-        $.ajax({
-            type: "GET",
-            url: '/ajax/get_ed_sublevel',
-            data: { 'edlevel': $(this).val() },
-            dataType: 'json',
-            success: function (data) {
-                text = ""
-                for (i in data.result) {
-                    text += "<option value='" + data.result[i].id + "'>" + data.result[i].title + "</option>";
-                }
-                ed_sublevel.html(text);
-            },
-            error: function (jqXHR, textStatus, errorThrown) { errorFunction(); }
-        });
-    });
-
-
     jQuery(document).ready(function ($) {
         "use strict";
         const edlevel = $('#id_edlevel');
@@ -232,8 +220,8 @@
                 success: function (data) {
                     console.log(data);
                     if (data.status == 1) {
-                        window.location.replace('/classroom/'+data.course_id);
-                        
+                        window.location.replace('/classroom/' + data.course_id);
+
                     } else {
                         window.location.replace('/dashboard/');
                     }
@@ -245,6 +233,48 @@
         });
 
     });
+
+    $('select#id_edlevel').change(function () {
+        const ed_sublevel = $('#id_ed_sublevel')
+        $.ajax({
+            type: "GET",
+            url: '/ajax/get_ed_sublevel',
+            data: { 'edlevel': $(this).val() },
+            dataType: 'json',
+            success: function (data) {
+                text = ""
+                for (i in data.result) {
+                    text += "<option value='" + data.result[i].id + "'>" + data.result[i].title + "</option>";
+                }
+                ed_sublevel.html(text);
+            },
+            error: function (jqXHR, textStatus, errorThrown) { errorFunction(); }
+        });
+    });
+
+    function delete_course(course_id) {
+        let url = '/api/course/' + course_id;
+        let data = JSON.stringify({ 'status': "DELETE" });
+        let id = "#course_" + course_id;
+
+        result = confirm("คุณยืนยันว่าจะลบห้องเรียนหรือไม่");
+        if (result) {
+            $.ajax({
+                type: "PUT",
+                url: url,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    window.location.assign("/dashboard");
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+
+                }
+            });
+        }
+
+        return false;
+    }
 
 </script>
 {% endblock %}

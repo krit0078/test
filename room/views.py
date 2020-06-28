@@ -3551,11 +3551,17 @@ def api_course(request,classroom_id):
         return JsonResponse(serial.data)
     elif request.method == "PUT":
         course_serial = JSONParser().parse(request)
-        if course_serial['catagory']!=0 and course_serial['catagory']!=None:
-            serial=serializers.EdCourseSerializer(course,data=course_serial)
-            if serial.is_valid():
-                serial.save()
-                return JsonResponse(serial.data)
-            return JsonResponse(serial.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        if bool(course_serial.get('catagory')):
+            if course_serial['catagory']==0 or course_serial['catagory']==None:
+                return JsonResponse({"message":"Please enter catagory"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        course_serial.update({"course_name":course.course_name})
+
+        serial=serializers.EdCourseSerializer(course,data=course_serial)
+        if serial.is_valid():
+            serial.save()
+            return JsonResponse(serial.data)
         else:
-            return JsonResponse({"message":"Please enter catagory"}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(serial.errors, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse({"message":"Please enter valid value"}, status=status.HTTP_400_BAD_REQUEST)

@@ -13,7 +13,7 @@
 
             {% for k in enrolment %}
             {% for i in k.c %}
-            <div class="col-md-4 col-xl-3 align-items-center">
+            <div class="col-md-4 col-xl-3 align-items-center" id="course_{{i.id}}">
                 <a href="/classroom/{{i.id}}">
                     <div class="shadow mb-2 border card">
                         <div class="card-img">
@@ -21,11 +21,20 @@
                         </div>
                         <div class="card-detail">
                             <h4>{{i.course_name | truncatechars:50}}</h4>
-                            <span><i class="bx bxs-user-rectangle"></i> {{i.teacher.firstname}} {{i.teacher.lastname}} | <i class='bx bxs-user'></i> จำนวนผู้เรียน :
+                            <span><i class="bx bxs-user-rectangle"></i> {{i.teacher.firstname}} {{i.teacher.lastname}} |
+                                <i class='bx bxs-user'></i> จำนวนผู้เรียน :
                                 {{k.e}}</span>
                         </div>
                     </div>
                 </a>
+                <div class="dropdown" style="position: absolute;top: 10px;right: 25px;">
+                    <a class="btn btn-light" type="button" data-toggle="dropdown" aria-haspopup="true"
+                        aria-expanded="false"><i class='bx bx-dots-vertical-rounded'></i>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item cursor" onclick="delete_enrollment({{i.id}})">ลบห้องเรียน</a>
+                    </div>
+                </div>
             </div>
             {% endfor %}
             {% endfor %}
