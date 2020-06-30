@@ -133,6 +133,7 @@
                         let source = data.latest_course;
                         txt = create_card(source.id, source.course_name, source.description, source.cover_pic, source.enrolment, source.firstname, source.lastname);
                         $('#add-card').after(txt);
+                        window.location.assign(action);
                     } else if (data.status == -1) {
                         error.slideDown().html("ท่านลงทะเบียนวิชานี้แล้ว");
                     } else {

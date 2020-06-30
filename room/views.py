@@ -253,7 +253,7 @@ def dashboard(request):
                 else:
                     enrolment=models.EdEnrolment(member_id=member.id,course_id=course.id)
                     enrolment.save()
-                    enrolment=len(models.EdEnrolment.objects.filter(course_id=course.id))
+                    enrolment=len(models.EdEnrolment.objects.filter(course_id=course.id).filter(status="ACTIVE"))
 
 
                     c=course
@@ -272,7 +272,7 @@ def dashboard(request):
         i=0
         for x in enrolment:
             course=models.EdCourse.objects.filter(id=x.course_id).filter(status="ACTIVE").select_related("teacher").order_by('-id')
-            e=len(models.EdEnrolment.objects.filter(course_id=x.course_id))
+            e=len(models.EdEnrolment.objects.filter(course_id=x.course_id).filter(status="ACTIVE"))
             enrolment[i].e=e
             enrolment[i].c=course
             i=i+1
@@ -319,7 +319,7 @@ def dashboard(request):
                 add_class.save()
 
                 c=models.EdCourse.objects.latest('id')
-                enrolment=len(models.EdEnrolment.objects.filter(course_id=c.id))
+                enrolment=len(models.EdEnrolment.objects.filter(course_id=c.id).filter(status="ACTIVE"))
 
 
                 data={
@@ -361,7 +361,7 @@ def dashboard(request):
 
         i=0
         for x in course:
-            enrolment=len(models.EdEnrolment.objects.filter(course_id=x.id))
+            enrolment=len(models.EdEnrolment.objects.filter(course_id=x.id).filter(status="ACTIVE"))
             course[i].enrolment=enrolment
             i=i+1
 
@@ -406,7 +406,7 @@ def dashboard(request):
                 add_class.save()
 
                 c=models.EdCourse.objects.latest('id')
-                enrolment=len(models.EdEnrolment.objects.filter(course_id=c.id))
+                enrolment=len(models.EdEnrolment.objects.filter(course_id=c.id).filter(status="ACTIVE"))
 
 
                 data={
@@ -898,7 +898,7 @@ def classroom_task(request,classroom_id):
         task=models.EdTask.objects.filter(course_id=course.id).filter(status="ACTIVE").select_related('teacher').order_by('-id')
         total_task=len(task)
 
-        total_member=len(models.EdEnrolment.objects.filter(course_id=classroom_id))
+        total_member=len(models.EdEnrolment.objects.filter(course_id=classroom_id).filter(status="ACTIVE"))
 
         #query task file
         i=0
@@ -964,7 +964,7 @@ def classroom_score(request,classroom_id):
         #query course
         course=models.EdCourse.objects.get(id=classroom_id)
 
-        enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id)
+        enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id).filter(status="ACTIVE")
 
         #query task
         task=models.EdTask.objects.filter(course_id=classroom_id).filter(status="ACTIVE")
@@ -1026,7 +1026,7 @@ def classroom_score(request,classroom_id):
         #query course
         course=models.EdCourse.objects.get(id=classroom_id)
 
-        enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id)
+        enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id).filter(status="ACTIVE")
 
         #query task
         task=models.EdTask.objects.filter(course_id=classroom_id).filter(status="ACTIVE")
@@ -1420,7 +1420,7 @@ def main(request,classroom_id,task_id):
         #query task file
         i=0
         for x in task:
-            total_member=len(models.EdEnrolment.objects.filter(course_id=x.course_id))
+            total_member=len(models.EdEnrolment.objects.filter(course_id=x.course_id).filter(status="ACTIVE"))
             task_file=models.EdTaskFile.objects.filter(task_id=x.id).filter(status="ACTIVE")
             k=0
             for y in task_file:
@@ -1506,7 +1506,7 @@ def main_score(request,classroom_id,task_id):
         task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher').select_related('course')
 
         #query enrolment
-        enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id)
+        enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id).filter(status="ACTIVE")
 
         #query turnedin
         i=0
@@ -1589,7 +1589,7 @@ def main_score(request,classroom_id,task_id):
         task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher').select_related('course')
 
         #query enrolment
-        enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id)
+        enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id).filter(status="ACTIVE")
 
         #query turnedin
         i=0
@@ -2034,7 +2034,7 @@ def add_group(request,classroom_id,task_id):
         task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
 
         #query enrolment
-        enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id).select_related('member')
+        enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id).filter(status="ACTIVE").select_related('member')
 
         group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
 
@@ -2108,7 +2108,7 @@ def add_group(request,classroom_id,task_id):
         task=models.EdTask.objects.filter(id=task_id).filter(status="ACTIVE").select_related('teacher')
 
         #query enrolment
-        enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id).select_related('member')
+        enrolment=models.EdEnrolment.objects.filter(course_id=classroom_id).filter(status="ACTIVE").select_related('member')
 
         group=models.EdGroup.objects.filter(task_id=task_id).filter(status="ACTIVE")
 
@@ -2904,7 +2904,7 @@ def check_owner_task(classroom_id,task_id):
         return 0
 
 def check_enrolment(course_id,member_id):
-    row1=len(models.EdEnrolment.objects.filter(course_id=course_id).filter(member_id=member_id))
+    row1=len(models.EdEnrolment.objects.filter(course_id=course_id).filter(status="ACTIVE").filter(member_id=member_id))
     if row1 == 0:
         return 1
     else:
