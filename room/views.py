@@ -211,7 +211,7 @@ def viewcourse(request):
         ed_level[i].ed_sublevel=ed_sublevel
         j=0
         for y in ed_sublevel:
-            course=models.EdCourse.objects.filter(catagory_id=y.id).filter(status='ACTIVE').select_related('teacher').order_by('-id')
+            course=models.EdCourse.objects.filter(catagory_id=y.id).filter(status='ACTIVE').select_related('teacher').order_by('-id')[:75]
             ed_sublevel[j].course=course
             j=j+1
         i=i+1
