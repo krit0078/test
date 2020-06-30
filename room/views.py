@@ -245,7 +245,7 @@ def dashboard(request):
             row=len(models.EdCourse.objects.filter(uid=uid).filter(status="ACTIVE"))
             if row>0:
                 course=models.EdCourse.objects.get(uid=uid)
-                row2=len(models.EdEnrolment.objects.filter(member_id=member.id).filter(course_id=course.id))
+                row2=len(models.EdEnrolment.objects.filter(member_id=member.id).filter(course_id=course.id).filter(status="ACTIVE"))
                 if row2>0:
                     data={
                     'status':-1
