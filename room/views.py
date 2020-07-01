@@ -22,6 +22,7 @@ def index(request):
 
 import secrets
 from django.core.mail import send_mail
+from django.contrib.gis.geoip2 import GeoIP2
 def login(request):
     if 'email' in request.session:
         return HttpResponseRedirect("/dashboard")
@@ -71,16 +72,25 @@ def login(request):
                 request.session['member_id']=member.id
                 request.session['type']=user_type.prefix
 
+                g = GeoIP2()
+                
+
 
                 from django_user_agents.utils import get_user_agent
                 user_agent = get_user_agent(request)
                 x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+                ip=""
                 if x_forwarded_for:
                     ip = x_forwarded_for.split(',')[0]
                 else:
                     ip = request.META.get('REMOTE_ADDR')
+        
+                try:
+                    location=g.city(ip)
+                except:
+                    location=None
                 
-                log=models.EdLog(ip=ip,device=user_agent.device,ed_member_id=member.id)
+                log=models.EdLog(ip=ip,device=user_agent.device,location=location,browser=user_agent.browser,os=user_agent.os,ed_member_id=member.id)
                 log.save()
                 
 
@@ -3289,6 +3299,7 @@ def update_user(request):
         member=member[:50]
         list=[]
         for i in member:
+
             list.append({'id':i.id,'email':i.email,'firstname':i.firstname,'lastname':i.lastname,'user_type':i.user_type.title,'status':i.status})
         data={
                 'status':1,

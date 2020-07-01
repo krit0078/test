@@ -157,6 +157,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_URL = '/uploads/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads/')
 
+GEOIP_PATH = os.path.join(BASE_DIR, 'city_db/GeoLite2-City.mmdb')
+
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True

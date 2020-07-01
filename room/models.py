@@ -384,6 +384,8 @@ class EdCoachFile(models.Model):
 class EdLog(models.Model):
     ip=models.CharField(max_length=50)
     device=models.CharField(max_length=200,null=True)
+    browser=models.CharField(max_length=200,null=True)
+    os=models.CharField(max_length=200,null=True)
     location=models.TextField(null=True)
     timestamp = models.DateTimeField(default=timezone.now)
     ed_member = models.ForeignKey(EdMember, models.DO_NOTHING)
