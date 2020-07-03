@@ -26,10 +26,10 @@
                     <h5 class="text-center">{{course.uid}}</h5>
                 </div>
                 <div class="col rounded shadow-sm border mb-2 p-3 d-none d-md-block bg-white">
-                    <h5 class="text-center">คำอธิบายรายวิชา</h5>
+                    <h5 class="text-center">ระดับห้องเรียน</h5>
                     <hr>
-                    <p>
-                        {{course.description | safe}}
+                    <p class="text-center" id="course_catagory">
+                        {{course.catagory.title | safe}}
                     </p>
                 </div>
                 <div class="col rounded shadow-sm border mb-2 p-3 d-none d-md-block bg-white">

@@ -136,6 +136,10 @@
                     this_form.find('.loading').slideUp();
                     this_form.find('.error-message').slideDown().html("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
                 }
+            },
+            error: function () {
+                this_form.find('.loading').slideUp();
+                this_form.find('.error-message').slideDown().html("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
             }
         });
 
