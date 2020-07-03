@@ -18,7 +18,7 @@ html{
 }
 
 body {
-  font-family: "kanit", sans-serif;
+  font-family: "Tahoma" ;
   color: #444444;
   overflow: auto;
   height: 100%;
@@ -37,7 +37,7 @@ a:hover {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: "kanit", sans-serif;
+  font-family: "Tahoma";
 }
 
 /*--------------------------------------------------------------
@@ -93,7 +93,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   letter-spacing: 3px;
   text-transform: uppercase;
-  font-family: "kanit", sans-serif;
+  font-family: "Tahoma";
 }
 
 #header a{
@@ -136,7 +136,7 @@ h1, h2, h3, h4, h5, h6 {
 
 #dashboard .logo h1{
   text-transform: uppercase;
-  font-family: "kanit", sans-serif;
+  font-family: "Tahoma";
 }
 
 #dashboard .nav-link{
@@ -257,7 +257,7 @@ nav-menu, .nav-menu * {
   padding: 10px 15px;
   transition: 0.3s;
   font-size: 16px;
-  font-family: "kanit", sans-serif;
+  font-family: "Tahoma" ;
 }
 
 .nav-menu a:hover, .nav-menu .active > a, .nav-menu li:hover > a {
@@ -509,7 +509,7 @@ nav-menu, .nav-menu * {
   font-weight: 700;
   line-height: 56px;
   color: #FF0066;
-  font-family: "kanit", sans-serif;
+  font-family: "Tahoma" ;
 }
 
 #hero h2 {
@@ -591,7 +591,7 @@ section {
   margin-bottom: 20px;
   padding-bottom: 20px;
   position: relative;
-  font-family: "kanit", sans-serif;
+  font-family: "Tahoma";
   color: #FF0066;
 }
 
@@ -1066,7 +1066,7 @@ section {
   font-size: 46px;
   color: #fdc134;
   font-weight: 400;
-  font-family: "kanit", sans-serif;
+  font-family: "Tahoma" ;
   margin-bottom: 25px;
 }
 
@@ -1115,7 +1115,7 @@ section {
   transition: none;
   font-size: 14px;
   font-weight: 400;
-  font-family: "kanit", sans-serif;
+  font-family: "Tahoma" ;
   transition: 0.3s;
 }
 
@@ -1181,7 +1181,7 @@ section {
   line-height: 26px;
   font-weight: 500;
   margin: 0 0 10px 28px;
-  font-family: "kanit", sans-serif;
+  font-family: "Tahoma" ;
 }
 
 .faq .faq-item p {
@@ -1389,7 +1389,7 @@ section {
   font-weight: 700;
   color: #fff;
   position: relative;
-  font-family: "Poppins", sans-serif;
+  font-family: "Poppins", ;
   padding-bottom: 0;
   margin-bottom: 0;
 }

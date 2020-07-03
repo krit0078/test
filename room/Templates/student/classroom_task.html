@@ -23,8 +23,7 @@
                             <img src="{{i.teacher.picture}}" class="rounded-circle" style="width: 50px; height:50px;">
                             {{i.teacher.firstname | truncatechars:55}} {{i.teacher.lastname | truncatechars:55}} <small
                                 class="text-muted">{{i.timestamp|date:'d b Y, H:i'}}</small>
-                            <a class="btn btn-info" style="position: absolute;right: 80px;top: 10px;"
-                                href="/classroom/{{course.id}}/task/{{i.id}}/main"><i class='bx bxs-arrow-to-right'></i>
+                            <a class="btn btn-info" style="position: absolute;right: 80px;top: 10px;" href="/classroom/{{course.id}}/task/{{i.id}}/main"><i class='bx bxs-arrow-to-right'></i>
                                 เข้าสู่ภารกิจ</a>
                         </div>
                         <div class="w-100"></div>
@@ -291,5 +290,28 @@
         });
 
     });
+
+    function post_path(classroom_id,task_id){
+        let href="/classroom/"+classroom_id+"/task/"+task_id+"/main";
+        let data=JSON.stringify({"catagory":1,'task':task_id});
+        let action="/api/path/classroom/"+classroom_id+"/id/"+task_id;
+        let method="POST";
+
+
+        $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    window.location.assign(href);
+                
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                   
+                }
+            });
+
+    }
 </script>
 {% endblock %}

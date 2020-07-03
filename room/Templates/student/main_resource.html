@@ -24,7 +24,7 @@
                     <div class="col-12">
                         <img src="{{i.teacher.picture}}" class="rounded-circle" style="width: 50px; height:50px;">
                         {{i.teacher.firstname | truncatechars:55}} {{i.teacher.lastname | truncatechars:55}} <small
-                            class="text-muted">{{i.timestamp|date:'d b Y, H:i'}}</small>                 
+                            class="text-muted">{{i.timestamp|date:'d b Y, H:i'}}</small>
                     </div>
                     <div class="w-100"></div>
                     {% if i.description %}
@@ -123,4 +123,35 @@
 </div>
 </div>
 <!-- </section> -->
+{% endblock %}
+
+{% block js %}
+
+<script>
+    $(document).ready(function(){
+        post_path();
+    });
+
+    function post_path(){
+        let href="/classroom/"+'{{course.id}}'+"/task/"+'{{task.0.id}}'+"/main";
+        let data=JSON.stringify({"catagory":3,'task':'{{task.0.id}}'});
+        let action="/api/path/classroom/"+'{{course.id}}'+"/id/"+'{{task.0.id}}';
+        let method="POST";
+
+
+        $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                   
+                }
+            });
+
+    }
+</script>
 {% endblock %}

@@ -89,11 +89,12 @@
                                 aria-expanded="false"><i class='bx bx-dots-vertical-rounded'></i>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <a class="dropdown-item" href="/classroom/{{course.id}}/task/{{task.0.id}}/group/{{view_group.id}}/colla/{{i.id}}/delete">ลบ</a>
+                                <a class="dropdown-item"
+                                    href="/classroom/{{course.id}}/task/{{task.0.id}}/group/{{view_group.id}}/colla/{{i.id}}/delete">ลบ</a>
                             </div>
                         </div>
                         {% endif %}
-                  
+
                     </div>
                     <div class="w-100"></div>
                     {% if i.description %}
@@ -180,7 +181,8 @@
                         </div>
                         {% endfor %}
                         <div class="comment mt-3">
-                            <form action="/classroom/{{course.id}}/task/{{task.0.id}}/group/{{view_group.id}}" method="POST" class="reply_form">
+                            <form action="/classroom/{{course.id}}/task/{{task.0.id}}/group/{{view_group.id}}"
+                                method="POST" class="reply_form">
                                 {% csrf_token %}
                                 <div class="row no-gutters form-group">
                                     <div class="col-2 text-right">
@@ -286,7 +288,7 @@
             let action = this_form.attr('action');
             let method = this_form.attr('method');
             let loading = this_form.find('.loading');
-            let content=this_form.find('.reply_div')
+            let content = this_form.find('.reply_div')
             loading.slideDown();
             let steam_div = $('#steam_div');
             data.push({ name: 'reply_div', value: content.html() });
@@ -300,9 +302,9 @@
                     loading.slideUp();
                     this_form.trigger('reset');
                     let d = data.data;
-                    if(data.status==1){
+                    if (data.status == 1) {
                         window.location.replace(action);
-                    }                    
+                    }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     loading.slideUp();
@@ -320,11 +322,11 @@
 
             const selection = window.getSelection();
             if (paste.match(expression)) {
-                let url=""
-                if(paste.search("http://")==-1 && paste.search("https://")==-1){
-                    url+="http://"+paste;
-                }else{
-                    url+=paste;
+                let url = ""
+                if (paste.search("http://") == -1 && paste.search("https://") == -1) {
+                    url += "http://" + paste;
+                } else {
+                    url += paste;
                 }
                 if (!selection.rangeCount) return false;
                 selection.deleteFromDocument;
@@ -333,16 +335,16 @@
                 a.text = paste;
                 a.target = "_blank";
                 selection.getRangeAt(0).insertNode(a);
-            } 
+            }
             else {
                 selection.getRangeAt(0).insertNode(document.createTextNode(paste));
             }
             selection.collapseToEnd();
             event.preventDefault();
-        }).keydown(function(e){
-            if(e.keyCode==13 && !e.shiftKey){
+        }).keydown(function (e) {
+            if (e.keyCode == 13 && !e.shiftKey) {
                 $(this).submit();
-                $(this).find('.reply_div').attr('contenteditable','disabled');
+                $(this).find('.reply_div').attr('contenteditable', 'disabled');
             }
         });
 
@@ -379,9 +381,33 @@
 
             return false;
         }).on('paste', function (e) {
-            let url=check_http(e);
+            let url = check_http(e);
         });
 
+        post_path();
+
     });
+
+    function post_path() {
+        let href = "/classroom/" + '{{course.id}}' + "/task/" + '{{task.0.id}}' + "/main";
+        let data = JSON.stringify({ "catagory": 8, 'task': '{{task.0.id}}' });
+        let action = "/api/path/classroom/" + '{{course.id}}' + "/id/" + '{{task.0.id}}';
+        let method = "POST";
+
+
+        $.ajax({
+            type: method,
+            url: action,
+            data: data,
+            dataType: 'json',
+            success: function (data) {
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+
+            }
+        });
+
+    }
 </script>
 {% endblock %}

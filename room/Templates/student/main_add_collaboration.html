@@ -105,6 +105,30 @@
             return false;
         });
 
+        post_path();
+
     });
+
+    function post_path(){
+        let href="/classroom/"+'{{course.id}}'+"/task/"+'{{task.0.id}}'+"/main";
+        let data=JSON.stringify({"catagory":8,'task':'{{task.0.id}}'});
+        let action="/api/path/classroom/"+'{{course.id}}'+"/id/"+'{{task.0.id}}';
+        let method="POST";
+
+
+        $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                   
+                }
+            });
+
+    }
 </script>
 {% endblock %}

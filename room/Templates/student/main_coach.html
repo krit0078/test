@@ -89,10 +89,10 @@
                         data-target="#coach{{i.id}}">
                         {% for j in i.coach_file %}
                         <img src="{{j.file_link}}" class="img-fluid mb-3">
-                        {% endfor %}                  
-                        <h6 class="text-center">อีเมลล์ : {{i.email}}</h6>                    
+                        {% endfor %}
+                        <h6 class="text-center">อีเมลล์ : {{i.email}}</h6>
                         <h5 class="text-center">ชื่อ : {{i.name}}</h5>
-                     
+
                     </div>
 
                     <!-- Modal -->
@@ -320,4 +320,35 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function(){
+        post_path()
+
+    });
+
+    function post_path(){
+        let href="/classroom/"+'{{course.id}}'+"/task/"+'{{task.0.id}}'+"/main";
+        let data=JSON.stringify({"catagory":9,'task':'{{task.0.id}}'});
+        let action="/api/path/classroom/"+'{{course.id}}'+"/id/"+'{{task.0.id}}';
+        let method="POST";
+
+
+        $.ajax({
+                type: method,
+                url: action,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                   
+                }
+            });
+
+    }
+</script>
 {% endblock %}

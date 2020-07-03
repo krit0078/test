@@ -27,3 +27,9 @@ class EdEnrolmentSerialiezer(serializers.ModelSerializer):
     class Meta:
         model = models.EdEnrolment
         fields = ('id','status')
+
+class EdPathSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.EdPath
+        fields = ('id','catagory','task','member','status','timestamp')

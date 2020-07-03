@@ -3601,4 +3601,34 @@ def api_enrolment(request,enrol_id):
         if serial.is_valid():
             serial.save()
             return JsonResponse(serial.data)
-        return JsonResponse({"asd":"ASD"})
+        return JsonResponse({"message":"Please enter valid value"}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST', 'PUT'])
+def api_path(request,classroom_id,task_id):
+
+    #check login
+    try:
+        member_id=request.session['member_id']
+    except:
+        return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN) 
+
+    #check enrolment
+    if check_enrolment(classroom_id,member_id):
+        return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN) 
+
+    if request.method=='POST':
+        data=JSONParser().parse(request)
+        data.update({"member":member_id})
+
+        print(data)
+
+        serial=serializers.EdPathSerializer(data=data)
+
+        if serial.is_valid():
+            serial.save()
+            return JsonResponse(serial.data)
+    return JsonResponse({"message":"Please enter valid value"}, status=status.HTTP_400_BAD_REQUEST)
+
+    
+
+    

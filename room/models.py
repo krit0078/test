@@ -393,3 +393,24 @@ class EdLog(models.Model):
     class Meta:
         managed = True
         db_table = 'ed_log'
+
+class EdPathType(models.Model):
+    prefix=models.CharField(max_length=95,blank=True,null=True)
+    title=models.CharField(max_length=95,blank=True,null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_path_type'
+
+class EdPath(models.Model):
+    catagory=models.ForeignKey(EdPathType,models.DO_NOTHING, blank=True, null=True,related_name='catagory')
+    task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
+    member = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
+    status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = True
+        db_table = 'ed_path'
+

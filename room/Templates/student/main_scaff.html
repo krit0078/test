@@ -20,7 +20,7 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <div class="rounded shadow-sm border p-3 bg-white cursor" data-toggle="modal"
-                        data-target="#concept">
+                        data-target="#concept" onclick="post_path(6)">
                         <img src="/static/assets/img/concept.png" class="img-fluid">
                         <h6 class="text-center">ฐานความช่วยเหลือ</h6>
                         <h5 class="text-center">ด้านความคิดรวบยอด</h5>
@@ -28,7 +28,7 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <div class="rounded shadow-sm border p-3 bg-white cursor" data-toggle="modal"
-                        data-target="#strategy">
+                        data-target="#strategy" onclick="post_path(7)">
                         <img src="/static/assets/img/strategy.png" class="img-fluid">
                         <h6 class="text-center">ฐานความช่วยเหลือ</h6>
                         <h5 class="text-center">ด้านกลยุทธ์</h5>
@@ -99,3 +99,33 @@
     </div>
 </div>
 {% endblock %}
+
+{% block js %}
+<script>
+
+    $(document).ready(function(){
+        post_path(5);
+    });
+    function post_path(catagory) {
+        let href = "/classroom/" + '{{course.id}}' + "/task/" + '{{task.0.id}}' + "/main";
+        let data = JSON.stringify({ "catagory": catagory, 'task': '{{task.0.id}}' });
+        let action = "/api/path/classroom/" + '{{course.id}}' + "/id/" + '{{task.0.id}}';
+        let method = "POST";
+
+
+        $.ajax({
+            type: method,
+            url: action,
+            data: data,
+            dataType: 'json',
+            success: function (data) {
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+
+            }
+        });
+
+    }
+</script>
+{% endblock  %}
