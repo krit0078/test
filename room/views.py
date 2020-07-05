@@ -3481,11 +3481,11 @@ def api_member_detail(request,command):
     
     if request.method == "GET":
         try:
-            admin=request.session['type']
+            u_type=request.session['type']
         except:
             return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)
 
-        if admin == 'ADMIN':
+        if u_type == 'ADMIN':
             if command == 'register':
                 total_member=models.EdMember.objects.annotate(month=TruncMonth('timestamp')).values('month').annotate(c=Count('id')).values('month', 'c')[:12]
                 dict={}
