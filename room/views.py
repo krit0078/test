@@ -3620,7 +3620,6 @@ def api_path(request,classroom_id,task_id):
         data=JSONParser().parse(request)
         data.update({"member":member_id})
 
-        print(data)
 
         serial=serializers.EdPathSerializer(data=data)
 
