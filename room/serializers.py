@@ -33,3 +33,12 @@ class EdPathSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.EdPath
         fields = ('id','catagory','task','member','status','timestamp')
+
+class EdSubTaskSerializer(serializers.ModelSerializer):
+    teacher_fname=serializers.CharField(source='teacher.firstname',read_only=True)
+    teacher_lname=serializers.CharField(source='teacher.lastname',read_only=True)
+
+
+    class Meta:
+        model = models.EdSubTask
+        fields = ('id','description','timestamp','status','teacher_fname','teacher_lname')

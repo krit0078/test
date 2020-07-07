@@ -3628,6 +3628,36 @@ def api_path(request,classroom_id,task_id):
             return JsonResponse(serial.data)
     return JsonResponse({"message":"Please enter valid value"}, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET', 'POST', 'PUT'])
+def api_sub_task(request,classroom_id,sub_task_id):
+    #check login
+    try:
+        member_id=request.session['member_id']
+    except:
+        return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN) 
+
+    #check owner
+    if check_owner(classroom_id,member_id):
+        return JsonResponse({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN) 
+
+    try: 
+        sub_task=models.EdSubTask.objects.get(id=sub_task_id)
+    except models.EdSubTask.DoesNotExist:
+        return JsonResponse({'message': 'The Sub_Task does not exist'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method=="GET":
+        serial=serializers.EdSubTaskSerializer(sub_task)
+        return JsonResponse(serial.data)
+
+    elif request.method=="PUT":
+        data=JSONParser().parse(request)
+        serial=serializers.EdSubTaskSerializer(sub_task,data=data)
+        if serial.is_valid():
+            serial.save()
+            return JsonResponse(serial.data)
+    
+    return JsonResponse({"message":"Please enter valid value"}, status=status.HTTP_400_BAD_REQUEST)
+
     
 
     

@@ -46,4 +46,5 @@ urlpatterns = [
     path('api/course/<int:classroom_id>',views.api_course),
     path('api/enrolment/<int:enrol_id>',views.api_enrolment),
     path('api/path/classroom/<int:classroom_id>/id/<int:task_id>',views.api_path),
+    path('api/subtask/classroom/<int:classroom_id>/sub_task/<int:sub_task_id>',views.api_sub_task),
 ]
