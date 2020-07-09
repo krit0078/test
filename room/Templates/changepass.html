@@ -4,10 +4,10 @@
 <section>
     <div class="container">
         <div class="row">
-            <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="col-md-6">
                 <img src="/static/assets/img/login-01.png" class="img-fluid">
             </div>
-            <div class="col-md-6 rounded p-3 shadow" data-aos="fade-up" data-aos-delay="200"
+            <div class="col-md-6 rounded p-3 shadow"
                 style="border:3px solid orange">
                 <div class="bg-white p-3 rounded" id="login">
                     <h4 class="text-center">เปลี่ยนรหัสผ่าน</h4>
@@ -92,7 +92,7 @@
 
                 } else {
                     this_form.find('.loading').slideUp();
-                    this_form.find('.error-message').slideDown().html("toke หมดอายุ");
+                    this_form.find('.error-message').slideDown().html("token หมดอายุ");
                 }
             },
             error:function(){

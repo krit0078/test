@@ -188,11 +188,13 @@
                 success: function (data) {
                     if (data.status == 1) {
                         this_input.attr('disabled', false);
+                    }else{
+                        alert("ไม่สามารถบันทึกคะแนนได้");
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     this_input.attr('disabled', false);
-                    errorFunction();
+                    alert("ไม่สามารถบันทึกคะแนนได้"+textStatus);
                 }
             });
 

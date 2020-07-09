@@ -118,32 +118,32 @@ from django.utils import timezone
 
 def changepass(request,token):
 
-    # if request.method == 'POST':
-    #     password=request.POST.get('password')
-    #     changepass=len(models.EdChangePass.objects.filter(token=token).filter(status="ACTIVE"))
+    if request.method == 'POST':
+        password=request.POST.get('password')
+        changepass=len(models.EdChangePass.objects.filter(token=token).filter(status="ACTIVE"))
 
-    #     status=0
-    #     if changepass > 0 :
-    #         changepass=models.EdChangePass.objects.get(token=token)
+        status=0
+        if changepass > 0 :
+            changepass=models.EdChangePass.objects.get(token=token)
 
-    #         dt=changepass.timestamp
-    #         b=timezone.now()
-    #         dt=b-dt
-    #         if dt.days<15:
-    #             member=models.EdMember.objects.get(id=changepass.member_id)
-    #             password=hashlib.md5(password.encode("utf-8")).hexdigest()
-    #             member.password=password
-    #             member.save()
+            dt=changepass.timestamp
+            b=timezone.now()
+            dt=b-dt
+            if dt.days<15:
+                member=models.EdMember.objects.get(id=changepass.member_id)
+                password=hashlib.md5(password.encode("utf-8")).hexdigest()
+                member.password=password
+                member.save()
 
-    #         changepass.status="DELETE"
-    #         changepass.save()
-    #         status=1
+            changepass.status="DELETE"
+            changepass.save()
+            status=1
           
 
-    #     data={
-    #         'status':status
-    #     }
-    #     return JsonResponse(data)
+        data={
+            'status':status
+        }
+        return JsonResponse(data)
  
     context={
         'title':'เปลี่ยนรหัสผ่าน',
@@ -1589,6 +1589,11 @@ def main_score(request,classroom_id,task_id):
 
             data={
                 'status':1
+            }
+            return JsonResponse(data)
+        else:
+            data={
+                'status':0
             }
             return JsonResponse(data)
 
