@@ -16,6 +16,11 @@ class EdLevelSerializer(serializers.ModelSerializer):
         model = models.EdLevel
         fields = ('id','prefix','title')
 
+class EdSubLevelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.EdLevel
+        fields = ('id','prefix','title')
+
 class EdCourseSerializer(serializers.ModelSerializer):
     catagory_name = serializers.CharField(source='catagory.title', read_only=True)
 
@@ -38,7 +43,11 @@ class EdSubTaskSerializer(serializers.ModelSerializer):
     teacher_fname=serializers.CharField(source='teacher.firstname',read_only=True)
     teacher_lname=serializers.CharField(source='teacher.lastname',read_only=True)
 
-
     class Meta:
         model = models.EdSubTask
         fields = ('id','description','timestamp','status','teacher_fname','teacher_lname')
+
+class EdUserTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.EdUserType
+        fields = ('id','prefix','title')

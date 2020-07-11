@@ -1591,11 +1591,6 @@ def main_score(request,classroom_id,task_id):
                 'status':1
             }
             return JsonResponse(data)
-        else:
-            data={
-                'status':0
-            }
-            return JsonResponse(data)
 
         #query course
         course=models.EdCourse.objects.get(id=classroom_id)
@@ -3661,6 +3656,26 @@ def api_sub_task(request,classroom_id,sub_task_id):
             serial.save()
             return JsonResponse(serial.data)
     
+    return JsonResponse({"message":"Please enter valid value"}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST', 'PUT'])
+def api_user_type(request):
+    if request.method == "GET":
+        user_type=models.EdUserType.objects.all().exclude(id=3)
+        serial_level=serializers.EdUserTypeSerializer(user_type,many=True)
+        return JsonResponse(serial_level.data,safe=False)
+
+    return JsonResponse({"message":"Please enter valid value"}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST', 'PUT'])
+def api_sub_level(request,edlevel):
+    if request.method == "GET":
+        if edlevel!=0:
+            sub_level=models.EdSubLevel.objects.filter(ed_level=edlevel)
+            serial_level=serializers.EdSubLevelSerializer(sub_level,many=True)
+            return JsonResponse(serial_level.data,safe=False)
+        else:
+            return JsonResponse({"message":"Please enter edlevel"}, status=status.HTTP_400_BAD_REQUEST)
     return JsonResponse({"message":"Please enter valid value"}, status=status.HTTP_400_BAD_REQUEST)
 
     
