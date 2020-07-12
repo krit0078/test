@@ -3329,68 +3329,68 @@ import urllib.parse
 
 def fetch_og(request):
     
-    url_req=request.GET.get('url')
-    target=request.GET.get('target')
+    # url_req=request.GET.get('url')
+    # target=request.GET.get('target')
 
-    page = urllib.request.urlopen(url_req).read()
-    html = BeautifulSoup(page)
-    title = html.find("meta",  property="og:title")
-    description = html.find("meta",  property="og:description")
-    url = html.find("meta",  property="og:url")
-    image = html.find("meta",  property="og:image")
+    # page = urllib.request.urlopen(url_req).read()
+    # html = BeautifulSoup(page)
+    # title = html.find("meta",  property="og:title")
+    # description = html.find("meta",  property="og:description")
+    # url = html.find("meta",  property="og:url")
+    # image = html.find("meta",  property="og:image")
 
-    og=[]
+    # og=[]
 
-    if target == 'task':
-        og = models.EdTaskOpengraph(title='', description='', url='', image='',task_id="")
-        og.save()
-
-        og = models.EdTaskOpengraph.objects.latest('id')
-    elif target == 'resource':
-        og = models.EdResourceOpengraph(title='', description='', url='', image='',resource_id='')
-        og.save()
-
-        og = models.EdResourceOpengraph.objects.latest('id')
-    # elif target == 'social':
-    #     og = models.EdSocialOpengraph(title='', description='', url='', image='',social_id='')
+    # if target == 'task':
+    #     og = models.EdTaskOpengraph(title='', description='', url='', image='',task_id="")
     #     og.save()
 
-    #     og = models.EdSocialOpengraph.objects.latest('id')
-    elif target == 'turnedin':
-        og = models.EdTurnedinOpengraph(title='', description='', url='', image='',turnedin_id='')
-        og.save()
+    #     og = models.EdTaskOpengraph.objects.latest('id')
+    # elif target == 'resource':
+    #     og = models.EdResourceOpengraph(title='', description='', url='', image='',resource_id='')
+    #     og.save()
 
-        og = models.EdTurnedinOpengraph.objects.latest('id')
+    #     og = models.EdResourceOpengraph.objects.latest('id')
+    # # elif target == 'social':
+    # #     og = models.EdSocialOpengraph(title='', description='', url='', image='',social_id='')
+    # #     og.save()
 
-    if title is None:
-        title=html.find("title")
-        og.title = title
-    else:
-        og.title = title['content']
-        og.save()
-    if description is None:
-        og.description = ""
-    else:
-        og.description = description['content']
-        og.save()
-    if image is None:
-        og.image = ""
-    else:
-        if 'http' not in image['content']:
-            if url_req.endswith('/'):
-                url_req=url_req[0:-1]
-            image['content']=url_req+image['content']
-        og.image = image['content']
-        og.save()
-    if url is None:
-        og.url = url_req
-    else:
-        og.url = url['content']
-        og.save()
+    # #     og = models.EdSocialOpengraph.objects.latest('id')
+    # elif target == 'turnedin':
+    #     og = models.EdTurnedinOpengraph(title='', description='', url='', image='',turnedin_id='')
+    #     og.save()
+
+    #     og = models.EdTurnedinOpengraph.objects.latest('id')
+
+    # if title is None:
+    #     title=html.find("title")
+    #     og.title = title
+    # else:
+    #     og.title = title['content']
+    #     og.save()
+    # if description is None:
+    #     og.description = ""
+    # else:
+    #     og.description = description['content']
+    #     og.save()
+    # if image is None:
+    #     og.image = ""
+    # else:
+    #     if 'http' not in image['content']:
+    #         if url_req.endswith('/'):
+    #             url_req=url_req[0:-1]
+    #         image['content']=url_req+image['content']
+    #     og.image = image['content']
+    #     og.save()
+    # if url is None:
+    #     og.url = url_req
+    # else:
+    #     og.url = url['content']
+    #     og.save()
 
     data={
         'status':1,
-        'og':{'id':og.id,'title':og.title,'image':og.image,'url':og.url,'description':og.description}
+        # 'og':{'id':og.id,'title':og.title,'image':og.image,'url':og.url,'description':og.description}
     }
     return JsonResponse(data)
 
