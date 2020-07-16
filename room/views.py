@@ -32,11 +32,11 @@ def login(request):
         target = request.POST.get('target')
 
         if target == "forget":
-            member=models.EdMember.objects.get(email=email)
+            member=models.EdMember.objects.filter(email=email).filter(status="ACTIVE")
             if member:
                 link = secrets.token_urlsafe()
 
-                changepass=models.EdChangePass(member_id=member.id,token=link)
+                changepass=models.EdChangePass(member_id=member[0].id,token=link)
                 changepass.save()
 
                 link = "http://"+request.get_host()+"/changepass/"+link
@@ -179,7 +179,8 @@ def register(request):
         row=len(models.EdMember.objects.filter(email=email).filter(status="ACTIVE"))
 
         if len(user_type) == 0 or len(edlevel) == 0 or len(ed_sublevel)== 0 or row >=1:
-            status=0
+            data={'status':0}
+            return JsonResponse(data)
         else:
             if user_type == '3':
                 data={'status':0}
