@@ -33,7 +33,7 @@ class EdMember(models.Model):
     lastname = models.CharField(max_length=100,blank=True,null=True)
     email = models.CharField(max_length=225)
     picture = models.CharField(max_length=512,default='/uploads/0/img/user.png', blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     user_type=models.ForeignKey(EdUserType, models.DO_NOTHING,blank=True,null=True, related_name='user_type')
     catagory=models.ForeignKey(EdSubLevel,models.DO_NOTHING,blank=True,null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
@@ -43,7 +43,7 @@ class EdMember(models.Model):
         db_table = 'ed_member'
 
 class EdChangePass(models.Model):
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     token=models.CharField(max_length=512,db_index=True)
     member = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
@@ -60,14 +60,14 @@ class EdCourse(models.Model):
     cover_pic = models.TextField(blank=True, null=True, default='/uploads/0/cover/cover1.png')
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     uid = models.CharField(max_length=45, blank=True, null=True,unique=True)  # Field name made lowercase.
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
 
     class Meta:
         managed = True
         db_table = 'ed_course'
 
 class EdEnrolment(models.Model):
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     course = models.ForeignKey(EdCourse, models.DO_NOTHING)
     member = models.ForeignKey(EdMember, models.DO_NOTHING,related_name='member')
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
@@ -77,7 +77,7 @@ class EdEnrolment(models.Model):
         db_table = 'ed_enrolment'
 
 class EdCoTeacher(models.Model):
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     course = models.ForeignKey(EdCourse, models.DO_NOTHING)
     member = models.ForeignKey(EdMember, models.DO_NOTHING)
     status = models.CharField(max_length=45,default='PENDING', blank=True, null=True)
@@ -88,7 +88,7 @@ class EdCoTeacher(models.Model):
 
 class EdPost(models.Model):
     description = models.TextField(blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     member = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
     course = models.ForeignKey(EdCourse, models.DO_NOTHING,blank=True, null=True,related_name="course")
@@ -102,7 +102,7 @@ class EdPostFile(models.Model):
     file_link=models.TextField(blank=True, null=True)
     file_type=models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     post=models.ForeignKey(EdPost, models.DO_NOTHING, blank=True, null=True,related_name='post')
 
     class Meta:
@@ -113,7 +113,7 @@ class EdReply(models.Model):
     description = models.TextField(blank=True, null=True)
     member = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     post=models.ForeignKey(EdPost, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
@@ -124,7 +124,7 @@ class EdTask(models.Model):
     description = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     course = models.ForeignKey(EdCourse, models.DO_NOTHING,blank=True, null=True)
 
     class Meta:
@@ -136,7 +136,7 @@ class EdTaskFile(models.Model):
     file_link=models.TextField(blank=True, null=True)
     file_type=models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True,related_name='task')
 
     class Meta:
@@ -158,7 +158,7 @@ class EdSubTask(models.Model):
     description = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
 
 
@@ -171,7 +171,7 @@ class EdSubTaskFile(models.Model):
     file_link=models.TextField(blank=True, null=True)
     file_type=models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     sub_task=models.ForeignKey(EdSubTask, models.DO_NOTHING, blank=True, null=True,related_name="sub_task")
 
     class Meta:
@@ -183,7 +183,7 @@ class EdTurnedIn(models.Model):
     score = models.IntegerField(blank=True, default=0)
     status = models.CharField(max_length=45,default='TURNEDIN', blank=True, null=True)
     member = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
@@ -192,7 +192,7 @@ class EdTurnedIn(models.Model):
 
 class EdGroup(models.Model):
     title = models.CharField(max_length=512, blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
 
@@ -201,7 +201,7 @@ class EdGroup(models.Model):
         db_table = 'ed_group'
 
 class EdGroupMember(models.Model):
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     group = models.ForeignKey(EdGroup,models.DO_NOTHING)
     member = models.ForeignKey(EdMember, models.DO_NOTHING)
 
@@ -214,7 +214,7 @@ class EdTurnedinFile(models.Model):
     file_link=models.TextField(blank=True, null=True)
     file_type=models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     turnedin=models.ForeignKey(EdTurnedIn, models.DO_NOTHING, blank=True, null=True,related_name='turnedin')
 
     class Meta:
@@ -239,7 +239,7 @@ class EdLive(models.Model):
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
     course = models.ForeignKey(EdCourse, models.DO_NOTHING,blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
 
     class Meta:
         managed = True
@@ -249,7 +249,7 @@ class EdResource(models.Model):
     description = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
@@ -261,7 +261,7 @@ class EdResourceFile(models.Model):
     file_link=models.TextField(blank=True, null=True)
     file_type=models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     resource=models.ForeignKey(EdResource, models.DO_NOTHING, blank=True, null=True,related_name='resource')
 
     class Meta:
@@ -283,7 +283,7 @@ class EdColla(models.Model):
     description = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     member = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
     group=models.ForeignKey(EdGroup, models.DO_NOTHING, blank=True, null=True)
 
@@ -296,7 +296,7 @@ class EdCollaFile(models.Model):
     file_link=models.TextField(blank=True, null=True)
     file_type=models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     colla=models.ForeignKey(EdColla, models.DO_NOTHING, blank=True, null=True,related_name='colla')
 
     class Meta:
@@ -318,7 +318,7 @@ class EdCollaReply(models.Model):
     description = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     member = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     colla=models.ForeignKey(EdColla, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
@@ -337,7 +337,7 @@ class EdScaffolding(models.Model):
     description = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
     scaff_type=models.ForeignKey(EdScaffoldingType, models.DO_NOTHING, blank=True, null=True,related_name='scaff_type')
 
@@ -350,7 +350,7 @@ class EdScaffoldingFile(models.Model):
     file_link=models.TextField(blank=True, null=True)
     file_type=models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     scaffolding=models.ForeignKey(EdScaffolding, models.DO_NOTHING, blank=True, null=True,related_name='scaffolding')
 
     class Meta:
@@ -362,7 +362,7 @@ class EdCoach(models.Model):
     email=models.CharField(max_length=250,null=True,blank=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
     teacher = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
@@ -374,7 +374,7 @@ class EdCoachFile(models.Model):
     file_link=models.TextField(blank=True, null=True)
     file_type=models.TextField(blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     coach=models.ForeignKey(EdCoach, models.DO_NOTHING, blank=True, null=True,related_name='coach')
 
     class Meta:
@@ -387,7 +387,7 @@ class EdLog(models.Model):
     browser=models.CharField(max_length=200,null=True)
     os=models.CharField(max_length=200,null=True)
     location=models.TextField(null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
     ed_member = models.ForeignKey(EdMember, models.DO_NOTHING)
 
     class Meta:
@@ -408,7 +408,7 @@ class EdPath(models.Model):
     task=models.ForeignKey(EdTask, models.DO_NOTHING, blank=True, null=True)
     member = models.ForeignKey(EdMember, models.DO_NOTHING, blank=True, null=True)
     status = models.CharField(max_length=45,default='ACTIVE', blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now=True)
 
     class Meta:
         managed = True
